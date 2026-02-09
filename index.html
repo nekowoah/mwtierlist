@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Warriors Reborn Tierlist</title>
+    <title>MWR Tierlist</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -18,23 +18,17 @@
         .bg-tier-f { background-color: #6b7280; color: white; }
         .bg-tier-unranked { background-color: #374151; color: white; border-color: #4b5563; }
 
-        /* Modern Fancy Borders */
-        .style-vip { 
-            border: 2px solid #fbbf24;
-            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5), inset 0 0 15px rgba(251, 191, 36, 0.3), 0 0 2px #fff;
-            position: relative;
+        /* Top Border Types with Glow */
+        .border-t-vip { 
+            border-top: 4px solid #fbbf24;
+            box-shadow: 0 -2px 8px rgba(251, 191, 36, 0.6);
         }
-        .style-limited { 
-            border: 2px solid #f472b6;
-            box-shadow: 0 0 10px rgba(244, 114, 182, 0.5), inset 0 0 15px rgba(244, 114, 182, 0.3), 0 0 2px #fff;
-            position: relative;
+        .border-t-limited { 
+            border-top: 4px solid #f472b6;
+            box-shadow: 0 -2px 8px rgba(244, 114, 182, 0.6);
         }
-        .style-normal { border: 1px solid #4b5563; }
-
-        .style-vip::after, .style-limited::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            border-radius: inherit; pointer-events: none; z-index: 25;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+        .border-t-normal {
+            border-top: 0px solid transparent;
         }
 
         .hero-portrait { transition: transform 0.2s, box-shadow 0.2s; }
@@ -96,18 +90,18 @@
                 </div>
                 
                 <div class="flex flex-wrap gap-4 text-xs text-gray-400 select-none bg-gray-900/50 px-4 py-2 rounded border border-gray-700">
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 border-2 border-yellow-400 shadow-[0_0_5px_rgba(250,204,21,0.4)] rounded-sm"></span> VIP</div>
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 border-2 border-pink-400 shadow-[0_0_5px_rgba(244,114,182,0.4)] rounded-sm"></span> Limited</div>
+                    <div class="flex items-center gap-2"><span class="w-4 h-1 bg-yellow-400 shadow-[0_-2px_6px_rgba(250,204,21,0.6)] rounded-sm"></span> VIP</div>
+                    <div class="flex items-center gap-2"><span class="w-4 h-1 bg-pink-400 shadow-[0_-2px_6px_rgba(244,114,182,0.6)] rounded-sm"></span> Limited</div>
                     <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full shadow-sm"></span> Updated</div>
                     <div class="flex items-center gap-1.5"><span class="text-green-400 font-bold text-sm">+</span><span class="text-red-400 font-bold text-sm">-</span> Sub-rank</div>
                 </div>
             </div>
 
-            <div class="flex flex-wrap gap-2 pt-1">
-                <button onclick="app.setFilter('All')" id="filter-All" class="class-btn-active border rounded px-4 py-1.5 text-xs font-bold transition-all flex items-center gap-2 uppercase tracking-wide">
+            <div class="flex flex-wrap gap-1 pt-1">
+                <button onclick="app.setFilter('All')" id="filter-All" class="class-btn-active border rounded px-2 py-1 text-xs font-bold transition-all flex items-center gap-1 uppercase tracking-wide">
                     <i class="fa-solid fa-layer-group text-sm"></i> All
                 </button>
-                <div id="classButtons" class="flex flex-wrap gap-2"></div>
+                <div id="classButtons" class="flex flex-wrap gap-1"></div>
             </div>
         </div>
     </div>
@@ -233,8 +227,8 @@
                 const container = document.getElementById('classButtons');
                 container.innerHTML = Object.keys(CLASS_ICONS).map(cls => `
                     <button onclick="app.setFilter('${cls}')" id="filter-${cls.replace(/\s+/g, '-')}" 
-                        class="class-btn-inactive border rounded px-3 py-1.5 text-xs font-bold transition-all flex items-center gap-2 text-gray-300 hover:text-white">
-                        <img src="${CLASS_ICONS[cls]}" class="w-5 h-5 rounded-full object-cover">
+                        class="class-btn-inactive border rounded px-2 py-1 text-xs font-bold transition-all flex items-center gap-1 text-gray-300 hover:text-white">
+                        <img src="${CLASS_ICONS[cls]}" class="w-4 h-4 rounded-full object-cover">
                         <span class="hidden sm:inline">${cls}</span>
                     </button>
                 `).join('');
@@ -342,42 +336,47 @@
                         if (subGroups[subKey].length > 0) {
                             if (hasPrevContent) {
                                 const divider = document.createElement('div');
-                                divider.className = 'h-px bg-gray-700/40 mx-4';
+                                divider.className = 'h-px bg-gray-700/50 mx-4';
                                 contentDiv.appendChild(divider);
                             }
 
                             const groupContainer = document.createElement('div');
-                            groupContainer.className = 'flex flex-wrap gap-3 p-3';
+                            groupContainer.className = 'flex flex-wrap gap-4 p-3';
 
                             subGroups[subKey].forEach(h => {
                                 const heroEl = document.createElement('div');
-                                let styleClass = 'style-normal';
-                                if (h.heroType === 'VIP') styleClass = 'style-vip';
-                                if (h.heroType === 'Limited') styleClass = 'style-limited';
+                                
+                                // Revised Top Border Style
+                                let topBorderClass = 'border-t-normal';
+                                if (h.heroType === 'VIP') topBorderClass = 'border-t-vip';
+                                if (h.heroType === 'Limited') topBorderClass = 'border-t-limited';
 
-                                heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-28 bg-gray-700 cursor-pointer rounded-lg overflow-hidden ${styleClass} group transition-all`;
+                                // Revised Dimensions: Shorter, Wider, Smaller overall
+                                heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded overflow-hidden ${topBorderClass} group transition-all`;
                                 heroEl.onclick = () => openModal(h);
                                 
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
-                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-6 h-6 bg-black/60 rounded-full p-0.5 border border-white/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain"></div>`;
+                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-black/60 rounded-full p-0.5 border border-white/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain"></div>`;
 
                                 let dotHtml = '';
                                 if (h.lastUpdate) {
                                     const diffHours = Math.ceil(Math.abs(new Date() - new Date(h.lastUpdate)) / (36e5)); 
-                                    if (diffHours < 72) dotHtml = '<div class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white/20 z-20 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse"></div>';
+                                    if (diffHours < 72) dotHtml = '<div class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white/20 z-20 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse"></div>';
                                 }
 
                                 const { sub } = parseRank(h[currentMode]);
                                 let subColor = 'text-white';
                                 if (sub === '+') subColor = 'text-green-400';
                                 if (sub === '-') subColor = 'text-red-400';
-                                const subRankHtml = sub ? `<div class="absolute bottom-6 right-1 z-20 text-xl font-black ${subColor} drop-shadow-[0_2px_2px_rgba(0,0,0,1)] filter drop-shadow-md">${sub}</div>` : '';
+                                
+                                // Added background behind sub rank
+                                const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-black/70 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
 
                                 heroEl.innerHTML = `
                                     ${classIconHtml}${dotHtml}${subRankHtml}
-                                    <img src="${h.image}" onerror="this.src='https://placehold.co/100/000000/FFFFFF?text=?'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent pt-4 pb-1 px-1 flex flex-col justify-end min-h-[40px]">
-                                        <div class="text-[8px] sm:text-[10px] text-center text-gray-100 leading-tight font-medium break-words drop-shadow-md">${h.name}</div>
+                                    <img src="${h.image}" onerror="this.src='https://placehold.co/100/000000/FFFFFF?text=?'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent pt-3 pb-0.5 px-1 flex flex-col justify-end">
+                                        <div class="text-[9px] sm:text-[10px] text-center text-gray-100 leading-none font-bold break-words drop-shadow-md pb-0.5">${h.name}</div>
                                     </div>
                                 `;
                                 groupContainer.appendChild(heroEl);
@@ -425,14 +424,7 @@
                         let logs = await res.json();
                         
                         if (!Array.isArray(logs)) {
-                            if (typeof logs === 'object' && logs !== null && Object.keys(logs).length === 0) {
-                                console.warn("Received empty object for logs. Treating as empty array.");
-                                logs = [];
-                            } else {
-                                console.error("Received non-array logs:", logs);
-                                if (logs && logs.error) throw new Error(logs.error);
-                                throw new Error("Invalid log data received from server. (Check Code.gs logic)");
-                            }
+                            logs = [];
                         }
 
                         if (logs.length === 0) {
@@ -452,12 +444,12 @@
 
                         content.innerHTML = Object.keys(grouped).map(date => `
                             <div class="mb-6">
-                                <h4 class="text-indigo-400 font-bold text-sm mb-2 border-b border-gray-700 pb-1 sticky top-0 bg-gray-800">${date}</h4>
+                                <h4 class="text-indigo-400 font-bold text-sm mb-2 border-b border-gray-700 pb-1">${date}</h4>
                                 <div class="space-y-2">
                                     ${grouped[date].map(l => `
                                         <div class="bg-gray-700/30 p-2 rounded text-xs flex gap-2">
                                             <span class="font-bold w-16 ${l.action==='CREATE'?'text-green-400':l.action==='DELETE'?'text-red-400':'text-blue-400'}">${l.action}</span>
-                                            <span class="text-gray-300 break-words flex-1">${l.details}</span>
+                                            <span class="text-gray-300 break-words flex-1 whitespace-pre-wrap">${l.details}</span>
                                         </div>
                                     `).join('')}
                                 </div>
