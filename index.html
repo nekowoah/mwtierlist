@@ -21,15 +21,20 @@
 
         /* Top Border Types with Glow */
         .border-t-vip { 
-            border-top: 4px solid #fbbf24;
+            border-top: 2px solid #fbbf24;
             box-shadow: 0 -2px 8px rgba(251, 191, 36, 0.6);
         }
         .border-t-limited { 
-            border-top: 4px solid #f472b6;
+            border-top: 2px solid #c90dde;
             box-shadow: 0 -2px 8px rgba(244, 114, 182, 0.6);
         }
+        .border-t-basic {
+            border-top: 2px solid #22c55e;
+            box-shadow: 0 -2px 8px rgba(34, 197, 94, 0.6);
+        }
         .border-t-normal {
-            border-top: 0px solid transparent;
+            border-top: 2px solid #575e63;
+            box-shadow: none;
         }
 
         .hero-portrait { transition: transform 0.2s, box-shadow 0.2s; }
@@ -41,6 +46,12 @@
         .class-btn-active { border-color: #eab308; background-color: rgba(234, 179, 8, 0.2); color: #eab308; }
         .class-btn-inactive { border-color: #4b5563; opacity: 0.7; }
         .class-btn-inactive:hover { opacity: 1; border-color: #9ca3af; }
+
+        /* Custom Checkbox Style */
+        .custom-checkbox:checked {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col">
@@ -81,7 +92,7 @@
     </nav>
 
     <!-- Info & Filter Section -->
-    <div class="bg-gray-800/80 border-b border-gray-700 backdrop-blur-sm">
+    <div class="bg-gray-800/80 border-b border-gray-700 backdrop-blur-sm relative z-30">
         <div class="max-w-7xl mx-auto px-4 py-4 space-y-4">
             
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -92,17 +103,43 @@
                 
                 <div class="flex flex-wrap gap-4 text-xs text-gray-400 select-none bg-gray-900/50 px-4 py-2 rounded border border-gray-700">
                     <div class="flex items-center gap-2"><span class="w-4 h-1 bg-yellow-400 shadow-[0_-2px_6px_rgba(250,204,21,0.6)] rounded-sm"></span> VIP</div>
-                    <div class="flex items-center gap-2"><span class="w-4 h-1 bg-pink-400 shadow-[0_-2px_6px_rgba(244,114,182,0.6)] rounded-sm"></span> Limited</div>
+                    <div class="flex items-center gap-2"><span class="w-4 h-1 bg-purple-400 shadow-[0_-2px_6px_rgba(244,114,182,0.6)] rounded-sm"></span> Limited</div>
+                    <div class="flex items-center gap-2"><span class="w-4 h-1 bg-green-500 shadow-[0_-2px_6px_rgba(34,197,94,0.6)] rounded-sm"></span> Basic Limited</div>
                     <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full shadow-sm"></span> Updated</div>
                     <div class="flex items-center gap-1.5"><span class="text-green-400 font-bold text-sm">+</span><span class="text-red-400 font-bold text-sm">-</span> Sub-rank</div>
                 </div>
             </div>
 
-            <div class="flex flex-wrap gap-1 pt-1">
-                <button onclick="app.setFilter('All')" id="filter-All" class="class-btn-active border rounded px-2 py-1 text-xs font-bold transition-all flex items-center gap-1 uppercase tracking-wide">
-                    <i class="fa-solid fa-layer-group text-sm"></i> All
-                </button>
+            <div class="flex flex-wrap gap-2 pt-1 items-center">
+                <!-- Class Filters -->
                 <div id="classButtons" class="flex flex-wrap gap-1"></div>
+
+                <div class="h-6 w-px bg-gray-700 mx-1"></div>
+
+                <!-- Type Filter Dropdown -->
+                <div class="relative z-50">
+                    <button onclick="app.toggleTypeMenu()" id="typeFilterBtn" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded px-3 py-1 text-xs font-bold transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-filter"></i>
+                    </button>
+                    <div id="typeMenu" class="hidden absolute top-full right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 flex flex-col gap-1">
+                        <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
+                            <input type="checkbox" checked onchange="app.toggleType('VIP')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
+                            <span class="text-yellow-400 font-bold">VIP</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
+                            <input type="checkbox" checked onchange="app.toggleType('Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
+                            <span class="text-purple-400 font-bold">Limited</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
+                            <input type="checkbox" checked onchange="app.toggleType('Basic Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
+                            <span class="text-green-400 font-bold">Basic Limited</span>
+                        </label>
+                        <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
+                            <input type="checkbox" checked onchange="app.toggleType('Normal')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
+                            <span class="text-gray-400 font-bold">Normal</span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -187,14 +224,14 @@
             const BASE_RANKS = ["SSS", "SS", "S", "A", "B", "C", "D", "F", "Unranked"];
             
             const CLASS_ICONS = {
-                "Mage": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army8_Icon.png&w=32&q=75",
-                "Archer": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army5_Icon.png&w=32&q=75",
-                "Shield Guard": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army2_Icon.png&w=32&q=75",
-                "Swordman": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army1_Icon.png&w=32&q=75",
-                "Spearman": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army3_Icon.png&w=32&q=75",
-                "Cavalry": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army4_Icon.png&w=32&q=75",
-                "Pegasus Knight": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army7_Icon.png&w=32&q=75",
-                "Priest": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army9_Icon.png&w=32&q=75"
+                "Mage": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/mage_icon.webp",
+                "Archer": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/archer_icon.webp",
+                "Shield Guard": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/shield_icon.webp",
+                "Swordman": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/swordman_icon.webp",
+                "Spearman": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/spearman_icon.webp",
+                "Cavalry": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/cavalry_icon.webp",
+                "Pegasus Knight": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/pegasus_icon.webp",
+                "Priest": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/priest_icon.webp"
             };
 
             const TIER_INFO = {
@@ -206,10 +243,21 @@
             let heroes = [];
             let currentMode = 'late';
             let currentFilter = 'All';
+            let activeTypeFilters = new Set(['VIP', 'Limited', 'Basic Limited', 'Normal']);
 
             const init = async () => {
                 renderClassButtons();
                 updateInfo();
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    const btn = document.getElementById('typeFilterBtn');
+                    const menu = document.getElementById('typeMenu');
+                    if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+                        menu.classList.add('hidden');
+                    }
+                });
+
                 try {
                     const res = await fetch(API_URL);
                     heroes = await res.json();
@@ -224,15 +272,34 @@
                 }
             };
 
+            const toggleTypeMenu = () => {
+                document.getElementById('typeMenu').classList.toggle('hidden');
+            };
+
+            const toggleType = (type) => {
+                if (activeTypeFilters.has(type)) {
+                    activeTypeFilters.delete(type);
+                } else {
+                    activeTypeFilters.add(type);
+                }
+                render();
+            };
+
             const renderClassButtons = () => {
                 const container = document.getElementById('classButtons');
-                container.innerHTML = Object.keys(CLASS_ICONS).map(cls => `
+                container.innerHTML = Object.keys(CLASS_ICONS).map(cls => {
+                    // Check if this class is the active filter
+                    const isActive = currentFilter === cls;
+                    const btnClass = isActive ? 'class-btn-active' : 'class-btn-inactive';
+                    const iconStyle = isActive ? '' : 'opacity-70';
+                    
+                    return `
                     <button onclick="app.setFilter('${cls}')" id="filter-${cls.replace(/\s+/g, '-')}" 
-                        class="class-btn-inactive border rounded px-2 py-1 text-xs font-bold transition-all flex items-center gap-1 text-gray-300 hover:text-white">
-                        <img src="${CLASS_ICONS[cls]}" class="w-4 h-4 rounded-full object-cover">
+                        class="${btnClass} border rounded px-2 py-1 text-xs font-bold transition-all flex items-center gap-1 text-gray-300 hover:text-white">
+                        <img src="${CLASS_ICONS[cls]}" class="w-4 h-4 rounded-full object-cover ${iconStyle}">
                         <span class="hidden sm:inline">${cls}</span>
                     </button>
-                `).join('');
+                `}).join('');
             };
 
             const setMode = (mode) => {
@@ -258,13 +325,14 @@
             };
 
             const setFilter = (cls) => {
-                currentFilter = cls;
-                document.querySelectorAll('[id^="filter-"]').forEach(btn => {
-                    btn.classList.remove('class-btn-active');
-                    btn.classList.add('class-btn-inactive');
-                });
-                const id = cls === 'All' ? 'filter-All' : `filter-${cls.replace(/\s+/g, '-')}`;
-                document.getElementById(id)?.classList.replace('class-btn-inactive', 'class-btn-active');
+                // Toggle logic: If clicking the active filter, turn it off (revert to 'All')
+                if (currentFilter === cls) {
+                    currentFilter = 'All';
+                } else {
+                    currentFilter = cls;
+                }
+                
+                renderClassButtons(); // Re-render buttons to update styles
                 render();
             };
 
@@ -303,7 +371,16 @@
                         const { base } = parseRank(hRankRaw);
                         const classMatch = currentFilter === 'All' || h.heroClass === currentFilter;
                         const searchMatch = h.name.toLowerCase().includes(filterSearch);
-                        return base === baseRank && classMatch && searchMatch;
+                        
+                        // Type Filter
+                        const hType = h.heroType || 'Normal';
+                        // Handle potential naming mismatches if admin saves as "Basic Banner"
+                        let normalizedType = hType;
+                        if (normalizedType === 'Basic Banner') normalizedType = 'Basic Limited';
+                        
+                        const typeMatch = activeTypeFilters.has(normalizedType);
+
+                        return base === baseRank && classMatch && searchMatch && typeMatch;
                     });
 
                     if (heroesInRow.length === 0) return;
@@ -351,6 +428,7 @@
                                 let topBorderClass = 'border-t-normal';
                                 if (h.heroType === 'VIP') topBorderClass = 'border-t-vip';
                                 if (h.heroType === 'Limited') topBorderClass = 'border-t-limited';
+                                if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') topBorderClass = 'border-t-basic';
 
                                 // Revised Dimensions: Shorter, Wider, Smaller overall
                                 heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded overflow-hidden ${topBorderClass} group transition-all`;
@@ -375,7 +453,7 @@
 
                                 heroEl.innerHTML = `
                                     ${classIconHtml}${dotHtml}${subRankHtml}
-                                    <img src="${h.image}" onerror="this.src='https://placehold.co/100/000000/FFFFFF?text=?'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                                    <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent pt-3 pb-0.5 px-1 flex flex-col justify-end">
                                         <div class="text-[9px] sm:text-[10px] text-center text-gray-100 leading-none font-bold break-words drop-shadow-md pb-0.5">${h.name}</div>
                                     </div>
@@ -393,12 +471,13 @@
             };
 
             const openModal = (h) => {
-                document.getElementById('modalImage').src = h.image || 'https://placehold.co/400/000000/FFFFFF?text=No+Image';
+                document.getElementById('modalImage').src = h.image || 'https://placehold.co/400/5A5F66/FFFFFF?text=No+Image';
                 document.getElementById('modalName').innerText = h.name;
                 document.getElementById('modalClass').innerText = h.heroClass;
                 const typeContainer = document.getElementById('modalTypeContainer');
                 if (h.heroType === 'VIP') typeContainer.innerHTML = '<span class="text-xs font-bold text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded border border-yellow-500/30"><i class="fa-solid fa-crown mr-1"></i>VIP</span>';
-                else if (h.heroType === 'Limited') typeContainer.innerHTML = '<span class="text-xs font-bold text-pink-400 bg-pink-900/30 px-2 py-0.5 rounded border border-pink-500/30"><i class="fa-solid fa-star mr-1"></i>Limited</span>';
+                else if (h.heroType === 'Limited') typeContainer.innerHTML = '<span class="text-xs font-bold text-purple-400 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-500/30"><i class="fa-solid fa-star mr-1"></i>Limited</span>';
+                else if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeContainer.innerHTML = '<span class="text-xs font-bold text-green-400 bg-green-900/30 px-2 py-0.5 rounded border border-green-500/30"><i class="fa-solid fa-leaf mr-1"></i>Basic Limited</span>';
                 else typeContainer.innerHTML = '';
                 document.getElementById('modalEarly').innerText = h.early || '-';
                 document.getElementById('modalLate').innerText = h.late || '-';
@@ -465,7 +544,7 @@
                 }
             };
 
-            return { init, setMode, render, openModal, closeModal, setFilter, toggleChangelog };
+            return { init, setMode, render, openModal, closeModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType };
         })();
 
         window.onload = app.init;
