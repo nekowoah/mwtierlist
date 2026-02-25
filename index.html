@@ -95,23 +95,25 @@
     <div class="bg-gray-800/80 border-b border-gray-700 backdrop-blur-sm relative z-30">
         <div class="max-w-7xl mx-auto px-4 py-4 space-y-4">
             
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div class="flex-1">
-                    <h2 id="listTitle" class="text-base font-bold text-white uppercase tracking-wider mb-1">Tier List</h2>
-                    <p id="listDesc" class="text-gray-300 text-sm leading-relaxed max-w-4xl"></p>
-                </div>
-                
-                <div class="flex flex-wrap gap-4 text-xs text-gray-400 select-none bg-gray-900/50 px-4 py-2 rounded border border-gray-700">
-                    <div class="flex items-center gap-2"><span class="w-4 h-1 bg-yellow-400 shadow-[0_-2px_6px_rgba(250,204,21,0.6)] rounded-sm"></span> VIP</div>
-                    <div class="flex items-center gap-2"><span class="w-4 h-1 bg-purple-400 shadow-[0_-2px_6px_rgba(244,114,182,0.6)] rounded-sm"></span> Limited</div>
-                    <div class="flex items-center gap-2"><span class="w-4 h-1 bg-green-500 shadow-[0_-2px_6px_rgba(34,197,94,0.6)] rounded-sm"></span> Basic Limited</div>
-                    <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full shadow-sm"></span> Updated</div>
-                    <div class="flex items-center gap-1.5"><span class="text-green-400 font-bold text-sm">+</span><span class="text-red-400 font-bold text-sm">-</span> Sub-rank</div>
-                </div>
+            <!-- 1. List Information -->
+            <div>
+                <h2 id="listTitle" class="text-base font-bold text-white uppercase tracking-wider mb-1">Tier List</h2>
+                <p id="listDesc" class="text-gray-300 text-sm leading-relaxed max-w-4xl"></p>
+            </div>
+            
+            <!-- 2. Legend -->
+            <div class="flex flex-wrap gap-4 text-xs text-gray-400 select-none bg-gray-900/50 px-4 py-2 rounded border border-gray-700 w-fit">
+                <div class="flex items-center gap-2"><span class="w-4 h-1 bg-yellow-400 shadow-[0_-2px_6px_rgba(250,204,21,0.6)] rounded-sm"></span> VIP</div>
+                <div class="flex items-center gap-2"><span class="w-4 h-1 bg-purple-400 shadow-[0_-2px_6px_rgba(244,114,182,0.6)] rounded-sm"></span> Limited</div>
+                <div class="flex items-center gap-2"><span class="w-4 h-1 bg-green-500 shadow-[0_-2px_6px_rgba(34,197,94,0.6)] rounded-sm"></span> Basic Limited</div>
+                <div class="flex items-center gap-2"><span class="w-4 h-1 bg-gray-500 rounded-sm"></span> Normal</div>
+                <div class="flex items-center gap-2"><span class="w-2 h-2 bg-red-500 rounded-full shadow-sm"></span> Updated</div>
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-fire-flame-curved text-red-500"></i> Awakened</div>
+                <div class="flex items-center gap-1.5"><span class="text-green-400 font-bold text-sm">+</span><span class="text-red-400 font-bold text-sm">-</span> Sub-rank</div>
             </div>
 
+            <!-- 3. Filters -->
             <div class="flex flex-wrap gap-2 pt-1 items-center">
-                <!-- Class Filters -->
                 <div id="classButtons" class="flex flex-wrap gap-1"></div>
 
                 <div class="h-6 w-px bg-gray-700 mx-1"></div>
@@ -168,9 +170,10 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent md:bg-gradient-to-r"></div>
                 <div class="absolute bottom-4 left-4 right-4">
                     <h2 id="modalName" class="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md"></h2>
-                    <div class="flex gap-2 items-center">
+                    <div class="flex flex-wrap gap-2 items-center">
                         <span id="modalClass" class="text-xs font-bold text-indigo-400 uppercase tracking-wider bg-indigo-900/50 px-2 py-0.5 rounded border border-indigo-500/30"></span>
                         <div id="modalTypeContainer"></div>
+                        <div id="modalAwakenContainer"></div>
                     </div>
                 </div>
             </div>
@@ -451,11 +454,13 @@
                                 // Added background behind sub rank
                                 const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-black/70 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
 
+                                const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
+
                                 heroEl.innerHTML = `
                                     ${classIconHtml}${dotHtml}${subRankHtml}
                                     <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent pt-3 pb-0.5 px-1 flex flex-col justify-end">
-                                        <div class="text-[9px] sm:text-[10px] text-center text-gray-100 leading-none font-bold break-words drop-shadow-md pb-0.5">${h.name}</div>
+                                        <div class="text-[9px] sm:text-[10px] text-center text-gray-100 leading-none font-bold break-words drop-shadow-md pb-0.5">${h.name}${awakenHtml}</div>
                                     </div>
                                 `;
                                 groupContainer.appendChild(heroEl);
@@ -472,13 +477,26 @@
 
             const openModal = (h) => {
                 document.getElementById('modalImage').src = h.image || 'https://placehold.co/400/5A5F66/FFFFFF?text=No+Image';
-                document.getElementById('modalName').innerText = h.name;
+                
+                const awakenFlame = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-2" title="Awakened"></i>' : '';
+                document.getElementById('modalName').innerHTML = h.name + awakenFlame;
+                
                 document.getElementById('modalClass').innerText = h.heroClass;
+                
                 const typeContainer = document.getElementById('modalTypeContainer');
                 if (h.heroType === 'VIP') typeContainer.innerHTML = '<span class="text-xs font-bold text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded border border-yellow-500/30"><i class="fa-solid fa-crown mr-1"></i>VIP</span>';
                 else if (h.heroType === 'Limited') typeContainer.innerHTML = '<span class="text-xs font-bold text-purple-400 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-500/30"><i class="fa-solid fa-star mr-1"></i>Limited</span>';
                 else if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeContainer.innerHTML = '<span class="text-xs font-bold text-green-400 bg-green-900/30 px-2 py-0.5 rounded border border-green-500/30"><i class="fa-solid fa-leaf mr-1"></i>Basic Limited</span>';
                 else typeContainer.innerHTML = '';
+
+                // ADDED: Awaken Status Pill Card
+                const awakenContainer = document.getElementById('modalAwakenContainer');
+                if (h.hasAwaken === 'Yes') {
+                    awakenContainer.innerHTML = '<span class="text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-500/30"><i class="fa-solid fa-fire-flame-curved mr-1"></i>Awakened</span>';
+                } else {
+                    awakenContainer.innerHTML = '';
+                }
+
                 document.getElementById('modalEarly').innerText = h.early || '-';
                 document.getElementById('modalLate').innerText = h.late || '-';
                 document.getElementById('modalSacr').innerText = h.sacrament || '-';
