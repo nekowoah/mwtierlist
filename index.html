@@ -60,50 +60,51 @@
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col">
 
-    <!-- Navigation -->
+    <!-- Navigation (Sticky Top Bar) -->
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col gap-2">
             
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-dragon text-yellow-500 text-2xl"></i>
-                    <span class="font-bold text-xl tracking-wide">MWR Tierlist</span>
+            <!-- Top Row: Logo, Tabs, Search, Links -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+                <div class="flex items-center gap-4 sm:gap-6">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <i class="fa-solid fa-dragon text-yellow-500 text-xl sm:text-2xl"></i>
+                        <span class="font-bold text-lg sm:text-xl tracking-wide hidden sm:block">MWR Tierlist</span>
+                    </div>
+                    
+                    <div class="flex bg-gray-900 rounded-lg p-1">
+                        <button onclick="app.setMode('early')" id="tab-early" class="px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Early</button>
+                        <button onclick="app.setMode('late')" id="tab-late" class="px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-lg transition-colors">Late</button>
+                        <button onclick="app.setMode('sacrament')" id="tab-sacrament" class="px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
+                    </div>
                 </div>
-                
-                <div class="flex bg-gray-900 rounded-lg p-1">
-                    <button onclick="app.setMode('early')" id="tab-early" class="px-4 py-1.5 rounded text-sm font-bold text-gray-400 hover:text-white transition-colors">Early</button>
-                    <button onclick="app.setMode('late')" id="tab-late" class="px-4 py-1.5 rounded text-sm font-bold bg-indigo-600 text-white shadow-lg transition-colors">Late</button>
-                    <button onclick="app.setMode('sacrament')" id="tab-sacrament" class="px-4 py-1.5 rounded text-sm font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
-                </div>
-            </div>
 
-            <div class="flex gap-4 items-center w-full md:w-auto">
-                <div class="relative group flex-grow md:flex-grow-0">
-                    <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search..." 
-                        class="bg-gray-900/50 text-white rounded-full px-4 py-2 pl-10 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
-                    <i class="fa-solid fa-search absolute left-3.5 top-2.5 text-gray-400 text-xs group-focus-within:text-yellow-500"></i>
-                </div>
-                
-                <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-white transition-colors" title="View Changelog">
-                    <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-                </button>
+                <div class="flex gap-3 sm:gap-4 items-center w-full md:w-auto">
+                    <div class="relative group flex-grow md:flex-grow-0">
+                        <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search..." 
+                            class="bg-gray-900/50 text-white rounded-full px-4 py-1.5 pl-9 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
+                        <i class="fa-solid fa-search absolute left-3 top-2 text-gray-400 text-xs group-focus-within:text-yellow-500"></i>
+                    </div>
+                    
+                    <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0" title="View Changelog">
+                        <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                    </button>
 
-                <a href="https://dsc.gg/legion-mw" target="_blank" class="bg-[#5865F2] hover:bg-[#4752C4] text-white p-2 rounded-full transition-colors w-10 h-10 flex items-center justify-center shadow-lg" title="Join our Discord">
-                    <i class="fa-brands fa-discord text-lg"></i>
-                </a>
+                    <a href="https://dsc.gg/legion-mw" target="_blank" class="bg-[#5865F2] hover:bg-[#4752C4] text-white p-1.5 rounded-full transition-colors w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-lg flex-shrink-0" title="Join our Discord">
+                        <i class="fa-brands fa-discord text-sm sm:text-base"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Info & Filter Section -->
+    <!-- Info & Legend Section -->
     <div class="bg-gray-800/80 border-b border-gray-700 backdrop-blur-sm relative z-30">
         <div class="max-w-7xl mx-auto px-4 py-4">
-            
-            <!-- Grid Layout -->
-            <div class="flex flex-col md:grid md:grid-cols-[1fr_auto] md:grid-rows-[1fr_auto] gap-x-6 gap-y-4 md:gap-y-0">
+            <div class="flex flex-col md:flex-row justify-between items-start gap-6">
                 
-                <!-- 1. List Information (Top Left) -->
-                <div class="order-1 md:col-start-1 md:row-start-1 md:pb-6">
+                <!-- 1. List Information (Left) -->
+                <div class="flex-1 w-full">
                     <h2 id="listTitle" class="text-base font-bold text-white uppercase tracking-wider mb-1">Tier List</h2>
                     <p id="listDesc" class="text-gray-300 text-sm leading-relaxed max-w-4xl"></p>
                     
@@ -115,56 +116,17 @@
                     </div>
                 </div>
                 
-                <!-- 2. Legend (Right Column) -->
-                <div class="order-2 md:col-start-2 md:row-start-1 md:row-span-2 bg-gray-900/80 p-3 rounded-lg border border-gray-700 w-full md:w-auto md:min-w-[18rem] shrink-0 shadow-lg">
-                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-700/50 pb-1 text-center">Legend</h3>
-                    <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-[11px] text-gray-300 select-none">
-                        <div class="flex items-center gap-1.5"><span class="w-3 h-1 bg-yellow-400 shadow-[0_-2px_4px_rgba(250,204,21,0.6)] rounded-sm"></span> VIP</div>
-                        <div class="flex items-center gap-1.5"><span class="w-3 h-1 bg-purple-400 shadow-[0_-2px_4px_rgba(244,114,182,0.6)] rounded-sm"></span> Limited</div>
-                        <div class="flex items-center gap-1.5"><span class="w-3 h-1 bg-green-500 shadow-[0_-2px_4px_rgba(34,197,94,0.6)] rounded-sm"></span> Basic Limited</div>
-                        <div class="flex items-center gap-1.5"><span class="w-3 h-1 bg-gray-500 rounded-sm"></span> Normal</div>
+                <!-- 2. Legend (Right) -->
+                <div class="bg-gray-900/80 p-2.5 sm:p-3 rounded-lg border border-gray-700 w-full md:w-auto md:min-w-[15rem] shrink-0 shadow-lg">
+                    <h3 class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 border-b border-gray-700/50 pb-1 text-center">Legend</h3>
+                    <div class="grid grid-cols-2 gap-x-2 gap-y-1 sm:gap-y-1.5 text-[10px] sm:text-[11px] text-gray-300 select-none">
+                        <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-yellow-400 shadow-[0_-2px_4px_rgba(250,204,21,0.6)] rounded-sm"></span> VIP</div>
+                        <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-purple-400 shadow-[0_-2px_4px_rgba(244,114,182,0.6)] rounded-sm"></span> Limited</div>
+                        <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-green-500 shadow-[0_-2px_4px_rgba(34,197,94,0.6)] rounded-sm"></span> Basic Limited</div>
+                        <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-gray-500 rounded-sm"></span> Normal</div>
                         <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-red-500 rounded-full shadow-sm"></span> Updated</div>
-                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-fire-flame-curved text-red-500 text-[11px]"></i> Awakened</div>
+                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-fire-flame-curved text-red-500 text-[10px] sm:text-[11px]"></i> Awakened</div>
                         <div class="flex items-center gap-1.5 col-span-2"><span class="text-green-400 font-bold">+</span><span class="text-red-400 font-bold">-</span> Sub-rank</div>
-                    </div>
-                </div>
-
-                <!-- 3. Filters (Bottom Left) -->
-                <div class="order-3 md:col-start-1 md:row-start-2 md:self-end mt-2 md:mt-0 w-full min-w-0">
-                    <div class="flex flex-wrap items-center gap-1 w-full">
-                        
-                        <!-- Class Buttons -->
-                        <div id="classButtons" class="flex flex-wrap gap-1"></div>
-
-                        <!-- Type Filter Dropdown -->
-                        <div class="relative z-50">
-                            <button onclick="app.toggleTypeMenu()" id="typeFilterBtn" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded px-2.5 py-1 text-xs font-bold transition-all flex items-center justify-center shadow-md" title="Filter by Hero Type">
-                                <i class="fa-solid fa-filter"></i>
-                            </button>
-                            <div id="typeMenu" class="hidden absolute top-full right-0 sm:left-0 sm:right-auto mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 flex flex-col gap-1">
-                                <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                                    <input type="checkbox" checked onchange="app.toggleType('VIP')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
-                                    <span class="text-yellow-400 font-bold">VIP</span>
-                                </label>
-                                <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                                    <input type="checkbox" checked onchange="app.toggleType('Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
-                                    <span class="text-purple-400 font-bold">Limited</span>
-                                </label>
-                                <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                                    <input type="checkbox" checked onchange="app.toggleType('Basic Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
-                                    <span class="text-green-400 font-bold">Basic Limited</span>
-                                </label>
-                                <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                                    <input type="checkbox" checked onchange="app.toggleType('Normal')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
-                                    <span class="text-gray-400 font-bold">Normal</span>
-                                </label>
-                                <div class="h-px bg-gray-700 my-1 mx-2"></div>
-                                <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                                    <input type="checkbox" onchange="app.toggleAwakenedOnly()" class="custom-checkbox rounded bg-gray-900 border-gray-600">
-                                    <span class="text-red-400 font-bold"><i class="fa-solid fa-fire-flame-curved mr-1.5"></i>Awakened Only</span>
-                                </label>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -173,8 +135,48 @@
     </div>
 
     <!-- Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow">
-        <div id="loading" class="text-center py-24">
+    <main class="max-w-7xl mx-auto px-4 pt-4 pb-8 w-full flex-grow">
+        
+        <!-- Filter Bar -->
+        <div class="flex flex-wrap justify-center items-center gap-1.5 mb-5 relative z-20">
+            <!-- Class Buttons -->
+            <div id="classButtons" class="flex flex-wrap justify-center gap-1.5 sm:gap-1"></div>
+
+            <div class="hidden sm:block h-5 w-px bg-gray-700 mx-1 sm:mx-2"></div>
+
+            <!-- Type Filter Dropdown -->
+            <div class="relative z-50">
+                <button onclick="app.toggleTypeMenu()" id="typeFilterBtn" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded p-0 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center shadow-sm w-8 h-8 sm:w-auto sm:h-auto" title="Filter by Hero Type">
+                    <i class="fa-solid fa-filter text-base sm:text-xs sm:mr-1"></i>
+                    <span class="hidden sm:inline">Filters</span>
+                </button>
+                <div id="typeMenu" class="hidden absolute top-full right-0 sm:left-auto sm:right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 flex flex-col gap-1">
+                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
+                        <input type="checkbox" checked onchange="app.toggleType('VIP')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
+                        <span class="text-yellow-400 font-bold">VIP</span>
+                    </label>
+                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
+                        <input type="checkbox" checked onchange="app.toggleType('Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
+                        <span class="text-purple-400 font-bold">Limited</span>
+                    </label>
+                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
+                        <input type="checkbox" checked onchange="app.toggleType('Basic Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
+                        <span class="text-green-400 font-bold">Basic Limited</span>
+                    </label>
+                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
+                        <input type="checkbox" checked onchange="app.toggleType('Normal')" class="custom-checkbox rounded bg-gray-900 border-gray-600">
+                        <span class="text-gray-400 font-bold">Normal</span>
+                    </label>
+                    <div class="h-px bg-gray-700 my-1 mx-2"></div>
+                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
+                        <input type="checkbox" onchange="app.toggleAwakenedOnly()" class="custom-checkbox rounded bg-gray-900 border-gray-600">
+                        <span class="text-red-400 font-bold"><i class="fa-solid fa-fire-flame-curved mr-1.5"></i>Awakened Only</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="text-center py-16">
             <div class="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-yellow-500 mb-3"></div>
             <p class="text-gray-500 text-sm animate-pulse">Retrieving Data...</p>
         </div>
@@ -281,6 +283,7 @@
             let currentFilter = 'All';
             let activeTypeFilters = new Set(['VIP', 'Limited', 'Basic Limited', 'Normal']);
             let showAwakenedOnly = false;
+            let cachedLogs = null;
 
             const init = async () => {
                 renderClassButtons();
@@ -303,6 +306,13 @@
                     const container = document.getElementById('tierListContainer');
                     container.classList.remove('opacity-0');
                     render();
+                    
+                    // PRELOAD CHANGELOGS IN BACKGROUND
+                    fetch(API_URL + "?view=logs")
+                        .then(r => r.json())
+                        .then(data => { if (Array.isArray(data)) cachedLogs = data; })
+                        .catch(e => console.warn("Failed to preload logs:", e));
+
                 } catch(e) {
                     console.error(e);
                     document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`;
@@ -331,16 +341,15 @@
                 const container = document.getElementById('classButtons');
                 if (container) {
                     container.innerHTML = Object.keys(CLASS_ICONS).map(cls => {
-                        // Check if this class is the active filter
                         const isActive = currentFilter === cls;
                         const btnClass = isActive ? 'class-btn-active' : 'class-btn-inactive';
                         const iconStyle = isActive ? '' : 'opacity-70';
                         
                         return `
                         <button onclick="app.setFilter('${cls}')" id="filter-${cls.replace(/\s+/g, '-')}" 
-                            class="${btnClass} border rounded px-2 py-1 text-xs font-bold transition-all flex items-center gap-1 text-gray-300 hover:text-white">
-                            <img src="${CLASS_ICONS[cls]}" class="w-4 h-4 rounded-full object-cover ${iconStyle}">
-                            <span class="hidden lg:inline">${cls}</span>
+                            class="${btnClass} border rounded p-0.5 sm:p-0 sm:px-2 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 text-gray-300 hover:text-white w-8 h-8 sm:w-auto sm:h-auto">
+                            <img src="${CLASS_ICONS[cls]}" class="w-6 h-6 sm:w-4 sm:h-4 rounded-full object-cover ${iconStyle}">
+                            <span class="hidden sm:inline">${cls}</span>
                         </button>
                     `}).join('');
                 }
@@ -469,13 +478,11 @@
                             subGroups[subKey].forEach(h => {
                                 const heroEl = document.createElement('div');
                                 
-                                // Revised Top Border Style
                                 let topBorderClass = 'border-t-normal';
                                 if (h.heroType === 'VIP') topBorderClass = 'border-t-vip';
                                 if (h.heroType === 'Limited') topBorderClass = 'border-t-limited';
                                 if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') topBorderClass = 'border-t-basic';
 
-                                // Revised Dimensions: Shorter, Wider, Smaller overall
                                 heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded overflow-hidden ${topBorderClass} group transition-all`;
                                 heroEl.onclick = () => openModal(h);
                                 
@@ -493,7 +500,6 @@
                                 if (sub === '+') subColor = 'text-green-400';
                                 if (sub === '-') subColor = 'text-red-400';
                                 
-                                // Added background behind sub rank
                                 const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-black/70 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
 
                                 const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
@@ -555,25 +561,18 @@
             const toggleChangelog = async () => {
                 const modal = document.getElementById('changelogModal');
                 const content = document.getElementById('changelogContent');
+                
                 if (modal.classList.contains('hidden')) {
                     modal.classList.remove('hidden');
-                    content.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-circle-notch fa-spin mr-2"></i> Loading logs...</div>';
                     
-                    try {
-                        const res = await fetch(API_URL + "?view=logs");
-                        let logs = await res.json();
-                        
-                        if (!Array.isArray(logs)) {
-                            logs = [];
-                        }
-
-                        if (logs.length === 0) {
+                    const renderLogs = (logsToRender) => {
+                        if (logsToRender.length === 0) {
                             content.innerHTML = '<div class="text-center text-gray-500 py-10">No recent changes found.</div>';
                             return;
                         }
 
                         const grouped = {};
-                        logs.forEach(log => {
+                        logsToRender.forEach(log => {
                             let dateStr = "Unknown Date";
                             try { dateStr = new Date(log.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } 
                             catch(e) { dateStr = log.timestamp; }
@@ -595,9 +594,21 @@
                                 </div>
                             </div>
                         `).join('');
+                    };
 
-                    } catch(e) {
-                        content.innerHTML = `<div class="text-center text-red-400 py-10">Error loading logs: ${e.message}</div>`;
+                    if (cachedLogs) {
+                        renderLogs(cachedLogs);
+                    } else {
+                        content.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-circle-notch fa-spin mr-2"></i> Loading logs...</div>';
+                        try {
+                            const res = await fetch(API_URL + "?view=logs");
+                            let fetchedLogs = await res.json();
+                            if (!Array.isArray(fetchedLogs)) fetchedLogs = [];
+                            cachedLogs = fetchedLogs; 
+                            renderLogs(cachedLogs);
+                        } catch(e) {
+                            content.innerHTML = `<div class="text-center text-red-400 py-10">Error loading logs: ${e.message}</div>`;
+                        }
                     }
                 } else {
                     modal.classList.add('hidden');
