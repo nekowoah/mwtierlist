@@ -879,7 +879,7 @@
                 finally { icon.className = "fa-solid fa-magnifying-glass"; }
             };
 
-            // --- CHANGELOG LOGIC ---
+            // --- CHANGELOG LOGIC WITH RANK FILTERING ---
             const toggleChangelog = async () => {
                 const panel = document.getElementById('changelogPanel');
                 const body = document.getElementById('changelogBody');
@@ -887,14 +887,52 @@
                 if (panel.classList.contains('hidden')) {
                     panel.classList.remove('hidden');
                     
-                    const renderLogs = (logs) => {
-                        if (logs.length === 0) {
-                            body.innerHTML = '<div class="text-center text-gray-500 py-10">No recent changes found.</div>';
+                    const renderLogs = (rawLogs) => {
+                        const displayLogs = [];
+                        
+                        rawLogs.forEach(log => {
+                            if (log.action === 'CREATE' || log.action === 'DELETE') {
+                                displayLogs.push(log);
+                            } else if (log.action === 'UPDATE') {
+                                // Extract only ranking changes
+                                const parts = log.details.split('. Changes: ');
+                                if (parts.length === 2) {
+                                    const heroPrefix = parts[0];
+                                    const changesStr = parts[1];
+                                    const changes = changesStr.split(', ');
+                                    
+                                    // Filter for rank keywords
+                                    const rankChanges = changes.filter(c => {
+                                        const cLower = c.toLowerCase();
+                                        return cLower.startsWith('early') || 
+                                               cLower.startsWith('late') || 
+                                               cLower.startsWith('sacrament');
+                                    });
+                                    
+                                    // Only push if there's actually a rank change
+                                    if (rankChanges.length > 0) {
+                                        displayLogs.push({
+                                            ...log,
+                                            details: `${heroPrefix}. Changes: ${rankChanges.join(', ')}`
+                                        });
+                                    }
+                                } else {
+                                    // Fallback if formatting doesn't match standard Apps Script format
+                                    const d = log.details.toLowerCase();
+                                    if (d.includes('early') || d.includes('late') || d.includes('sacrament')) {
+                                        displayLogs.push(log);
+                                    }
+                                }
+                            }
+                        });
+
+                        if (displayLogs.length === 0) {
+                            body.innerHTML = '<div class="text-center text-gray-500 py-10">No recent ranking changes found.</div>';
                             return;
                         }
 
                         const grouped = {};
-                        logs.forEach(log => {
+                        displayLogs.forEach(log => {
                             let dateStr = "Unknown Date";
                             try { dateStr = new Date(log.timestamp).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}); } catch(e) {}
                             if (!grouped[dateStr]) grouped[dateStr] = [];
