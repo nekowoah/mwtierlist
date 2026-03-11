@@ -3,40 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWR Tierlist Editor</title>
+    <title>MWR Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
     <style>
-        /* Rank Colors */
-        .bg-tier-sss { background-color: #ef4444; color: black; }
-        .bg-tier-ss { background-color: #f59e0b; color: black; }
-        .bg-tier-s { background-color: #f97316; color: black; }
-        .bg-tier-a { background-color: #eab308; color: black; }
-        .bg-tier-b { background-color: #84cc16; color: black; }
-        .bg-tier-c { background-color: #22c55e; color: black; }
-        .bg-tier-d { background-color: #3b82f6; color: black; }
-        .bg-tier-f { background-color: #6b7280; color: white; }
-        .bg-tier-unranked { background-color: #374151; color: white; border-color: #4b5563; }
-
-        /* Top Border Types with Glow */
-        .border-t-vip { border-top: 2px solid #fbbf24; box-shadow: 0 -2px 8px rgba(251, 191, 36, 0.6); }
-        .border-t-limited { border-top: 2px solid #e879f9; box-shadow: 0 -2px 8px rgba(232, 121, 249, 0.6); }
-        .border-t-basic { border-top: 2px solid #22c55e; box-shadow: 0 -2px 8px rgba(34, 197, 94, 0.6); }
-        .border-t-normal { border-top: 2px solid #6b7280; box-shadow: none; }
-
-        .hero-portrait { transition: transform 0.2s, box-shadow 0.2s; }
-        .hero-portrait:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -5px rgba(0,0,0,0.7); z-index: 10; }
-        
-        .tooltip { visibility: hidden; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); padding: 4px 8px; background: rgba(0,0,0,0.9); color: white; font-size: 0.75rem; border-radius: 4px; white-space: nowrap; z-index: 30; pointer-events: none; }
-        .hero-portrait:hover .tooltip { visibility: visible; }
-
-        .class-btn-active { border-color: #eab308; background-color: rgba(234, 179, 8, 0.2); color: #eab308; }
-        .class-btn-inactive { border-color: #4b5563; opacity: 0.7; }
-        .class-btn-inactive:hover { opacity: 1; border-color: #9ca3af; }
-        .custom-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* View transition */
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Dashboard Card Hover Effects */
+        .dash-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .dash-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col">
@@ -53,16 +34,18 @@
             </div>
             <button onclick="window.admin.toggleSidebar()" class="text-gray-400 hover:text-white p-1"><i class="fa-solid fa-times text-xl"></i></button>
         </div>
-        <div class="flex-grow py-4 flex flex-col gap-2 px-3">
-            <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg font-bold transition-colors">
+        
+        <div class="p-3 text-xs font-bold text-gray-500 uppercase tracking-wider mt-2">Navigation</div>
+        <div class="flex flex-col gap-1 px-3 flex-grow">
+            <a href="index.html" class="flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg font-bold transition-colors w-full text-left">
                 <i class="fa-solid fa-list-ul w-5 text-center"></i> Tierlist
             </a>
-            <a href="info.html" class="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg font-bold transition-colors">
+            <a href="info.html" class="flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg font-bold transition-colors w-full text-left">
                 <i class="fa-solid fa-book-open w-5 text-center"></i> Information
             </a>
             <div class="h-px bg-gray-700 my-2 mx-2"></div>
-            <a href="admin.html" class="flex items-center gap-3 px-4 py-3 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg font-bold transition-colors">
-                <i class="fa-solid fa-shield-halved w-5 text-center"></i> Admin Dashboard
+            <a href="admin.html" class="flex items-center gap-3 px-4 py-2.5 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg font-bold transition-colors w-full text-left">
+                <i class="fa-solid fa-shield-halved w-5 text-center"></i> Admin
             </a>
         </div>
     </div>
@@ -76,284 +59,173 @@
             <input type="password" id="passwordInput" placeholder="Enter Password" 
                 class="w-full bg-gray-900 border border-gray-600 rounded px-4 py-3 mb-4 text-white focus:border-indigo-500 outline-none transition-colors">
             <button onclick="window.admin.login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded transition-colors shadow-lg">
-                Unlock Editor
+                Login to Dashboard
             </button>
             <p id="loginError" class="text-red-400 mt-4 text-sm hidden"></p>
             <a href="index.html" class="block mt-6 text-sm text-gray-500 hover:text-white transition-colors">Return to Public Site</a>
         </div>
     </div>
 
-    <!-- Main App -->
+    <!-- Main App Container -->
     <div id="appContainer" class="hidden flex flex-col min-h-screen">
         
-        <!-- Navigation -->
+        <!-- Navigation Bar -->
         <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                
-                <!-- Title & Mode Tabs -->
-                <div class="flex items-center gap-6">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <button onclick="window.admin.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
                     <div class="flex items-center gap-2">
-                        <button onclick="window.admin.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors mr-1 sm:mr-2 outline-none">
-                            <i class="fa-solid fa-bars text-lg sm:text-xl"></i>
-                        </button>
-                        <i class="fa-solid fa-lock text-green-400"></i>
-                        <span class="font-bold text-xl hidden sm:inline">Admin</span>
-                    </div>
-                    
-                    <!-- Mode Switcher -->
-                    <div class="flex bg-gray-900 rounded-lg p-1">
-                        <button onclick="window.admin.setMode('early')" id="tab-early" class="px-4 py-1.5 rounded text-sm font-bold text-gray-400 hover:text-white transition-colors">Early Game</button>
-                        <button onclick="window.admin.setMode('late')" id="tab-late" class="px-3 py-1.5 rounded text-sm font-medium bg-indigo-600 text-white shadow-sm transition-colors">Late Game</button>
-                        <button onclick="window.admin.setMode('sacrament')" id="tab-sacrament" class="px-3 py-1.5 rounded text-sm font-medium text-gray-400 hover:text-white transition-colors">Sacrament</button>
+                        <i class="fa-solid fa-shield-halved text-indigo-400 text-xl"></i>
+                        <span class="font-bold text-xl hidden sm:inline" id="topBarTitle">Admin Dashboard</span>
                     </div>
                 </div>
-
-                <!-- Controls (Right Side) -->
-                <div class="flex gap-4 items-center w-full md:w-auto">
-                    <div class="relative group flex-grow md:flex-grow-0">
-                        <input type="text" id="searchInput" onkeyup="window.admin.render()" placeholder="Search..." 
-                            class="bg-gray-900/50 text-white rounded-full px-4 py-2 pl-10 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
-                        <i class="fa-solid fa-search absolute left-3.5 top-2.5 text-gray-400 text-xs group-focus-within:text-yellow-500"></i>
-                    </div>
-                    
-                    <button onclick="window.admin.toggleChangelog()" class="text-gray-400 hover:text-white transition-colors" title="View Changelog">
-                        <i class="fa-solid fa-clock-rotate-left text-lg"></i>
-                    </button>
-
-                    <!-- Add Button -->
-                    <button onclick="window.admin.openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-full transition-colors w-10 h-10 flex items-center justify-center shadow-lg" title="Add Hero">
-                        <i class="fa-solid fa-plus text-lg"></i>
-                    </button>
-                </div>
+                
+                <!-- Dynamic Header Controls -->
+                <div id="headerControls" class="flex gap-3 items-center justify-end"></div>
             </div>
         </nav>
 
-        <!-- Info & Legend Section -->
-        <div class="bg-gray-800/80 border-b border-gray-700 backdrop-blur-sm relative z-30">
-            <div class="max-w-7xl mx-auto px-4 py-4">
-                <div class="flex flex-col md:flex-row justify-between items-start gap-6">
-                    <div class="flex-1 w-full">
-                        <h2 id="listTitle" class="text-base font-bold text-white uppercase tracking-wider mb-1">Tier List</h2>
-                        <p id="listDesc" class="text-gray-300 text-sm leading-relaxed max-w-4xl"></p>
+        <!-- VIEW 1: DASHBOARD LANDING -->
+        <div id="view-dashboard" class="flex flex-col flex-grow items-center justify-center relative w-full fade-in p-6">
+            <h1 class="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tight text-center">Welcome to the Control Panel</h1>
+            <p class="text-gray-400 text-sm sm:text-base mb-12 text-center max-w-xl">Manage the tierlist database, edit public information articles, or optimize your GitHub media assets.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
+                
+                <!-- Routing Card: Tierlist -->
+                <a href="index.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer">
+                    <div class="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-table-list text-3xl text-indigo-400"></i>
                     </div>
-                    
-                    <div class="bg-gray-900/80 p-2.5 sm:p-3 rounded-lg border border-gray-700 w-full md:w-auto md:min-w-[15rem] shrink-0 shadow-lg">
-                        <h3 class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 border-b border-gray-700/50 pb-1 text-center">Legend</h3>
-                        <div class="grid grid-cols-2 gap-x-2 gap-y-1 sm:gap-y-1.5 text-[10px] sm:text-[11px] text-gray-300 select-none">
-                            <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-yellow-400 shadow-[0_-2px_4px_rgba(250,204,21,0.6)] rounded-sm"></span> VIP</div>
-                            <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-purple-400 shadow-[0_-2px_4px_rgba(244,114,182,0.6)] rounded-sm"></span> Limited</div>
-                            <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-green-500 shadow-[0_-2px_4px_rgba(34,197,94,0.6)] rounded-sm"></span> Basic Limited</div>
-                            <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-gray-500 rounded-sm"></span> Normal</div>
-                            <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-red-500 rounded-full shadow-sm"></span> Updated</div>
-                            <div class="flex items-center gap-1.5"><i class="fa-solid fa-fire-flame-curved text-red-500 text-[10px] sm:text-[11px]"></i> Awakened</div>
-                        </div>
+                    <h2 class="text-xl font-bold text-white mb-2">Edit Tierlist</h2>
+                    <p class="text-xs text-gray-400">Add new heroes, adjust rankings, and update analysis notes directly on the tierlist page.</p>
+                </a>
+
+                <!-- Routing Card: Information -->
+                <a href="info.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer">
+                    <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-book-open text-3xl text-blue-400"></i>
                     </div>
-                </div>
+                    <h2 class="text-xl font-bold text-white mb-2">Edit Information</h2>
+                    <p class="text-xs text-gray-400">Use the Rich Text Editor to update guides, announcements, and site rules.</p>
+                </a>
+
+                <!-- Internal Card: Media Gallery -->
+                <button onclick="window.admin.switchView('gallery')" class="dash-card bg-gray-800 border border-gray-700 hover:border-green-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer w-full">
+                    <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-images text-3xl text-green-400"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2">Image Manager</h2>
+                    <p class="text-xs text-gray-400">Upload assets to GitHub, manage files, and auto-convert PNG/JPGs to WebP.</p>
+                </button>
+
             </div>
         </div>
 
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 pt-4 pb-8 w-full flex-grow relative z-0">
-            <!-- Filter Bar -->
-            <div class="flex flex-wrap justify-center items-center gap-1.5 mb-5 relative z-20">
-                <div id="classButtons" class="flex flex-wrap justify-center gap-1.5 sm:gap-1"></div>
-                <div class="hidden sm:block h-5 w-px bg-gray-700 mx-1 sm:mx-2"></div>
-                <div class="relative z-50">
-                    <button onclick="window.admin.toggleTypeMenu()" id="typeFilterBtn" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded p-0 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center shadow-sm w-8 h-8 sm:w-auto sm:h-auto">
-                        <i class="fa-solid fa-filter text-base sm:text-xs sm:mr-1"></i>
-                        <span class="hidden sm:inline">Filters</span>
-                    </button>
-                    <div id="typeMenu" class="hidden absolute top-full right-0 sm:left-auto sm:right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 flex flex-col gap-1">
-                        <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                            <input type="checkbox" checked onchange="window.admin.toggleType('VIP')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-yellow-400 font-bold">VIP</span>
-                        </label>
-                        <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                            <input type="checkbox" checked onchange="window.admin.toggleType('Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-purple-400 font-bold">Limited</span>
-                        </label>
-                        <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                            <input type="checkbox" checked onchange="window.admin.toggleType('Basic Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-green-400 font-bold">Basic Limited</span>
-                        </label>
-                        <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                            <input type="checkbox" checked onchange="window.admin.toggleType('Normal')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-gray-400 font-bold">Normal</span>
-                        </label>
-                        <div class="h-px bg-gray-700 my-1 mx-2"></div>
-                        <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200">
-                            <input type="checkbox" onchange="window.admin.toggleAwakenedOnly()" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-red-400 font-bold"><i class="fa-solid fa-fire-flame-curved mr-1.5"></i>Awakened Only</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div id="loading" class="text-center py-16 hidden">
-                <i class="fas fa-circle-notch fa-spin text-4xl text-indigo-500 mb-3"></i>
-                <p class="text-gray-400 text-sm animate-pulse">Syncing with Google Sheets...</p>
-            </div>
-
-            <!-- Tier List Display -->
-            <div id="tierListContainer" class="flex flex-col gap-1 select-none"></div>
-        </main>
-    </div>
-
-    <!-- Changelog Modal -->
-    <div id="changelogPanel" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="w-full max-w-lg bg-gray-800 rounded-lg border border-gray-700 shadow-2xl flex flex-col h-[80vh]">
-            <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-gray-900">
-                <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-history mr-2 text-indigo-400"></i> Changelog</h3>
-                <button onclick="window.admin.toggleChangelog()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-times"></i></button>
-            </div>
-            <div id="changelogBody" class="overflow-y-auto p-4 space-y-4"></div>
-        </div>
-    </div>
-
-    <!-- Edit Modal -->
-    <div id="heroModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="window.admin.closeModal()"></div>
-        <div class="fixed inset-0 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4">
-                <div class="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl w-full max-w-lg p-6 relative">
-                    <h3 class="text-xl font-bold mb-4" id="modalTitle">Edit Hero</h3>
+        <!-- VIEW 2: MEDIA GALLERY -->
+        <div id="view-gallery" class="hidden flex-col flex-grow relative w-full fade-in bg-gray-900">
+            <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow">
+                
+                <!-- Upload Dropzone -->
+                <div class="bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl p-8 mb-8 text-center hover:border-indigo-500 transition-colors">
+                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-indigo-400 mb-3"></i>
+                    <h3 class="text-lg font-bold text-white mb-1">Upload to GitHub</h3>
+                    <p class="text-gray-400 text-sm mb-4">PNGs and JPGs will be automatically converted to highly optimized WebP format.</p>
                     
-                    <form id="heroForm" onsubmit="event.preventDefault(); window.admin.save();">
-                        <input type="hidden" id="heroId">
-                        <div class="grid grid-cols-1 gap-4 mb-4">
-                            <div>
-                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Name</label>
-                                <input type="text" id="heroName" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full focus:border-indigo-500 outline-none text-white font-bold">
-                            </div>
-                            <div>
-                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Image URL or Upload</label>
-                                <div class="flex gap-2">
-                                    <div class="relative flex-grow">
-                                        <input type="url" id="heroImage" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full focus:border-indigo-500 outline-none text-white pr-10">
-                                        <button type="button" onclick="window.admin.lookupImage()" title="Auto-find Image" class="absolute right-2 top-2 text-gray-400 hover:text-white mt-0.5">
-                                            <i class="fa-solid fa-magnifying-glass"></i>
-                                        </button>
-                                    </div>
-                                    <label class="bg-gray-700 hover:bg-gray-600 text-white rounded px-3 py-2 cursor-pointer border border-gray-600 transition-colors" title="Upload to GitHub">
-                                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                                        <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="window.admin.uploadImage()">
-                                    </label>
-                                    <span id="uploadLoading" class="hidden self-center text-indigo-400"><i class="fas fa-spinner fa-spin"></i></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-3 gap-4 mb-4">
-                            <div>
-                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Class</label>
-                                <select id="heroClass" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full outline-none text-white">
-                                    <option>Mage</option><option>Archer</option><option>Shield Guard</option>
-                                    <option>Swordman</option><option>Spearman</option><option>Cavalry</option>
-                                    <option>Pegasus Knight</option><option>Priest</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Hero Type</label>
-                                <select id="heroType" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full outline-none text-white">
-                                    <option value="Normal">Normal</option><option value="VIP">VIP</option><option value="Limited">Limited</option><option value="Basic Limited">Basic Limited</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Awakened</label>
-                                <select id="heroAwaken" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full outline-none text-white">
-                                    <option value="No">No</option><option value="Yes">Yes</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                             <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Role</label>
-                             <input type="text" id="heroRole" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full outline-none text-white">
-                        </div>
-
-                        <div class="bg-gray-700/50 p-3 rounded mb-4">
-                             <label class="text-xs text-indigo-400 uppercase font-bold block mb-2">Rankings</label>
-                             <div class="grid grid-cols-3 gap-2">
-                                <div><span class="text-[10px] text-gray-400 block mb-1">EARLY</span><select id="rankEarly" class="rank-select bg-gray-900 w-full rounded border border-gray-600 text-sm py-1"></select></div>
-                                <div><span class="text-[10px] text-gray-400 block mb-1">LATE</span><select id="rankLate" class="rank-select bg-gray-900 w-full rounded border border-gray-600 text-sm py-1"></select></div>
-                                <div><span class="text-[10px] text-gray-400 block mb-1">SACRAMENT</span><select id="rankSacr" class="rank-select bg-gray-900 w-full rounded border border-gray-600 text-sm py-1"></select></div>
-                             </div>
-                        </div>
-
-                        <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Notes</label>
-                            <textarea id="heroNotes" rows="3" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full mb-4 outline-none text-white"></textarea>
-                        </div>
-
-                        <div class="flex justify-between pt-2 border-t border-gray-700">
-                            <button type="button" onclick="window.admin.deleteHero()" id="btnDelete" class="text-red-400 hover:text-red-300 text-sm hidden">Delete Hero</button>
-                            <div class="flex gap-3 ml-auto">
-                                <button type="button" onclick="window.admin.closeModal()" class="px-4 py-2 bg-gray-600 rounded hover:bg-gray-500 text-white">Cancel</button>
-                                <button type="submit" id="btnSave" class="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 font-bold text-white shadow-lg">Save Changes</button>
-                            </div>
-                        </div>
-                    </form>
+                    <label class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-lg cursor-pointer font-bold shadow-lg transition-colors inline-flex items-center">
+                        <i class="fa-solid fa-folder-open mr-2"></i> Select File
+                        <input type="file" id="galleryUploadInput" accept="image/*" class="hidden" onchange="window.admin.galleryUpload()">
+                    </label>
+                    <div id="galleryUploadStatus" class="mt-3 text-sm font-bold text-yellow-400 hidden"><i class="fas fa-spinner fa-spin mr-1"></i> Processing & Uploading...</div>
                 </div>
-            </div>
+
+                <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                    <h2 class="text-xl font-bold"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> File Repository</h2>
+                    <button onclick="window.admin.loadGallery()" class="text-sm text-gray-400 hover:text-white"><i class="fa-solid fa-rotate-right mr-1"></i> Refresh</button>
+                </div>
+
+                <!-- Grid -->
+                <div id="galleryLoading" class="text-center py-16 hidden">
+                    <i class="fas fa-circle-notch fa-spin text-4xl text-indigo-500 mb-3"></i>
+                    <p class="text-gray-400 text-sm animate-pulse">Fetching images from GitHub...</p>
+                </div>
+
+                <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <!-- Images injected here -->
+                </div>
+            </main>
         </div>
     </div>
 
     <script>
         (function() {
             const API_URL = "https://script.google.com/macros/s/AKfycbyNcCFpZaPBG4vOFPCJjO7Wg3z6m0FcHwKR1tRRbvK9D5cPKY2OBpKYtnx-86mQnKSz/exec";
-            const BASE_RANKS = ["SSS", "SS", "S", "A", "B", "C", "D", "F", "Unranked"];
-            const RANKS = ["SSS+", "SSS", "SSS-", "SS+", "SS", "SS-", "S+", "S", "S-", "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F", "Unranked"];
             
-            const CLASS_ICONS = {
-                "Mage": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army8_Icon.png&w=32&q=75",
-                "Archer": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army5_Icon.png&w=32&q=75",
-                "Shield Guard": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army2_Icon.png&w=32&q=75",
-                "Swordman": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army1_Icon.png&w=32&q=75",
-                "Spearman": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army3_Icon.png&w=32&q=75",
-                "Cavalry": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army4_Icon.png&w=32&q=75",
-                "Pegasus Knight": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army7_Icon.png&w=32&q=75",
-                "Priest": "https://mwreborn.irunawiki.com/_next/image?url=%2Ficons%2Farmy_icons%2Ft_Army9_Icon.png&w=32&q=75"
-            };
+            let authToken = ""; 
+            let galleryImages = []; 
+            let currentView = 'dashboard';
 
-            const TIER_INFO = {
-                'early': { title: "Early Game Ranking", desc: "Based on heroes that do well with limited investment (0-2 stars, no sacrament). Emphasis on campaign." },
-                'late': { title: "Late Game Ranking", desc: "Based on maxed out heroes (6 stars, sacrament 5). Emphasis on PVP. Also used for mid-game." },
-                'sacrament': { title: "Sacrament Priority", desc: "The priority of every hero sacrament. High rank sacraments should be the focus of resources." }
-            };
-
-            let authToken = ""; // This now stores the secure session token
-            let heroes = [];
-            let currentMode = 'late';
-            let currentFilter = 'All';
-            let activeTypeFilters = new Set(['VIP', 'Limited', 'Basic Limited', 'Normal']);
-            let showAwakenedOnly = false;
-
-            // Define all functions first
             const init = () => {
-                const selects = document.querySelectorAll('.rank-select');
-                selects.forEach(s => s.innerHTML = RANKS.map(r => `<option value="${r}">${r}</option>`).join(''));
-                
-                renderClassButtons();
-                updateInfo();
-
-                // Close dropdown when clicking outside
-                document.addEventListener('click', (e) => {
-                    const btn = document.getElementById('typeFilterBtn');
-                    const menu = document.getElementById('typeMenu');
-                    if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
-                        menu.classList.add('hidden');
-                    }
-                });
-
-                // Token Auth Check
                 const savedToken = sessionStorage.getItem('mw_admin_token');
                 if(savedToken) {
                     authToken = savedToken;
-                    // Test token validity by attempting to fetch secure data
-                    refreshData().then(() => {
-                        document.getElementById('loginScreen').classList.add('hidden');
-                        document.getElementById('appContainer').classList.remove('hidden');
-                    }).catch(err => {
-                        console.warn("Session expired");
-                        sessionStorage.removeItem('mw_admin_token');
-                        authToken = "";
-                    });
+                    // Verify token validity quickly by requesting image list
+                    sendRequest({ action: "list_images" })
+                        .then(() => {
+                            document.getElementById('loginScreen').classList.add('hidden');
+                            document.getElementById('appContainer').classList.remove('hidden');
+                            switchView('dashboard');
+                        })
+                        .catch(err => {
+                            console.warn("Session expired");
+                            sessionStorage.removeItem('mw_admin_token');
+                            authToken = "";
+                        });
                 }
+            };
+
+            // --- VIEW SWITCHING ---
+            const switchView = (viewName) => {
+                currentView = viewName;
+                
+                document.getElementById('view-dashboard').classList.add('hidden');
+                document.getElementById('view-gallery').classList.add('hidden');
+                
+                if (viewName === 'dashboard') {
+                    document.getElementById('view-dashboard').classList.remove('hidden');
+                    document.getElementById('topBarTitle').innerText = "Admin Dashboard";
+                } else if (viewName === 'gallery') {
+                    document.getElementById('view-gallery').classList.remove('hidden');
+                    document.getElementById('topBarTitle').innerText = "Media Gallery";
+                    loadGallery();
+                }
+
+                buildHeaderControls();
+            };
+
+            const buildHeaderControls = () => {
+                const header = document.getElementById('headerControls');
+                if (currentView === 'dashboard') {
+                    header.innerHTML = `
+                        <button onclick="window.admin.logout()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1.5 rounded-lg transition-colors text-sm font-bold flex items-center shadow-lg">
+                            <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+                        </button>
+                    `;
+                } else if (currentView === 'gallery') {
+                    header.innerHTML = `
+                        <button onclick="window.admin.switchView('dashboard')" class="text-gray-400 hover:text-white mr-4 transition-colors font-bold text-sm">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                        </button>
+                        <span class="text-xs font-bold text-gray-400 border border-gray-600 rounded-lg px-3 py-1 bg-gray-900/50">${galleryImages.length} Files</span>
+                    `;
+                }
+            };
+
+            const logout = () => {
+                sessionStorage.removeItem('mw_admin_token');
+                window.location.reload();
             };
 
             const toggleSidebar = () => {
@@ -368,58 +240,7 @@
                 }
             };
 
-            const toggleTypeMenu = () => document.getElementById('typeMenu').classList.toggle('hidden');
-            const toggleType = (type) => { activeTypeFilters.has(type) ? activeTypeFilters.delete(type) : activeTypeFilters.add(type); render(); };
-            const toggleAwakenedOnly = () => { showAwakenedOnly = !showAwakenedOnly; render(); };
-
-            const renderClassButtons = () => {
-                const container = document.getElementById('classButtons');
-                if (container) {
-                    container.innerHTML = Object.keys(CLASS_ICONS).map(cls => {
-                        const isActive = currentFilter === cls;
-                        const btnClass = isActive ? 'class-btn-active' : 'class-btn-inactive';
-                        const iconStyle = isActive ? '' : 'opacity-70';
-                        return `
-                        <button onclick="window.admin.setFilter('${cls}')" 
-                            class="${btnClass} border rounded p-0.5 sm:p-0 sm:px-2 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 text-gray-300 hover:text-white w-8 h-8 sm:w-auto sm:h-auto">
-                            <img src="${CLASS_ICONS[cls]}" class="w-6 h-6 sm:w-4 sm:h-4 rounded-full object-cover ${iconStyle}">
-                            <span class="hidden sm:inline">${cls}</span>
-                        </button>
-                    `}).join('');
-                }
-            };
-
-            const setMode = (mode) => {
-                currentMode = mode;
-                ['early', 'late', 'sacrament'].forEach(m => {
-                    const btn = document.getElementById(`tab-${m}`);
-                    if (m === mode) {
-                        btn.classList.remove('text-gray-400', 'hover:text-white');
-                        btn.classList.add('bg-indigo-600', 'text-white', 'shadow-lg');
-                    } else {
-                        btn.classList.add('text-gray-400', 'hover:text-white');
-                        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg');
-                    }
-                });
-                updateInfo();
-                render();
-            };
-
-            const updateInfo = () => {
-                document.getElementById('listTitle').innerText = TIER_INFO[currentMode].title;
-                document.getElementById('listDesc').innerText = TIER_INFO[currentMode].desc;
-            };
-
-            const setFilter = (cls) => {
-                if (currentFilter === cls) {
-                    currentFilter = 'All';
-                } else {
-                    currentFilter = cls;
-                }
-                renderClassButtons();
-                render();
-            };
-
+            // --- GENERAL APP LOGIC ---
             const login = async () => {
                 const user = document.getElementById('usernameInput').value.trim();
                 const pass = document.getElementById('passwordInput').value.trim();
@@ -443,263 +264,24 @@
                     });
                     
                     const data = await res.json();
-
                     if (data.error) throw new Error(data.error);
 
-                    // Save the temporary secure token, NOT the password!
                     authToken = data.token;
                     sessionStorage.setItem('mw_admin_token', authToken);
                     
-                    await refreshData();
-                    
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('appContainer').classList.remove('hidden');
-                    render();
+                    switchView('dashboard');
 
                 } catch (e) {
-                    console.error("Login Error:", e);
                     err.innerText = e.message || "Incorrect Username or Password";
                     err.classList.remove('hidden');
-                    btn.innerText = "Unlock Editor";
+                    btn.innerText = "Login to Dashboard";
                     btn.disabled = false;
                 }
             };
 
-            const parseRank = (fullRank) => {
-                if (!fullRank || fullRank === 'Unranked' || fullRank === '') return { base: 'Unranked', sub: '' };
-                if (fullRank.startsWith('SSS')) return { base: 'SSS', sub: fullRank.replace('SSS', '') };
-                if (fullRank.startsWith('SS')) return { base: 'SS', sub: fullRank.replace('SS', '') };
-                if (fullRank.startsWith('S')) return { base: 'S', sub: fullRank.replace('S', '') };
-                return { base: fullRank.charAt(0), sub: fullRank.slice(1) };
-            };
-
-            const getSubRankSortWeight = (sub) => { return sub === '+' ? 2 : (sub === '-' ? 0 : 1); };
-
-            const render = () => {
-                const container = document.getElementById('tierListContainer');
-                const filterSearch = document.getElementById('searchInput').value.toLowerCase();
-                container.innerHTML = '';
-
-                const sortedHeroes = [...heroes].sort((a, b) => {
-                    const rankA = parseRank(a[currentMode]);
-                    const rankB = parseRank(b[currentMode]);
-                    const weightA = getSubRankSortWeight(rankA.sub);
-                    const weightB = getSubRankSortWeight(rankB.sub);
-                    if (weightA !== weightB) return weightB - weightA;
-                    return a.name.localeCompare(b.name);
-                });
-
-                BASE_RANKS.forEach(baseRank => {
-                    const heroesInRow = sortedHeroes.filter(h => {
-                        const { base } = parseRank(h[currentMode]);
-                        const classMatch = currentFilter === 'All' || h.heroClass === currentFilter;
-                        const searchMatch = h.name.toLowerCase().includes(filterSearch);
-                        let normalizedType = h.heroType || 'Normal';
-                        if(normalizedType === 'Basic Banner') normalizedType = 'Basic Limited';
-                        const typeMatch = activeTypeFilters.has(normalizedType);
-                        const awakenMatch = showAwakenedOnly ? h.hasAwaken === 'Yes' : true;
-                        return base === baseRank && classMatch && searchMatch && typeMatch && awakenMatch;
-                    });
-
-                    if (heroesInRow.length === 0) return;
-
-                    const rowDiv = document.createElement('div');
-                    rowDiv.className = 'flex w-full bg-gray-800 border-2 border-gray-700 min-h-[100px]';
-
-                    const baseRankLower = baseRank.replace(/[+-]/g, '').toLowerCase(); 
-                    const rankColorClass = baseRank === 'Unranked' ? 'bg-tier-unranked' : `bg-tier-${baseRankLower}`;
-                    
-                    const labelDiv = document.createElement('div');
-                    labelDiv.className = `w-20 sm:w-28 flex-shrink-0 flex items-center justify-center text-center font-bold text-xl sm:text-2xl border-r-2 border-gray-700 ${rankColorClass}`;
-                    labelDiv.innerText = baseRank;
-
-                    const contentDiv = document.createElement('div');
-                    contentDiv.className = 'flex-1 flex flex-col bg-[#1a1a1a]';
-
-                    const subGroups = { '+': [], 'neutral': [], '-': [] };
-                    heroesInRow.forEach(h => {
-                        const { sub } = parseRank(h[currentMode]);
-                        if (sub === '+') subGroups['+'].push(h);
-                        else if (sub === '-') subGroups['-'].push(h);
-                        else subGroups['neutral'].push(h);
-                    });
-
-                    let hasPrevContent = false;
-                    ['+', 'neutral', '-'].forEach(subKey => {
-                        if (subGroups[subKey].length > 0) {
-                            if (hasPrevContent) {
-                                const divider = document.createElement('div');
-                                divider.className = 'h-px bg-gray-700/50 mx-4';
-                                contentDiv.appendChild(divider);
-                            }
-
-                            const groupContainer = document.createElement('div');
-                            groupContainer.className = 'flex flex-wrap gap-4 p-4 justify-center sm:justify-start';
-
-                            subGroups[subKey].forEach(h => {
-                                const heroEl = document.createElement('div');
-                                
-                                let topBorderClass = 'border-t-normal';
-                                if (h.heroType === 'VIP') topBorderClass = 'border-t-vip';
-                                if (h.heroType === 'Limited') topBorderClass = 'border-t-limited';
-                                if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') topBorderClass = 'border-t-basic';
-
-                                heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded overflow-hidden ${topBorderClass} group transition-all`;
-                                heroEl.onclick = () => window.admin.openModal(h);
-                                
-                                const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
-                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-black/60 rounded-full p-0.5 border border-white/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain"></div>`;
-
-                                let dotHtml = '';
-                                if (h.lastUpdate && Math.ceil(Math.abs(new Date() - new Date(h.lastUpdate)) / (36e5)) < 72) {
-                                    dotHtml = '<div class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white/20 z-20 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse"></div>';
-                                }
-
-                                const { sub } = parseRank(h[currentMode]);
-                                let subColor = sub === '+' ? 'text-green-400' : (sub === '-' ? 'text-red-400' : 'text-white');
-                                const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-black/70 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
-
-                                const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
-
-                                heroEl.innerHTML = `
-                                    ${classIconHtml}${dotHtml}${subRankHtml}
-                                    <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent pt-3 pb-0.5 px-1 flex flex-col justify-end">
-                                        <div class="text-[9px] sm:text-[10px] text-center text-gray-100 leading-none font-bold break-words drop-shadow-md pb-0.5">${h.name}${awakenHtml}</div>
-                                    </div>
-                                    <div class="tooltip"><div class="font-bold flex justify-center items-center">${h.name}${awakenHtml}</div><div class="text-xs text-gray-300">Click to Edit</div></div>
-                                `;
-                                groupContainer.appendChild(heroEl);
-                            });
-                            contentDiv.appendChild(groupContainer);
-                            hasPrevContent = true;
-                        }
-                    });
-                    rowDiv.appendChild(labelDiv);
-                    rowDiv.appendChild(contentDiv);
-                    container.appendChild(rowDiv);
-                });
-            };
-
-            const openModal = (h = null) => {
-                const modal = document.getElementById('heroModal');
-                if (h) {
-                    document.getElementById('modalTitle').innerText = "Edit Hero";
-                    document.getElementById('heroId').value = h.id;
-                    document.getElementById('heroName').value = h.name;
-                    document.getElementById('heroImage').value = h.image;
-                    document.getElementById('heroClass').value = h.heroClass;
-                    document.getElementById('heroType').value = h.heroType || 'Normal';
-                    document.getElementById('heroAwaken').value = h.hasAwaken || 'No';
-                    document.getElementById('heroRole').value = h.heroRole || h.role;
-                    document.getElementById('heroNotes').value = h.notes;
-                    document.getElementById('rankEarly').value = h.early;
-                    document.getElementById('rankLate').value = h.late;
-                    document.getElementById('rankSacr').value = h.sacrament;
-                    document.getElementById('btnDelete').classList.remove('hidden');
-                } else {
-                    document.getElementById('modalTitle').innerText = "Add Hero";
-                    document.getElementById('heroForm').reset();
-                    document.getElementById('heroId').value = "";
-                    document.getElementById('heroAwaken').value = "No";
-                    document.getElementById('btnDelete').classList.add('hidden');
-                }
-                modal.classList.remove('hidden');
-            };
-
-            const closeModal = () => document.getElementById('heroModal').classList.add('hidden');
-
-            const save = async () => {
-                const btn = document.getElementById('btnSave');
-                btn.innerText = "Saving..."; btn.disabled = true;
-                
-                const formData = {
-                    id: document.getElementById('heroId').value,
-                    name: document.getElementById('heroName').value,
-                    image: document.getElementById('heroImage').value,
-                    heroClass: document.getElementById('heroClass').value,
-                    heroType: document.getElementById('heroType').value,
-                    hasAwaken: document.getElementById('heroAwaken').value,
-                    role: document.getElementById('heroRole').value,
-                    notes: document.getElementById('heroNotes').value,
-                    early: document.getElementById('rankEarly').value,
-                    late: document.getElementById('rankLate').value,
-                    sacrament: document.getElementById('rankSacr').value,
-                    lastUpdate: new Date().toISOString()
-                };
-
-                const existingIndex = heroes.findIndex(h => h.id == formData.id);
-                if (existingIndex >= 0) heroes[existingIndex] = { ...heroes[existingIndex], ...formData };
-                else {
-                    formData.id = formData.id || "temp_" + Date.now();
-                    heroes.push(formData);
-                }
-                render();
-                closeModal();
-
-                try {
-                    const res = await sendRequest({ action: "save", data: formData });
-                    if(formData.id.startsWith("temp_") && res.id) {
-                        const idx = heroes.findIndex(h => h.id === formData.id);
-                        if(idx !== -1) heroes[idx].id = res.id;
-                    }
-                } catch(e) {
-                    alert("Save failed! Reverting.");
-                    await refreshData();
-                } finally {
-                    btn.innerText = "Save Changes"; btn.disabled = false;
-                }
-            };
-
-            const deleteHero = async () => {
-                if(!confirm("Delete this hero?")) return;
-                const id = document.getElementById('heroId').value;
-                const oldHeroes = [...heroes];
-                heroes = heroes.filter(h => h.id != id);
-                render();
-                closeModal();
-
-                try {
-                    await sendRequest({ action: "delete", id: id });
-                } catch(e) {
-                    alert("Delete failed! Reverting.");
-                    heroes = oldHeroes;
-                    render();
-                }
-            };
-            
-            const uploadImage = async () => {
-                const input = document.getElementById('fileInput');
-                const file = input.files[0];
-                if(!file) return;
-
-                document.getElementById('uploadLoading').classList.remove('hidden');
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = async function () {
-                    const base64Content = reader.result.split(',')[1];
-                    try {
-                        const res = await sendRequest({ action: "upload_image", fileData: base64Content, fileName: file.name });
-                        document.getElementById('heroImage').value = res.url;
-                        input.value = ""; 
-                    } catch(e) { alert("Upload failed: " + e.message); } 
-                    finally { document.getElementById('uploadLoading').classList.add('hidden'); }
-                };
-            };
-            
-            const lookupImage = async () => {
-                const name = document.getElementById('heroName').value;
-                if(!name) return alert("Enter hero name first.");
-                const icon = document.querySelector('button[title="Auto-find Image"] i');
-                icon.className = "fas fa-circle-notch fa-spin";
-                const res = await sendRequest({ action: "find_image", name: name });
-                icon.className = "fa-solid fa-magnifying-glass";
-                if(res && res.url) document.getElementById('heroImage').value = res.url;
-                else alert("No match found.");
-            };
-
             const sendRequest = async (payload) => {
-                // Pass the secure session token to the backend
                 payload.token = authToken; 
                 try {
                     const res = await fetch(API_URL, { 
@@ -712,63 +294,160 @@
                     return data;
                 } catch(e) { throw e; }
             };
-            
-            const refreshData = async () => {
-                document.getElementById('loading').classList.remove('hidden');
-                document.getElementById('tierListContainer').classList.add('hidden');
-                const res = await sendRequest({ action: "get_all_data" });
-                heroes = res || [];
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('tierListContainer').classList.remove('hidden');
-                render();
+
+            // --- CLIENT SIDE WEBP CONVERSION ---
+            const fileToBase64WebP = (file) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.src = e.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            canvas.getContext('2d').drawImage(img, 0, 0);
+                            const webpDataUrl = canvas.toDataURL('image/webp', 0.85);
+                            resolve(webpDataUrl.split(',')[1]);
+                        };
+                        img.onerror = () => reject("Image processing failed.");
+                    };
+                    reader.onerror = () => reject("File reading failed.");
+                });
             };
 
-            const toggleChangelog = async () => {
-                const panel = document.getElementById('changelogPanel');
-                if (panel.classList.contains('hidden')) {
-                    panel.classList.remove('hidden');
-                    document.getElementById('changelogBody').innerHTML = '<div class="text-center text-gray-500 py-10"><i class="fas fa-circle-notch fa-spin mr-2"></i> Loading logs...</div>';
+            const convertExistingToWebP = async (fileName, downloadUrl, path, sha) => {
+                if(!confirm(`Convert ${fileName} to WebP? This will replace the current PNG/JPG.`)) return;
+                
+                try {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous"; 
+                    img.src = downloadUrl;
+                    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
                     
-                    try {
-                        const res = await sendRequest({ action: "get_logs" });
-                        const logs = res || [];
-                        if (logs.length === 0) {
-                            document.getElementById('changelogBody').innerHTML = '<div class="text-center text-gray-500 py-10">No logs found.</div>';
-                            return;
-                        }
-
-                        const grouped = {};
-                        logs.forEach(log => {
-                            let dateStr = "Unknown";
-                            try { dateStr = new Date(log.timestamp).toLocaleDateString(undefined, {month:'short', day:'numeric'}); } catch(e) { dateStr = log.timestamp; }
-                            if (!grouped[dateStr]) grouped[dateStr] = [];
-                            grouped[dateStr].push(log);
-                        });
-
-                        document.getElementById('changelogBody').innerHTML = Object.keys(grouped).map(date => `
-                            <div class="mb-6">
-                                <h4 class="text-indigo-400 font-bold text-sm mb-2 border-b border-gray-700 pb-1">${date}</h4>
-                                <div class="space-y-2">
-                                    ${grouped[date].map(l => `
-                                        <div class="bg-gray-700/30 p-2 rounded text-xs flex gap-2">
-                                            <span class="font-bold w-16 ${l.action==='CREATE'?'text-green-400':l.action==='DELETE'?'text-red-400':'text-blue-400'}">${l.action}</span>
-                                            <span class="text-gray-300 break-words flex-1 whitespace-pre-wrap">${l.details}</span>
-                                            <span class="text-gray-500 text-[10px] w-12 text-right">${new Date(l.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        `).join('');
-                    } catch(e) {
-                        document.getElementById('changelogBody').innerHTML = `<div class="text-center text-red-400 py-10">Error: ${e.message}</div>`;
-                    }
-                } else {
-                    panel.classList.add('hidden');
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    const base64 = canvas.toDataURL('image/webp', 0.85).split(',')[1];
+                    
+                    const newName = fileName.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+                    
+                    await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
+                    await sendRequest({ action: 'delete_image', path: path, sha: sha });
+                    
+                    alert("Successfully converted to WebP!");
+                    loadGallery();
+                } catch(e) {
+                    alert("Failed to convert image. CORS or API error: " + e.message);
                 }
             };
 
-            window.admin = { init, setMode, login, openModal, closeModal, save, deleteHero, render, toggleChangelog, lookupImage, setFilter, toggleTypeMenu, toggleType, uploadImage, toggleAwakenedOnly, toggleSidebar };
+            // --- MEDIA GALLERY LOGIC ---
+            const loadGallery = async () => {
+                document.getElementById('galleryLoading').classList.remove('hidden');
+                document.getElementById('galleryGrid').innerHTML = '';
+                
+                try {
+                    const res = await sendRequest({ action: "list_images" });
+                    galleryImages = res || [];
+                    buildHeaderControls();
+                    renderGallery();
+                } catch(e) {
+                    alert("Failed to load gallery: " + e.message);
+                } finally {
+                    document.getElementById('galleryLoading').classList.add('hidden');
+                }
+            };
+
+            const renderGallery = () => {
+                const grid = document.getElementById('galleryGrid');
+                grid.innerHTML = galleryImages.map(img => {
+                    const isConvertible = img.name.match(/\.(png|jpg|jpeg)$/i);
+                    const convertBtn = isConvertible 
+                        ? `<button onclick="window.admin.convertExistingToWebP('${img.name}', '${img.download_url}', '${img.path}', '${img.sha}')" class="absolute top-2 left-2 bg-yellow-500 hover:bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded shadow-lg z-20" title="Convert to WebP">AUTO WEBP</button>` 
+                        : `<span class="absolute top-2 left-2 bg-green-500/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg z-20">WEBP</span>`;
+                    
+                    return `
+                    <div class="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 relative group aspect-square flex flex-col">
+                        ${convertBtn}
+                        <button onclick="window.admin.deleteFromGallery('${img.path}', '${img.sha}')" class="absolute top-2 right-2 bg-red-600 hover:bg-red-500 text-white w-6 h-6 rounded-full shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" title="Delete">
+                            <i class="fa-solid fa-trash text-[10px]"></i>
+                        </button>
+                        <div class="flex-grow relative bg-gray-900/50 p-2 flex items-center justify-center">
+                            <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-lg">
+                        </div>
+                        <div class="bg-gray-800 p-2 border-t border-gray-700 flex justify-between items-center z-10">
+                            <span class="text-[10px] text-gray-400 truncate pr-2">${img.name}</span>
+                            <button onclick="window.admin.copyUrl('${img.download_url}')" class="text-gray-400 hover:text-white" title="Copy URL"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                `}).join('');
+            };
+
+            const galleryUpload = async () => {
+                const input = document.getElementById('galleryUploadInput');
+                const file = input.files[0];
+                if(!file) return;
+
+                const status = document.getElementById('galleryUploadStatus');
+                status.classList.remove('hidden');
+
+                try {
+                    let finalName = file.name;
+                    let finalBase64 = "";
+
+                    if (file.type.match(/image\/(png|jpeg|jpg)/)) {
+                        finalName = finalName.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+                        finalBase64 = await fileToBase64WebP(file);
+                    } else {
+                        finalBase64 = await new Promise((res, rej) => {
+                            const reader = new FileReader();
+                            reader.onload = e => res(e.target.result.split(',')[1]);
+                            reader.onerror = rej;
+                            reader.readAsDataURL(file);
+                        });
+                    }
+
+                    const exists = galleryImages.find(img => img.name.toLowerCase() === finalName.toLowerCase());
+                    if (exists) {
+                        if (!confirm(`A file named "${finalName}" already exists. Do you want to overwrite it?`)) {
+                            status.classList.add('hidden');
+                            input.value = "";
+                            return;
+                        }
+                    }
+
+                    await sendRequest({ action: "upload_image", fileData: finalBase64, fileName: finalName });
+                    input.value = ""; 
+                    await loadGallery(); 
+                } catch(e) {
+                    alert("Upload failed: " + e.message);
+                } finally {
+                    status.classList.add('hidden');
+                }
+            };
+
+            const deleteFromGallery = async (path, sha) => {
+                if(!confirm("Permanently delete this image from GitHub? Broken images on the site will result if they are still linked.")) return;
+                try {
+                    await sendRequest({ action: "delete_image", path: path, sha: sha });
+                    loadGallery(); 
+                } catch(e) {
+                    alert("Failed to delete: " + e.message);
+                }
+            };
+
+            const copyUrl = (url) => {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert("URL Copied to clipboard!");
+                });
+            };
+
+            window.admin = { init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, convertExistingToWebP, copyUrl, toggleSidebar };
         })();
+
         window.onload = window.admin.init;
     </script>
 </body>
