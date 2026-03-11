@@ -152,6 +152,17 @@
                     </div>
                 </div>
 
+                <!-- PROGRESS BAR UI -->
+                <div id="conversionProgressContainer" class="hidden w-full mb-6">
+                    <div class="flex justify-between text-xs mb-1 font-bold text-gray-400">
+                        <span class="text-indigo-400 animate-pulse"><i class="fas fa-spinner fa-spin mr-1"></i> Batch Converting Images...</span>
+                        <span id="conversionProgressText">0 / 0</span>
+                    </div>
+                    <div class="w-full bg-gray-800 rounded-full h-2 border border-gray-700 overflow-hidden">
+                        <div id="conversionProgressBar" class="bg-indigo-500 h-2 rounded-full transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+
                 <!-- Grid -->
                 <div id="galleryLoading" class="text-center py-16 hidden">
                     <i class="fas fa-circle-notch fa-spin text-4xl text-indigo-500 mb-3"></i>
@@ -390,55 +401,88 @@
                 }
             };
 
+            // NEW: Batch Processing to avoid timeouts and improve speed
             const convertSelected = async () => {
                 if(selectedImages.size === 0) return;
                 if(!confirm(`Convert ${selectedImages.size} selected image(s) to WebP and automatically update all associated heroes?`)) return;
 
                 const btn = document.getElementById('btnConvertSelected');
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Converting...`;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Processing...`;
                 btn.disabled = true;
+
+                // Show Progress Bar
+                const progressContainer = document.getElementById('conversionProgressContainer');
+                const progressBar = document.getElementById('conversionProgressBar');
+                const progressText = document.getElementById('conversionProgressText');
+                progressContainer.classList.remove('hidden');
+
+                const imgsToConvert = galleryImages.filter(img => selectedImages.has(img.sha));
+                const total = imgsToConvert.length;
+                let completed = 0;
+                let updateCount = 0;
+
+                const updateUI = () => {
+                    const percent = Math.round((completed / total) * 100);
+                    progressBar.style.width = `${percent}%`;
+                    progressText.innerText = `${completed} / ${total} Converted`;
+                };
+                
+                updateUI();
 
                 try {
                     const heroes = await sendRequest({ action: "get_all_data" });
-                    const imgsToConvert = galleryImages.filter(img => selectedImages.has(img.sha));
-                    let updateCount = 0;
                     
-                    for(let img of imgsToConvert) {
-                        try {
-                            const imageObj = new Image();
-                            imageObj.crossOrigin = "Anonymous"; 
-                            imageObj.src = img.download_url;
-                            await new Promise((resolve, reject) => { imageObj.onload = resolve; imageObj.onerror = reject; });
-                            
-                            const canvas = document.createElement('canvas');
-                            canvas.width = imageObj.width;
-                            canvas.height = imageObj.height;
-                            canvas.getContext('2d').drawImage(imageObj, 0, 0);
-                            const base64 = canvas.toDataURL('image/webp', 0.85).split(',')[1];
-                            
-                            const newName = img.name.replace(/\.(png|jpg|jpeg)$/i, '.webp');
-                            const uploadRes = await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
-                            
-                            // Update Heroes in Database
-                            const affectedHeroes = heroes.filter(h => h.image === img.download_url);
-                            for (let hero of affectedHeroes) {
-                                hero.image = uploadRes.url;
-                                await sendRequest({ action: "save", data: hero });
-                                updateCount++;
-                            }
+                    // Process in concurrent batches of 3 to speed up dramatically without hitting rate limits
+                    const batchSize = 3;
+                    for (let i = 0; i < total; i += batchSize) {
+                        const batch = imgsToConvert.slice(i, i + batchSize);
+                        
+                        await Promise.all(batch.map(async (img) => {
+                            try {
+                                const imageObj = new Image();
+                                imageObj.crossOrigin = "Anonymous"; 
+                                imageObj.src = img.download_url;
+                                await new Promise((resolve, reject) => { imageObj.onload = resolve; imageObj.onerror = reject; });
+                                
+                                const canvas = document.createElement('canvas');
+                                canvas.width = imageObj.width;
+                                canvas.height = imageObj.height;
+                                canvas.getContext('2d').drawImage(imageObj, 0, 0);
+                                const base64 = canvas.toDataURL('image/webp', 0.85).split(',')[1];
+                                
+                                const newName = img.name.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+                                const uploadRes = await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
+                                
+                                // Update Heroes in Database
+                                const affectedHeroes = heroes.filter(h => h.image === img.download_url);
+                                for (let hero of affectedHeroes) {
+                                    hero.image = uploadRes.url;
+                                    await sendRequest({ action: "save", data: hero });
+                                    updateCount++;
+                                }
 
-                            // Delete old image
-                            await sendRequest({ action: 'delete_image', path: img.path, sha: img.sha });
-                            
-                        } catch(err) {
-                            console.error("Failed to convert " + img.name, err);
-                        }
+                                // Delete old image
+                                await sendRequest({ action: 'delete_image', path: img.path, sha: img.sha });
+                                
+                            } catch(err) {
+                                console.error("Failed to convert " + img.name, err);
+                            } finally {
+                                completed++;
+                                updateUI();
+                            }
+                        }));
                     }
                     
-                    alert(`Bulk conversion complete! Auto-updated ${updateCount} hero(es).`);
-                    loadGallery();
+                    // Add slight delay for visual completion
+                    setTimeout(() => {
+                        alert(`Bulk conversion complete! Auto-updated ${updateCount} hero(es).`);
+                        progressContainer.classList.add('hidden');
+                        loadGallery();
+                    }, 500);
+
                 } catch(e) {
                     alert("Bulk conversion error: " + e.message);
+                    progressContainer.classList.add('hidden');
                 } finally {
                     btn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Convert (<span id="selectedCount">${selectedImages.size}</span>)`;
                     btn.disabled = false;
