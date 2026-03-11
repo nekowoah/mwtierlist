@@ -46,33 +46,41 @@
     <!-- Navigation (Sticky Top Bar) -->
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl">
         <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col gap-2">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-3">
-                <div class="flex items-center gap-4 sm:gap-6">
+            <!-- Updated flex properties to left-align components on mobile screens -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 w-full">
+                
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full md:w-auto">
+                    <!-- Menu & Logo -->
                     <div class="flex items-center gap-2 sm:gap-3">
                         <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors mr-1 outline-none">
                             <i class="fa-solid fa-bars text-lg sm:text-xl"></i>
                         </button>
                         <img id="adminIconBadge" src="https://i.imgur.com/1h28KPo.png" class="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)] transition-all">
-                        <span class="font-bold text-lg sm:text-xl tracking-wide hidden sm:block" id="siteTitleText">MWR Tierlist</span>
+                        <span class="font-bold text-lg sm:text-xl tracking-wide sm:block" id="siteTitleText">MWR Tierlist</span>
                     </div>
                     
-                    <div class="flex bg-gray-900 rounded-lg p-1">
-                        <button onclick="app.setMode('early')" id="tab-early" class="px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Early Game</button>
-                        <button onclick="app.setMode('late')" id="tab-late" class="px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-lg transition-colors">Late Game</button>
-                        <button onclick="app.setMode('sacrament')" id="tab-sacrament" class="px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
+                    <!-- Tabs -->
+                    <div class="flex bg-gray-900 rounded-lg p-1 w-full sm:w-auto justify-between sm:justify-start">
+                        <button onclick="app.setMode('early')" id="tab-early" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Early Game</button>
+                        <button onclick="app.setMode('late')" id="tab-late" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-lg transition-colors">Late Game</button>
+                        <button onclick="app.setMode('sacrament')" id="tab-sacrament" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
                     </div>
                 </div>
 
-                <div class="flex gap-3 sm:gap-4 items-center w-full md:w-auto" id="navControls">
+                <!-- Right Side Controls -->
+                <div class="flex gap-3 sm:gap-4 items-center w-full md:w-auto justify-between md:justify-end" id="navControls">
                     <div class="relative group flex-grow md:flex-grow-0">
                         <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search..." class="bg-gray-900/50 text-white rounded-full px-4 py-1.5 pl-9 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
                         <i class="fa-solid fa-search absolute left-3 top-2 text-gray-400 text-xs group-focus-within:text-yellow-500"></i>
                     </div>
-                    <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0" title="View Changelog"><i class="fa-solid fa-clock-rotate-left text-lg"></i></button>
-                    <a href="https://dsc.gg/legion-mw" id="discordLink" target="_blank" class="bg-[#5865F2] hover:bg-[#4752C4] text-white p-1.5 rounded-full transition-colors w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-lg flex-shrink-0" title="Join our Discord">
-                        <i class="fa-brands fa-discord text-sm sm:text-base"></i>
-                    </a>
+                    <div class="flex gap-3 items-center flex-shrink-0">
+                        <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-white transition-colors" title="View Changelog"><i class="fa-solid fa-clock-rotate-left text-lg"></i></button>
+                        <a href="https://dsc.gg/legion-mw" id="discordLink" target="_blank" class="bg-[#5865F2] hover:bg-[#4752C4] text-white p-1.5 rounded-full transition-colors w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-lg" title="Join our Discord">
+                            <i class="fa-brands fa-discord text-sm sm:text-base"></i>
+                        </a>
+                    </div>
                 </div>
+
             </div>
         </div>
     </nav>
