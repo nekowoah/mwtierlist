@@ -141,9 +141,15 @@
                     <div id="galleryUploadStatus" class="mt-3 text-sm font-bold text-yellow-400 hidden"><i class="fas fa-spinner fa-spin mr-1"></i> Processing & Uploading...</div>
                 </div>
 
-                <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-gray-700 pb-3 gap-3">
                     <h2 class="text-xl font-bold"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> File Repository</h2>
-                    <button onclick="window.admin.loadGallery()" class="text-sm text-gray-400 hover:text-white"><i class="fa-solid fa-rotate-right mr-1"></i> Refresh</button>
+                    
+                    <!-- Bulk Action Controls -->
+                    <div class="flex gap-2 items-center w-full sm:w-auto justify-between sm:justify-end">
+                        <button onclick="window.admin.selectAllNonWebp()" class="text-sm text-gray-400 hover:text-white" id="btnSelectAll"><i class="fa-solid fa-check-double mr-1"></i> Select Non-WebP</button>
+                        <button onclick="window.admin.convertSelected()" id="btnConvertSelected" class="text-sm bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1.5 rounded hidden font-bold transition-colors shadow-lg"><i class="fa-solid fa-bolt mr-1"></i> Convert (<span id="selectedCount">0</span>)</button>
+                        <button onclick="window.admin.loadGallery()" class="text-sm text-gray-400 hover:text-white ml-2"><i class="fa-solid fa-rotate-right mr-1"></i> Refresh</button>
+                    </div>
                 </div>
 
                 <!-- Grid -->
@@ -165,6 +171,7 @@
             
             let authToken = ""; 
             let galleryImages = []; 
+            let selectedImages = new Set(); // Tracks multi-selected images
             let currentView = 'dashboard';
 
             const init = () => {
@@ -295,7 +302,7 @@
                 } catch(e) { throw e; }
             };
 
-            // --- CLIENT SIDE WEBP CONVERSION ---
+            // --- CLIENT SIDE WEBP CONVERSION & MULTI-SELECT ---
             const fileToBase64WebP = (file) => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -318,9 +325,12 @@
             };
 
             const convertExistingToWebP = async (fileName, downloadUrl, path, sha) => {
-                if(!confirm(`Convert ${fileName} to WebP? This will replace the current PNG/JPG.`)) return;
+                if(!confirm(`Convert ${fileName} to WebP and automatically update any heroes using this image?`)) return;
                 
                 try {
+                    // Fetch heroes first to update them later
+                    const heroes = await sendRequest({ action: "get_all_data" });
+
                     const img = new Image();
                     img.crossOrigin = "Anonymous"; 
                     img.src = downloadUrl;
@@ -334,13 +344,104 @@
                     
                     const newName = fileName.replace(/\.(png|jpg|jpeg)$/i, '.webp');
                     
-                    await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
+                    const uploadRes = await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
+                    
+                    // Update Heroes in Database
+                    const affectedHeroes = heroes.filter(h => h.image === downloadUrl);
+                    for (let hero of affectedHeroes) {
+                        hero.image = uploadRes.url;
+                        await sendRequest({ action: "save", data: hero });
+                    }
+
                     await sendRequest({ action: 'delete_image', path: path, sha: sha });
                     
-                    alert("Successfully converted to WebP!");
+                    alert(`Successfully converted to WebP! Auto-updated ${affectedHeroes.length} hero(es).`);
                     loadGallery();
                 } catch(e) {
                     alert("Failed to convert image. CORS or API error: " + e.message);
+                }
+            };
+
+            // Bulk Control Functions
+            const toggleImageSelection = (sha) => {
+                if(selectedImages.has(sha)) selectedImages.delete(sha);
+                else selectedImages.add(sha);
+                updateBulkControls();
+            };
+
+            const selectAllNonWebp = () => {
+                const convertibles = galleryImages.filter(img => img.name.match(/\.(png|jpg|jpeg)$/i));
+                if(selectedImages.size === convertibles.length && convertibles.length > 0) {
+                    selectedImages.clear(); // Toggle off if all are currently selected
+                } else {
+                    convertibles.forEach(img => selectedImages.add(img.sha));
+                }
+                renderGallery(); 
+                updateBulkControls();
+            };
+
+            const updateBulkControls = () => {
+                const btn = document.getElementById('btnConvertSelected');
+                if(selectedImages.size > 0) {
+                    btn.classList.remove('hidden');
+                    document.getElementById('selectedCount').innerText = selectedImages.size;
+                } else {
+                    btn.classList.add('hidden');
+                }
+            };
+
+            const convertSelected = async () => {
+                if(selectedImages.size === 0) return;
+                if(!confirm(`Convert ${selectedImages.size} selected image(s) to WebP and automatically update all associated heroes?`)) return;
+
+                const btn = document.getElementById('btnConvertSelected');
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Converting...`;
+                btn.disabled = true;
+
+                try {
+                    const heroes = await sendRequest({ action: "get_all_data" });
+                    const imgsToConvert = galleryImages.filter(img => selectedImages.has(img.sha));
+                    let updateCount = 0;
+                    
+                    for(let img of imgsToConvert) {
+                        try {
+                            const imageObj = new Image();
+                            imageObj.crossOrigin = "Anonymous"; 
+                            imageObj.src = img.download_url;
+                            await new Promise((resolve, reject) => { imageObj.onload = resolve; imageObj.onerror = reject; });
+                            
+                            const canvas = document.createElement('canvas');
+                            canvas.width = imageObj.width;
+                            canvas.height = imageObj.height;
+                            canvas.getContext('2d').drawImage(imageObj, 0, 0);
+                            const base64 = canvas.toDataURL('image/webp', 0.85).split(',')[1];
+                            
+                            const newName = img.name.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+                            const uploadRes = await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
+                            
+                            // Update Heroes in Database
+                            const affectedHeroes = heroes.filter(h => h.image === img.download_url);
+                            for (let hero of affectedHeroes) {
+                                hero.image = uploadRes.url;
+                                await sendRequest({ action: "save", data: hero });
+                                updateCount++;
+                            }
+
+                            // Delete old image
+                            await sendRequest({ action: 'delete_image', path: img.path, sha: img.sha });
+                            
+                        } catch(err) {
+                            console.error("Failed to convert " + img.name, err);
+                        }
+                    }
+                    
+                    alert(`Bulk conversion complete! Auto-updated ${updateCount} hero(es).`);
+                    loadGallery();
+                } catch(e) {
+                    alert("Bulk conversion error: " + e.message);
+                } finally {
+                    btn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Convert (<span id="selectedCount">${selectedImages.size}</span>)`;
+                    btn.disabled = false;
                 }
             };
 
@@ -348,6 +449,8 @@
             const loadGallery = async () => {
                 document.getElementById('galleryLoading').classList.remove('hidden');
                 document.getElementById('galleryGrid').innerHTML = '';
+                selectedImages.clear();
+                updateBulkControls();
                 
                 try {
                     const res = await sendRequest({ action: "list_images" });
@@ -365,14 +468,22 @@
                 const grid = document.getElementById('galleryGrid');
                 grid.innerHTML = galleryImages.map(img => {
                     const isConvertible = img.name.match(/\.(png|jpg|jpeg)$/i);
+                    const isChecked = selectedImages.has(img.sha) ? 'checked' : '';
+                    
+                    // Add checkbox for standard images
+                    const checkboxHtml = isConvertible 
+                        ? `<input type="checkbox" class="absolute top-2 right-10 z-20 w-4 h-4 cursor-pointer accent-indigo-600 bg-gray-900 border-gray-600 rounded" onchange="window.admin.toggleImageSelection('${img.sha}')" ${isChecked}>` 
+                        : '';
+
                     const convertBtn = isConvertible 
                         ? `<button onclick="window.admin.convertExistingToWebP('${img.name}', '${img.download_url}', '${img.path}', '${img.sha}')" class="absolute top-2 left-2 bg-yellow-500 hover:bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded shadow-lg z-20" title="Convert to WebP">AUTO WEBP</button>` 
                         : `<span class="absolute top-2 left-2 bg-green-500/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg z-20">WEBP</span>`;
                     
                     return `
-                    <div class="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 relative group aspect-square flex flex-col">
+                    <div class="bg-gray-800 rounded-lg overflow-hidden border ${isChecked ? 'border-indigo-500' : 'border-gray-700'} relative group aspect-square flex flex-col transition-colors">
                         ${convertBtn}
-                        <button onclick="window.admin.deleteFromGallery('${img.path}', '${img.sha}')" class="absolute top-2 right-2 bg-red-600 hover:bg-red-500 text-white w-6 h-6 rounded-full shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" title="Delete">
+                        ${checkboxHtml}
+                        <button onclick="window.admin.deleteFromGallery('${img.path}', '${img.sha}')" class="absolute top-1.5 right-2 bg-red-600 hover:bg-red-500 text-white w-6 h-6 rounded-full shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" title="Delete">
                             <i class="fa-solid fa-trash text-[10px]"></i>
                         </button>
                         <div class="flex-grow relative bg-gray-900/50 p-2 flex items-center justify-center">
@@ -445,7 +556,7 @@
                 });
             };
 
-            window.admin = { init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, convertExistingToWebP, copyUrl, toggleSidebar };
+            window.admin = { init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, convertExistingToWebP, copyUrl, toggleSidebar, toggleImageSelection, selectAllNonWebp, convertSelected };
         })();
 
         window.onload = window.admin.init;
