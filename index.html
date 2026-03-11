@@ -595,6 +595,11 @@
                     document.getElementById('heroId').value = "";
                     document.getElementById('heroAwaken').value = "No";
                     document.getElementById('btnDelete').classList.add('hidden');
+                    
+                    // SET DEFAULTS FOR NEW HEROES
+                    document.getElementById('rankEarly').value = "Unranked";
+                    document.getElementById('rankLate').value = "Unranked";
+                    document.getElementById('rankSacr').value = "Unranked";
                 }
                 modal.classList.remove('hidden');
             };
