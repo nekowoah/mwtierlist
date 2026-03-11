@@ -1,0 +1,62 @@
+const AppMenu = (() => {
+    
+    // --- ADD NEW PAGES HERE ---
+    // Simply add a new line with the page name, file url, and a font-awesome icon!
+    const pages = [
+        { name: "Tierlist", url: "index.html", icon: "fa-list-ul" },
+        { name: "Information", url: "info.html", icon: "fa-book-open" }
+        // Example: { name: "Calculators", url: "calc.html", icon: "fa-calculator" }
+    ];
+
+    // The activeColor parameter allows different pages to have different theme colors (e.g., indigo for tierlist, blue for info)
+    const build = (isAdmin, activeColor = "indigo") => {
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        const hash = isAdmin ? "#admin" : ""; 
+
+        const menuHtml = pages.map(p => {
+            const isActive = currentPath === p.url;
+            const activeClasses = isActive 
+                ? `bg-${activeColor}-600/20 text-${activeColor}-400 border-${activeColor}-500/30` 
+                : "text-gray-300 hover:bg-gray-800 hover:text-white border-transparent";
+            
+            return `
+                <a href="${p.url}${hash}" class="flex items-center gap-3 px-4 py-2.5 border rounded-lg font-bold transition-colors w-full text-left ${activeClasses}">
+                    <i class="fa-solid ${p.icon} w-5 text-center"></i> ${p.name}
+                </a>
+            `;
+        }).join('');
+
+        const sidebarHTML = `
+            <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden transition-opacity" onclick="app.toggleSidebar()"></div>
+            <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-700 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
+                <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800">
+                    <div class="flex items-center gap-3">
+                        <img src="https://i.imgur.com/1h28KPo.png" class="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)]">
+                        <span class="font-bold text-lg text-white">Menu</span>
+                    </div>
+                    <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-white p-1"><i class="fa-solid fa-times text-xl"></i></button>
+                </div>
+                
+                <div class="p-3 text-xs font-bold text-gray-500 uppercase tracking-wider mt-2">Navigation</div>
+                <div class="flex flex-col gap-1 px-3 flex-grow">
+                    ${menuHtml}
+                    <div class="h-px bg-gray-700 my-2 mx-2"></div>
+                    <a href="admin.html" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-${activeColor}-400 rounded-lg font-bold transition-colors w-full text-left border border-transparent">
+                        <i class="fa-solid fa-shield-halved w-5 text-center"></i> Admin Panel
+                    </a>
+                    
+                    ${isAdmin ? `
+                    <button onclick="app.exitAdmin()" class="flex items-center gap-3 px-4 py-2.5 text-red-400 hover:bg-gray-800 hover:text-red-300 rounded-lg font-bold transition-colors w-full text-left border border-transparent mt-auto mb-4">
+                        <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> Exit Admin Mode
+                    </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        // Inject instantly into the body
+        document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
+    };
+
+    return { build };
+})();
