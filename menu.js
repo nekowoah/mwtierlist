@@ -1,14 +1,26 @@
 const AppMenu = (() => {
     
-    // --- ADD NEW PAGES HERE ---
-    // Simply add a new line with the page name, file url, and a font-awesome icon!
+    // --- THEME INITIALIZATION ---
+    // Runs instantly to prevent white-flashes on page load
+    const initTheme = () => {
+        const savedTheme = localStorage.getItem('mwr_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    };
+    initTheme();
+
+    const toggleTheme = () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const target = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', target);
+        localStorage.setItem('mwr_theme', target);
+    };
+
+    // --- PAGE LINKS ---
     const pages = [
         { name: "Tierlist", url: "index.html", icon: "fa-list-ul" },
         { name: "Information", url: "info.html", icon: "fa-book-open" }
-        // Example: { name: "Calculators", url: "calc.html", icon: "fa-calculator" }
     ];
 
-    // The activeColor parameter allows different pages to have different theme colors (e.g., indigo for tierlist, blue for info)
     const build = (isAdmin, activeColor = "indigo") => {
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
         const hash = isAdmin ? "#admin" : ""; 
@@ -45,8 +57,13 @@ const AppMenu = (() => {
                         <i class="fa-solid fa-shield-halved w-5 text-center"></i> Admin Panel
                     </a>
                     
+                    <!-- NEW THEME TOGGLE BUTTON -->
+                    <button onclick="AppMenu.toggleTheme()" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-yellow-400 rounded-lg font-bold transition-colors w-full text-left border border-transparent mt-auto mb-2">
+                        <i class="fa-solid fa-circle-half-stroke w-5 text-center"></i> Toggle Theme
+                    </button>
+
                     ${isAdmin ? `
-                    <button onclick="app.exitAdmin()" class="flex items-center gap-3 px-4 py-2.5 text-red-400 hover:bg-gray-800 hover:text-red-300 rounded-lg font-bold transition-colors w-full text-left border border-transparent mt-auto mb-4">
+                    <button onclick="app.exitAdmin()" class="flex items-center gap-3 px-4 py-2.5 text-red-400 hover:bg-gray-800 hover:text-red-300 rounded-lg font-bold transition-colors w-full text-left border border-transparent mb-4">
                         <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> Exit Admin Mode
                     </button>
                     ` : ''}
@@ -54,9 +71,9 @@ const AppMenu = (() => {
             </div>
         `;
         
-        // Inject instantly into the body
         document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
     };
 
-    return { build };
+    // Export both build and toggleTheme so the button can access it
+    return { build, toggleTheme };
 })();
