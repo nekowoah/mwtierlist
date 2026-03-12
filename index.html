@@ -3,136 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MWR Tierlist | Best Heroes & Strategy Guide</title>
     
-    <!-- PRIMARY SEO META TAGS -->
-    <title>Mini Warriors Reborn Tierlist and Guides</title>
-    <meta name="title" content="Mini Warriors Reborn Tierlist">
-    <meta name="description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
-    <meta name="keywords" content="MWR, Mini Warriors Reborn, Mini Warriors, Mini Warriors Reborn tierlist, Mini Warriors tierlist, Legion Community Hub">
-    <meta name="robots" content="index, follow">
-    <meta name="language" content="English">
+    <!-- SEO Tags -->
+    <meta name="description" content="The ultimate Magic Wars Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
+    <meta name="keywords" content="MWR, Magic Wars Reborn, tier list, best heroes, MWR guide, sacrament priority, MWR PVP, Legion Community">
+    <meta property="og:title" content="MWR Tierlist | Best Heroes & Strategy Guide">
+    <meta property="og:image" content="https://i.imgur.com/1h28KPo.png">
 
-    <!-- OPEN GRAPH / FACEBOOK / DISCORD (For nice link previews) -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://nekowoah.github.io/mwtierlist/">
-    <meta property="og:title" content="Mini Warriors Reborn Tierlist">
-    <meta property="og:description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
-    <meta property="og:image" content="https://i.imgur.com/aBuiCFr.png">
-
-    <!-- TWITTER -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://nekowoah.github.io/mwtierlist/">
-    <meta property="twitter:title" content="Mini Warriors Reborn Tierlist">
-    <meta property="twitter:description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
-    <meta property="twitter:image" content="https://i.imgur.com/aBuiCFr.png">
-
+    <!-- Global Styles & Config -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FIXED: TAILWIND CONFIG WITH RGB TRANSPARENCY SUPPORT -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        white: 'rgb(var(--color-white) / <alpha-value>)',
-                        black: 'rgb(var(--color-black) / <alpha-value>)',
-                        gray: {
-                            900: 'rgb(var(--color-gray-900) / <alpha-value>)',
-                            800: 'rgb(var(--color-gray-800) / <alpha-value>)',
-                            700: 'rgb(var(--color-gray-700) / <alpha-value>)',
-                            600: 'rgb(var(--color-gray-600) / <alpha-value>)',
-                            500: 'rgb(var(--color-gray-500) / <alpha-value>)',
-                            400: 'rgb(var(--color-gray-400) / <alpha-value>)',
-                            300: 'rgb(var(--color-gray-300) / <alpha-value>)',
-                            200: 'rgb(var(--color-gray-200) / <alpha-value>)',
-                            100: 'rgb(var(--color-gray-100) / <alpha-value>)',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
+    <script src="shared/globals.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="shared/styles.css">
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
-    
-    <style>
-        /* FIXED: CSS VARIABLES IN RGB FORMAT */
-        :root {
-            /* DARK MODE (Default) */
-            --color-white: 255 255 255;
-            --color-black: 0 0 0;
-            --color-gray-100: 243 244 246;
-            --color-gray-200: 229 231 235;
-            --color-gray-300: 209 213 219;
-            --color-gray-400: 156 163 175;
-            --color-gray-500: 107 114 128;
-            --color-gray-600: 75 85 99;
-            --color-gray-700: 55 65 81;
-            --color-gray-800: 31 41 55;
-            --color-gray-900: 17 24 39;
-        }
-
-        [data-theme="light"] {
-            /* LIGHT MODE (Inverted) */
-            --color-white: 17 24 39;
-            --color-black: 255 255 255;
-            --color-gray-100: 31 41 55;
-            --color-gray-200: 55 65 81;
-            --color-gray-300: 75 85 99;
-            --color-gray-400: 107 114 128;
-            --color-gray-500: 156 163 175;
-            --color-gray-600: 209 213 219;
-            --color-gray-700: 229 231 235;
-            --color-gray-800: 255 255 255;
-            --color-gray-900: 249 250 251;
-        }
-
-        .bg-tier-sss { background-color: #ef4444; color: black; }
-        .bg-tier-ss { background-color: #f59e0b; color: black; }
-        .bg-tier-s { background-color: #f97316; color: black; }
-        .bg-tier-a { background-color: #eab308; color: black; }
-        .bg-tier-b { background-color: #84cc16; color: black; }
-        .bg-tier-c { background-color: #22c55e; color: black; }
-        .bg-tier-d { background-color: #3b82f6; color: black; }
-        .bg-tier-f { background-color: #6b7280; color: white; }
-        .bg-tier-unranked { background-color: #374151; color: white; border-color: #4b5563; }
-
-        .border-t-vip { border-top: 2px solid #fbbf24; box-shadow: 0 -2px 8px rgba(251, 191, 36, 0.6); }
-        .border-t-limited { border-top: 2px solid #c90dde; box-shadow: 0 -2px 8px rgba(244, 114, 182, 0.6); }
-        .border-t-basic { border-top: 2px solid #22c55e; box-shadow: 0 -2px 8px rgba(34, 197, 94, 0.6); }
-        
-        /* Updated border variables to use rgb() */
-        .border-t-normal { border-top: 2px solid rgb(var(--color-gray-600)); box-shadow: none; }
-        .class-btn-inactive { border-color: rgb(var(--color-gray-600)); opacity: 0.7; }
-        .class-btn-inactive:hover { opacity: 1; border-color: rgb(var(--color-gray-400)); }
-
-        .hero-portrait { transition: transform 0.2s, box-shadow 0.2s; }
-        .hero-portrait:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -5px rgba(0,0,0,0.7); z-index: 10; }
-        
-        .modal-fade-in { animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .class-btn-active { border-color: #eab308; background-color: rgba(234, 179, 8, 0.2); color: #eab308; }
-
-        .custom-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .tooltip { visibility: hidden; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); padding: 4px 8px; background: rgba(0,0,0,0.9); color: white; font-size: 0.75rem; border-radius: 4px; white-space: nowrap; z-index: 30; pointer-events: none; }
-        .hero-portrait:hover .tooltip { visibility: visible; }
-    </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
 
-    <!-- Navigation (Sticky Top Bar) -->
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col gap-2">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 w-full">
                 
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full md:w-auto">
                     <div class="flex items-center gap-2 sm:gap-3">
-                        <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-gray-100 transition-colors mr-1 outline-none">
+                        <button onclick="AppMenu.toggleSidebar()" class="text-gray-400 hover:text-gray-100 transition-colors mr-1 outline-none">
                             <i class="fa-solid fa-bars text-lg sm:text-xl"></i>
                         </button>
                         <img id="adminIconBadge" src="https://i.imgur.com/1h28KPo.png" class="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)] transition-all">
@@ -163,7 +57,6 @@
         </div>
     </nav>
 
-    <!-- Info & Legend Section -->
     <div class="bg-gray-800/80 border-b border-gray-700 backdrop-blur-sm relative z-30 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-4">
             <div class="flex flex-col md:flex-row justify-between items-start gap-6">
@@ -171,9 +64,9 @@
                     <h2 id="listTitle" class="text-base font-bold text-white uppercase tracking-wider mb-1">Tier List</h2>
                     <p id="listDesc" class="text-gray-300 text-sm leading-relaxed max-w-4xl"></p>
                     <div class="hidden lg:block mt-2 text-[12px] text-gray-400 space-y-0.5 max-w-4xl bg-gray-900/30 p-2 rounded-lg border border-gray-700/50 transition-colors duration-300">
-                        <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that often used and have a noticeable impact in battles.</p>
+                        <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that are often used and have a noticeable impact in battles.</p>
                         <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill space or support stronger heroes.</p>
-                        <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can safely replaced with certain high star purple rarity heroes.</p>
+                        <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can be safely replaced. Not recommended to use.</p>
                     </div>
                 </div>
                 <div class="bg-gray-900/80 p-2.5 sm:p-3 rounded-lg border border-gray-700 w-full md:w-auto md:min-w-[15rem] shrink-0 shadow-lg transition-colors duration-300">
@@ -192,9 +85,7 @@
         </div>
     </div>
 
-    <!-- Content -->
     <main class="max-w-7xl mx-auto px-4 pt-4 pb-8 w-full flex-grow">
-        <!-- Filter Bar -->
         <div class="flex flex-wrap justify-center items-center gap-1.5 mb-5 relative z-20">
             <div id="classButtons" class="flex flex-wrap justify-center gap-1.5 sm:gap-1"></div>
             <div class="hidden sm:block h-5 w-px bg-gray-700 mx-1 sm:mx-2"></div>
@@ -219,20 +110,13 @@
         </div>
 
         <div id="tierListContainer" class="flex flex-col gap-4 select-none opacity-0 transition-opacity duration-500"></div>
-
-        <div class="lg:hidden mt-8 text-xs text-gray-400 space-y-2 bg-gray-800/50 p-4 rounded-lg border border-gray-700 shadow-md transition-colors duration-300">
-            <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that often used and have a noticeable impact in battles.</p>
-            <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill space or support stronger heroes.</p>
-            <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can safely replaced with certain high star purple rarity heroes.</p>
-        </div>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto transition-colors duration-300">
         <p>MWR Tierlist! Built by the Legion Community</p>
     </footer>
 
-    <!-- Hero Detail Modal (Public View) -->
+    <!-- HERO VIEW MODAL -->
     <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeViewModal()"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
@@ -261,14 +145,13 @@
         </div>
     </div>
 
-    <!-- Edit Hero Modal (Admin Only) -->
+    <!-- HERO EDIT MODAL (Admin Only) -->
     <div id="editModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="app.closeEditModal()"></div>
         <div class="fixed inset-0 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4">
                 <div class="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl w-full max-w-lg p-6 relative transition-colors duration-300">
                     <h3 class="text-xl font-bold mb-4 text-indigo-400" id="editTitle">Edit Hero</h3>
-                    
                     <form id="heroForm" onsubmit="event.preventDefault(); app.saveHero();">
                         <input type="hidden" id="heroId">
                         <div class="grid grid-cols-1 gap-4 mb-4">
@@ -278,9 +161,7 @@
                                 <div class="flex gap-2">
                                     <div class="relative flex-grow">
                                         <input type="url" id="heroImage" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full focus:border-indigo-500 outline-none text-white pr-10">
-                                        <button type="button" onclick="app.openImageSelector()" title="Browse Image Library" class="absolute right-2 top-2 text-gray-400 hover:text-white mt-0.5">
-                                            <i class="fa-solid fa-magnifying-glass"></i>
-                                        </button>
+                                        <button type="button" onclick="app.openImageSelector()" title="Browse Image Library" class="absolute right-2 top-2 text-gray-400 hover:text-white mt-0.5"><i class="fa-solid fa-magnifying-glass"></i></button>
                                     </div>
                                     <label class="bg-gray-700 hover:bg-gray-600 text-white rounded px-3 py-2 cursor-pointer border border-gray-600 transition-colors" title="Upload & Auto WebP">
                                         <i class="fa-solid fa-cloud-arrow-up"></i><input type="file" id="fileInput" accept="image/*" class="hidden" onchange="app.uploadImage()">
@@ -298,7 +179,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Hero Type</label>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Type</label>
                                 <select id="heroType" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full outline-none text-white">
                                     <option value="Normal">Normal</option><option value="VIP">VIP</option><option value="Limited">Limited</option><option value="Basic Limited">Basic Limited</option>
                                 </select>
@@ -335,30 +216,25 @@
         </div>
     </div>
 
-    <!-- Image Selector Modal -->
+    <!-- IMAGE SELECTOR MODAL (Admin Only) -->
     <div id="imageSelectModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="app.closeImageSelector()"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[75vh] transition-colors duration-300">
-            
             <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-gray-900">
                 <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-images mr-2 text-indigo-400"></i> Select Image</h3>
                 <button type="button" onclick="app.closeImageSelector()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-times"></i></button>
             </div>
-            
             <div class="p-3 border-b border-gray-700 bg-gray-800 flex gap-2">
                 <div class="relative flex-grow">
                     <i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
                     <input type="text" id="imageSearchInput" onkeyup="app.filterImageSelector()" placeholder="Search by hero name..." class="w-full bg-gray-900 border border-gray-600 rounded px-4 py-1.5 pl-8 text-sm text-white focus:border-indigo-500 outline-none">
                 </div>
             </div>
-            
-            <div id="imageSelectContent" class="overflow-y-auto flex-grow p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 content-start bg-gray-900 transition-colors duration-300">
-                <!-- Images injected here -->
-            </div>
+            <div id="imageSelectContent" class="overflow-y-auto flex-grow p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 content-start bg-gray-900 transition-colors duration-300"></div>
         </div>
     </div>
 
-    <!-- Changelog Modal -->
+    <!-- CHANGELOG MODAL -->
     <div id="changelogModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.toggleChangelog()"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden modal-fade-in flex flex-col h-[80vh] transition-colors duration-300">
@@ -370,30 +246,9 @@
         </div>
     </div>
 
-    <script src="menu.js"></script>
-
     <script>
         const app = (() => {
-            const API_URL = "https://script.google.com/macros/s/AKfycbyNcCFpZaPBG4vOFPCJjO7Wg3z6m0FcHwKR1tRRbvK9D5cPKY2OBpKYtnx-86mQnKSz/exec"; 
-            const BASE_RANKS = ["SSS", "SS", "S", "A", "B", "C", "D", "F", "Unranked"];
-            const RANKS = ["SSS+", "SSS", "SSS-", "SS+", "SS", "SS-", "S+", "S", "S-", "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F", "Unranked"];
-            
-            const CLASS_ICONS = {
-                "Mage": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/mage_icon.webp",
-                "Archer": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/archer_icon.webp",
-                "Shield Guard": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/shield_icon.webp",
-                "Swordman": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/swordman_icon.webp",
-                "Spearman": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/spearman_icon.webp",
-                "Cavalry": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/cavalry_icon.webp",
-                "Pegasus Knight": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/pegasus_icon.webp",
-                "Priest": "https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/priest_icon.webp"
-            };
-
-            const TIER_INFO = {
-                'early': { title: "Early Game Ranking", desc: "Based on heroes that do well with limited investment (0-2 stars, no sacrament). Emphasis on campaign." },
-                'late': { title: "Late Game Ranking", desc: "Based on maxed out heroes (6 stars, sacrament 5). Emphasis on PVP. Also used for mid-game." },
-                'sacrament': { title: "Sacrament Priority", desc: "The priority of every hero sacrament. High rank sacraments should be the focus of resources." }
-            };
+            const { API_URL, BASE_RANKS, RANKS, CLASS_ICONS, TIER_INFO } = window.MWR_GLOBALS;
             
             let heroes = [];
             let currentMode = 'late';
@@ -402,32 +257,12 @@
             let showAwakenedOnly = false;
             let cachedLogs = null;
             let cachedGalleryImages = null; 
-            
             let isAdmin = false;
             let authToken = "";
 
-            const toggleSidebar = () => {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebarOverlay');
-                if (sidebar.classList.contains('-translate-x-full')) {
-                    sidebar.classList.remove('-translate-x-full');
-                    overlay.classList.remove('hidden');
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                    overlay.classList.add('hidden');
-                }
-            };
-
-            const exitAdmin = () => {
-                window.location.hash = '';
-                window.location.reload();
-            };
-
             const init = async () => {
-                // Populate rank dropdowns for edit modal
                 document.querySelectorAll('.rank-select').forEach(s => s.innerHTML = RANKS.map(r => `<option value="${r}">${r}</option>`).join(''));
 
-                // Admin Hash Check
                 if (window.location.hash === '#admin') {
                     const savedToken = sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
@@ -449,9 +284,7 @@
                     }
                 }
 
-                // 2. TRIGGER THE SMART MENU BUILDER ('indigo' acts as the accent color)
-                AppMenu.build(isAdmin, 'indigo');
-
+                window.AppMenu.build(isAdmin, 'indigo');
                 renderClassButtons();
                 updateInfo();
 
@@ -463,7 +296,6 @@
                     }
                 });
 
-                // Fast Cache Load
                 const cachedData = localStorage.getItem('mwr_tierlist_data');
                 if (cachedData) {
                     try {
@@ -474,11 +306,9 @@
                     } catch(e) { console.error(e); }
                 }
 
-                // Background Sync
                 try {
                     const res = await fetch(API_URL);
                     const freshHeroes = await res.json();
-                    
                     const freshStr = JSON.stringify(freshHeroes);
                     if (!cachedData || cachedData !== freshStr) {
                         heroes = freshHeroes;
@@ -487,7 +317,6 @@
                         document.getElementById('tierListContainer').classList.remove('opacity-0');
                         render();
                     }
-                    
                     fetch(API_URL + "?view=logs").then(r => r.json()).then(data => { if (Array.isArray(data)) cachedLogs = data; });
                 } catch(e) {
                     if (!cachedData) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`;
@@ -535,11 +364,7 @@
                 document.getElementById('listDesc').innerText = TIER_INFO[currentMode].desc;
             };
 
-            const setFilter = (cls) => {
-                currentFilter = currentFilter === cls ? 'All' : cls;
-                renderClassButtons();
-                render();
-            };
+            const setFilter = (cls) => { currentFilter = currentFilter === cls ? 'All' : cls; renderClassButtons(); render(); };
 
             const parseRank = (fullRank) => {
                 if (!fullRank || fullRank === 'Unranked' || fullRank === '') return { base: 'Unranked', sub: '' };
@@ -601,7 +426,6 @@
                     });
 
                     let hasPrevContent = false;
-
                     ['+', 'neutral', '-'].forEach(subKey => {
                         if (subGroups[subKey].length > 0) {
                             if (hasPrevContent) {
@@ -623,9 +447,8 @@
                                 heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded overflow-hidden ${topBorderClass} group transition-all`;
                                 heroEl.onclick = () => { isAdmin ? app.openEditModal(h) : app.openViewModal(h); };
                                 
-                                // FIXED: Use static dark border and bg for class icons so they don't break in light mode
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
-                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-zinc-900/60 rounded-full p-0.5 border border-zinc-100/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain"></div>`;
+                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-zinc-900/60 rounded-full p-0.5 border border-zinc-100/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain filter invert opacity-80 group-hover:opacity-100"></div>`;
 
                                 let dotHtml = '';
                                 if (h.lastUpdate && Math.ceil(Math.abs(new Date() - new Date(h.lastUpdate)) / (36e5)) < 72) {
@@ -633,10 +456,11 @@
                                 }
 
                                 const { sub } = parseRank(h[currentMode]);
-                                let subColor = 'text-white';
+                                let subColor = 'text-zinc-100'; 
                                 if (sub === '+') subColor = 'text-green-400';
                                 if (sub === '-') subColor = 'text-red-400';
-                                const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-black/70 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
+                                const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-zinc-900/80 border border-zinc-100/10 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
+                                
                                 const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
                                 const tooltipMsg = isAdmin ? "Click to Edit" : "Click to View Info";
 
@@ -664,16 +488,12 @@
                 document.getElementById('viewImage').src = h.image || 'https://placehold.co/400/5A5F66/FFFFFF?text=No+Image';
                 document.getElementById('viewName').innerHTML = h.name + ((h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-2"></i>' : '');
                 document.getElementById('viewClass').innerText = h.heroClass;
-                
                 const typeContainer = document.getElementById('viewTypeContainer');
                 if (h.heroType === 'VIP') typeContainer.innerHTML = '<span class="text-xs font-bold text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded border border-yellow-500/30">VIP</span>';
                 else if (h.heroType === 'Limited') typeContainer.innerHTML = '<span class="text-xs font-bold text-purple-400 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-500/30">Limited</span>';
                 else if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeContainer.innerHTML = '<span class="text-xs font-bold text-green-400 bg-green-900/30 px-2 py-0.5 rounded border border-green-500/30">Basic Limited</span>';
                 else typeContainer.innerHTML = '';
-
-                const awakenContainer = document.getElementById('viewAwakenContainer');
-                if (h.hasAwaken === 'Yes') awakenContainer.innerHTML = '<span class="text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-500/30">Awakened</span>';
-                else awakenContainer.innerHTML = '';
+                document.getElementById('viewAwakenContainer').innerHTML = (h.hasAwaken === 'Yes') ? '<span class="text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-500/30">Awakened</span>' : '';
 
                 document.getElementById('viewEarly').innerText = h.early || '-';
                 document.getElementById('viewLate').innerText = h.late || '-';
@@ -681,7 +501,6 @@
                 ['Early', 'Late', 'Sacr'].forEach(m => document.getElementById(`view${m}`).className = "text-xl font-black text-gray-500");
                 const activeId = currentMode === 'sacrament' ? 'viewSacr' : `view${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)}`;
                 document.getElementById(activeId).className = "text-2xl font-black text-yellow-400 drop-shadow-lg";
-                
                 document.getElementById('viewRole').innerText = h.role || "No specific role defined.";
                 document.getElementById('viewNotes').innerText = h.notes || "No analysis available.";
                 document.getElementById('viewModal').classList.remove('hidden');
@@ -710,7 +529,6 @@
                     document.getElementById('heroId').value = "";
                     document.getElementById('heroAwaken').value = "No";
                     document.getElementById('btnDelete').classList.add('hidden');
-                    
                     document.getElementById('rankEarly').value = "Unranked";
                     document.getElementById('rankLate').value = "Unranked";
                     document.getElementById('rankSacr').value = "Unranked";
@@ -730,29 +548,18 @@
             const saveHero = async () => {
                 const btn = document.getElementById('btnSave');
                 btn.innerText = "Saving..."; btn.disabled = true;
-                
                 const formData = {
-                    id: document.getElementById('heroId').value,
-                    name: document.getElementById('heroName').value,
-                    image: document.getElementById('heroImage').value,
-                    heroClass: document.getElementById('heroClass').value,
-                    heroType: document.getElementById('heroType').value,
-                    hasAwaken: document.getElementById('heroAwaken').value,
-                    role: document.getElementById('heroRole').value,
-                    notes: document.getElementById('heroNotes').value,
-                    early: document.getElementById('rankEarly').value,
-                    late: document.getElementById('rankLate').value,
-                    sacrament: document.getElementById('rankSacr').value,
-                    lastUpdate: new Date().toISOString()
+                    id: document.getElementById('heroId').value, name: document.getElementById('heroName').value,
+                    image: document.getElementById('heroImage').value, heroClass: document.getElementById('heroClass').value,
+                    heroType: document.getElementById('heroType').value, hasAwaken: document.getElementById('heroAwaken').value,
+                    role: document.getElementById('heroRole').value, notes: document.getElementById('heroNotes').value,
+                    early: document.getElementById('rankEarly').value, late: document.getElementById('rankLate').value,
+                    sacrament: document.getElementById('rankSacr').value, lastUpdate: new Date().toISOString()
                 };
-
                 const existingIndex = heroes.findIndex(h => h.id == formData.id);
                 if (existingIndex >= 0) heroes[existingIndex] = { ...heroes[existingIndex], ...formData };
                 else { formData.id = formData.id || "temp_" + Date.now(); heroes.push(formData); }
-                
-                render();
-                closeEditModal();
-
+                render(); closeEditModal();
                 try {
                     const res = await sendRequest({ action: "save", data: formData });
                     if(formData.id.startsWith("temp_") && res.id) {
@@ -767,8 +574,7 @@
                 if(!confirm("Delete this hero?")) return;
                 const id = document.getElementById('heroId').value;
                 heroes = heroes.filter(h => h.id != id);
-                render();
-                closeEditModal();
+                render(); closeEditModal();
                 try { await sendRequest({ action: "delete", id: id }); } 
                 catch(e) { alert("Delete failed! Reverting."); window.location.reload(); }
             };
@@ -778,7 +584,6 @@
                 const file = input.files[0];
                 if(!file) return;
                 document.getElementById('uploadLoading').classList.remove('hidden');
-                
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = async function () {
@@ -794,19 +599,14 @@
             const openImageSelector = async () => {
                 document.getElementById('imageSelectModal').classList.remove('hidden');
                 const content = document.getElementById('imageSelectContent');
-                
                 if (!cachedGalleryImages) {
                     content.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10"><i class="fas fa-circle-notch fa-spin text-3xl mb-3 text-indigo-500"></i><p>Loading GitHub Image Library...</p></div>';
                     try {
                         const res = await sendRequest({ action: "list_images" });
                         cachedGalleryImages = res || [];
                         renderImageSelector();
-                    } catch (e) {
-                        content.innerHTML = `<div class="col-span-full text-center text-red-400 py-10">Error loading library: ${e.message}</div>`;
-                    }
-                } else {
-                    renderImageSelector();
-                }
+                    } catch (e) { content.innerHTML = `<div class="col-span-full text-center text-red-400 py-10">Error loading library: ${e.message}</div>`; }
+                } else { renderImageSelector(); }
             };
 
             const closeImageSelector = () => document.getElementById('imageSelectModal').classList.add('hidden');
@@ -815,12 +615,7 @@
                 const content = document.getElementById('imageSelectContent');
                 const searchTerm = document.getElementById('imageSearchInput').value.toLowerCase();
                 const filtered = cachedGalleryImages.filter(img => img.name.toLowerCase().includes(searchTerm));
-                
-                if (filtered.length === 0) {
-                    content.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">No images found.</div>';
-                    return;
-                }
-
+                if (filtered.length === 0) { content.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">No images found.</div>'; return; }
                 content.innerHTML = filtered.map(img => `
                     <div onclick="app.selectImage('${img.download_url}')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-indigo-500 rounded-lg cursor-pointer overflow-hidden transition-all shadow-md group flex flex-col h-28 relative">
                         <div class="flex-grow flex items-center justify-center p-2 relative overflow-hidden bg-black/20">
@@ -868,7 +663,7 @@
                 } else { modal.classList.add('hidden'); }
             };
 
-            return { init, setMode, render, openViewModal, closeViewModal, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, saveHero, deleteHero, uploadImage, exitAdmin, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
+            return { init, setMode, render, openViewModal, closeViewModal, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, saveHero, deleteHero, uploadImage, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
         })();
 
         window.onload = app.init;
