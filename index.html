@@ -28,9 +28,66 @@
     <meta property="twitter:image" content="https://i.imgur.com/aBuiCFr.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- NEW: TAILWIND DYNAMIC THEME CONFIGURATION -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        white: 'var(--color-white)',
+                        black: 'var(--color-black)',
+                        gray: {
+                            900: 'var(--color-gray-900)',
+                            800: 'var(--color-gray-800)',
+                            700: 'var(--color-gray-700)',
+                            600: 'var(--color-gray-600)',
+                            500: 'var(--color-gray-500)',
+                            400: 'var(--color-gray-400)',
+                            300: 'var(--color-gray-300)',
+                            200: 'var(--color-gray-200)',
+                            100: 'var(--color-gray-100)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
+    
     <style>
+        /* NEW: CSS VARIABLE THEME DEFINITIONS */
+        :root {
+            /* DARK MODE (Default) */
+            --color-white: #ffffff;
+            --color-black: #000000;
+            --color-gray-100: #f3f4f6;
+            --color-gray-200: #e5e7eb;
+            --color-gray-300: #d1d5db;
+            --color-gray-400: #9ca3af;
+            --color-gray-500: #6b7280;
+            --color-gray-600: #4b5563;
+            --color-gray-700: #374151;
+            --color-gray-800: #1f2937;
+            --color-gray-900: #111827;
+        }
+
+        [data-theme="light"] {
+            /* LIGHT MODE (Inverted Palette) */
+            --color-white: #111827;     /* White text becomes dark gray */
+            --color-black: #ffffff;     /* Black overlays become white overlays */
+            --color-gray-100: #1f2937;  /* Light text becomes dark */
+            --color-gray-200: #374151;
+            --color-gray-300: #4b5563;
+            --color-gray-400: #6b7280;  /* Muted text */
+            --color-gray-500: #9ca3af;
+            --color-gray-600: #d1d5db;
+            --color-gray-700: #e5e7eb;  /* Borders become light gray */
+            --color-gray-800: #ffffff;  /* Content cards become pure white */
+            --color-gray-900: #f9fafb;  /* App background becomes off-white */
+        }
         .bg-tier-sss { background-color: #ef4444; color: black; }
         .bg-tier-ss { background-color: #f59e0b; color: black; }
         .bg-tier-s { background-color: #f97316; color: black; }
