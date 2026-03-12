@@ -18,6 +18,44 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
+
+    <style>
+        /* QUILL EDITOR THEME OVERRIDES: Forces the rich text editor to follow our Light/Dark Mode CSS variables */
+        .ql-toolbar.ql-snow, .ql-container.ql-snow {
+            border-color: rgba(var(--color-gray-700), 1) !important;
+            font-family: inherit !important;
+        }
+        .ql-snow .ql-stroke {
+            stroke: rgba(var(--color-gray-300), 1) !important;
+        }
+        .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill {
+            fill: rgba(var(--color-gray-300), 1) !important;
+        }
+        .ql-snow .ql-picker {
+            color: rgba(var(--color-gray-300), 1) !important;
+        }
+        .ql-snow .ql-picker-options {
+            background-color: rgba(var(--color-gray-800), 1) !important;
+            border-color: rgba(var(--color-gray-700), 1) !important;
+        }
+        .ql-snow .ql-tooltip {
+            background-color: rgba(var(--color-gray-900), 1) !important;
+            border-color: rgba(var(--color-gray-700), 1) !important;
+            color: rgba(var(--color-gray-100), 1) !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+        }
+        .ql-snow .ql-tooltip input[type=text] {
+            background-color: rgba(var(--color-gray-800), 1) !important;
+            border-color: rgba(var(--color-gray-600), 1) !important;
+            color: rgba(var(--color-gray-100), 1) !important;
+        }
+        .ql-editor.ql-blank::before {
+            color: rgba(var(--color-gray-500), 1) !important;
+        }
+        .ql-editor {
+            color: rgba(var(--color-gray-200), 1);
+        }
+    </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
 
@@ -48,15 +86,17 @@
 
         <article id="contentViewer" class="hidden prose prose-invert prose-blue prose-img:rounded-xl prose-a:text-blue-400 max-w-none w-full bg-gray-800/40 p-6 sm:p-10 rounded-2xl border border-gray-700/50 shadow-2xl transition-colors duration-300"></article>
 
-        <div id="editorWrapper" class="hidden bg-gray-100 text-gray-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-gray-300 mt-4 transition-colors duration-300">
-            <div class="bg-gray-200 p-4 border-b border-gray-300 flex justify-between items-center">
-                <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wider"><i class="fa-solid fa-pen-nib mr-2"></i> Page Editor</h3>
+        <!-- UPDATED: Editor Wrapper now uses dynamic theme gray classes instead of hardcoded white/light gray -->
+        <div id="editorWrapper" class="hidden bg-gray-800 text-gray-200 rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-gray-700 mt-4 transition-colors duration-300">
+            <div class="bg-gray-900 p-4 border-b border-gray-700 flex justify-between items-center transition-colors duration-300">
+                <h3 class="font-bold text-gray-300 text-sm uppercase tracking-wider"><i class="fa-solid fa-pen-nib mr-2 text-blue-400"></i> Page Editor</h3>
                 <div class="flex gap-2">
-                    <button onclick="app.cancelEditor()" class="px-4 py-1.5 bg-gray-400 hover:bg-gray-500 text-white text-xs font-bold rounded transition-colors">Cancel</button>
-                    <button onclick="app.saveInfo()" id="btnSaveInfo" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow-md transition-colors">Save & Publish</button>
+                    <button onclick="app.cancelEditor()" class="px-4 py-1.5 bg-gray-600 hover:bg-gray-500 text-white text-xs font-bold rounded transition-colors">Cancel</button>
+                    <button onclick="app.saveInfo()" id="btnSaveInfo" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded shadow-md transition-colors">Save & Publish</button>
                 </div>
             </div>
-            <div id="quillEditor" class="bg-white" style="min-height: 500px; font-size: 16px;"></div>
+            <!-- UPDATED: Removed bg-white so it inherits the container's background -->
+            <div id="quillEditor" class="bg-gray-800 transition-colors duration-300" style="min-height: 500px; font-size: 16px;"></div>
         </div>
     </main>
     
@@ -132,18 +172,69 @@
                     quillInstance = new Quill('#quillEditor', {
                         theme: 'snow',
                         modules: {
-                            toolbar: [
-                                [{ 'header': [1, 2, 3, false] }],
-                                ['bold', 'italic', 'underline', 'strike'],
-                                [{ 'color': [] }, { 'background': [] }],
-                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                                ['link', 'image', 'video'],
-                                ['clean']
-                            ]
+                            toolbar: {
+                                container: [
+                                    [{ 'header': [1, 2, 3, false] }],
+                                    ['bold', 'italic', 'underline', 'strike'],
+                                    [{ 'color': [] }, { 'background': [] }],
+                                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                    ['link', 'image', 'video'],
+                                    ['clean']
+                                ],
+                                // CUSTOM IMAGE HANDLER: Uploads to GitHub instead of saving raw base64 data
+                                handlers: {
+                                    image: function() {
+                                        const input = document.createElement('input');
+                                        input.setAttribute('type', 'file');
+                                        input.setAttribute('accept', 'image/*');
+                                        input.click();
+
+                                        input.onchange = async () => {
+                                            const file = input.files[0];
+                                            if (!file) return;
+
+                                            const btn = document.getElementById('btnSaveInfo');
+                                            const oldText = btn.innerText;
+                                            btn.innerText = "Uploading Image to Server..."; 
+                                            btn.disabled = true;
+
+                                            const reader = new FileReader();
+                                            reader.readAsDataURL(file);
+                                            reader.onload = async () => {
+                                                const base64 = reader.result.split(',')[1];
+                                                try {
+                                                    const res = await fetch(API_URL, {
+                                                        method: "POST",
+                                                        body: JSON.stringify({ 
+                                                            action: "upload_image", 
+                                                            token: authToken, 
+                                                            fileData: base64, 
+                                                            fileName: "info_img_" + Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9.]/g, "") 
+                                                        }),
+                                                        redirect: "follow"
+                                                    });
+                                                    const data = await res.json();
+                                                    if(data.error) throw new Error(data.error);
+
+                                                    const range = quillInstance.getSelection(true);
+                                                    quillInstance.insertEmbed(range.index, 'image', data.url);
+                                                } catch(e) {
+                                                    alert("Image upload failed: " + e.message);
+                                                } finally {
+                                                    btn.innerText = oldText; 
+                                                    btn.disabled = false;
+                                                }
+                                            };
+                                        };
+                                    }
+                                }
+                            }
                         }
                     });
                 }
-                quillInstance.root.innerHTML = rawHtmlContent;
+                
+                // FIX: Use correctly supported Quill API to set HTML content
+                quillInstance.clipboard.dangerouslyPasteHTML(rawHtmlContent || '');
             };
 
             const cancelEditor = () => {
@@ -157,6 +248,19 @@
                 const btn = document.getElementById('btnSaveInfo');
                 btn.innerText = "Saving..."; btn.disabled = true;
                 const newHtml = quillInstance.root.innerHTML;
+
+                // GUARDRAIL: Prevent saving if user dragged/copy-pasted raw image data
+                if (newHtml.includes('data:image/')) {
+                    alert("WARNING: Direct image copy-pasting detected.\n\nGoogle Sheets limits data size and will crash if you try to save raw images directly.\n\nPlease delete the copy-pasted image, and use the 'Image Icon' in the editor toolbar to upload it properly!");
+                    btn.innerText = "Save & Publish"; btn.disabled = false;
+                    return;
+                }
+
+                if (newHtml.length > 49000) {
+                    alert("Error: The text is too long for Google Sheets to save. Please reduce the length.");
+                    btn.innerText = "Save & Publish"; btn.disabled = false;
+                    return;
+                }
 
                 try {
                     const res = await fetch(API_URL, { 
