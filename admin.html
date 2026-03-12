@@ -4,55 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MWR Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
-    <style>
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* View transition */
-        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Dashboard Card Hover Effects */
-        .dash-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .dash-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
-    </style>
-</head>
-<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col">
-
-    <!-- Sidebar Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden transition-opacity" onclick="window.admin.toggleSidebar()"></div>
     
-    <!-- Sidebar Menu -->
-    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-700 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
-        <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800">
-            <div class="flex items-center gap-3">
-                <img src="https://i.imgur.com/1h28KPo.png" class="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)]">
-                <span class="font-bold text-lg text-white">Menu</span>
-            </div>
-            <button onclick="window.admin.toggleSidebar()" class="text-gray-400 hover:text-white p-1"><i class="fa-solid fa-times text-xl"></i></button>
-        </div>
-        
-        <div class="p-3 text-xs font-bold text-gray-500 uppercase tracking-wider mt-2">Navigation</div>
-        <div class="flex flex-col gap-1 px-3 flex-grow">
-            <a href="index.html" class="flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg font-bold transition-colors w-full text-left">
-                <i class="fa-solid fa-list-ul w-5 text-center"></i> Tierlist
-            </a>
-            <a href="info.html" class="flex items-center gap-3 px-4 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg font-bold transition-colors w-full text-left">
-                <i class="fa-solid fa-book-open w-5 text-center"></i> Information
-            </a>
-            <div class="h-px bg-gray-700 my-2 mx-2"></div>
-            <a href="admin.html" class="flex items-center gap-3 px-4 py-2.5 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded-lg font-bold transition-colors w-full text-left">
-                <i class="fa-solid fa-shield-halved w-5 text-center"></i> Admin
-            </a>
-        </div>
-    </div>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="shared/globals.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="shared/styles.css">
+    <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
 
     <!-- Login Screen -->
-    <div id="loginScreen" class="fixed inset-0 z-50 bg-gray-900 flex items-center justify-center">
-        <div class="bg-gray-800 p-8 rounded-lg shadow-xl border border-gray-700 w-full max-w-md text-center">
+    <div id="loginScreen" class="fixed inset-0 z-50 bg-gray-900 flex items-center justify-center transition-colors duration-300">
+        <div class="bg-gray-800 p-8 rounded-lg shadow-xl border border-gray-700 w-full max-w-md text-center transition-colors duration-300">
             <h2 class="text-2xl font-bold mb-6 text-indigo-400">Admin Access</h2>
             <input type="text" id="usernameInput" placeholder="Enter Username" 
                 class="w-full bg-gray-900 border border-gray-600 rounded px-4 py-3 mb-4 text-white focus:border-indigo-500 outline-none transition-colors">
@@ -70,10 +33,10 @@
     <div id="appContainer" class="hidden flex flex-col min-h-screen">
         
         <!-- Navigation Bar -->
-        <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl">
+        <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl transition-colors duration-300">
             <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
-                    <button onclick="window.admin.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none">
+                    <button onclick="AppMenu.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                     <div class="flex items-center gap-2">
@@ -81,7 +44,6 @@
                         <span class="font-bold text-xl hidden sm:inline" id="topBarTitle">Admin Dashboard</span>
                     </div>
                 </div>
-                
                 <!-- Dynamic Header Controls -->
                 <div id="headerControls" class="flex gap-3 items-center justify-end"></div>
             </div>
@@ -93,9 +55,8 @@
             <p class="text-gray-400 text-sm sm:text-base mb-12 text-center max-w-xl">Manage the tierlist database, edit public information articles, or optimize your GitHub media assets.</p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
-                
                 <!-- Routing Card: Tierlist -->
-                <a href="index.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer">
+                <a href="index.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
                     <div class="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-table-list text-3xl text-indigo-400"></i>
                     </div>
@@ -104,7 +65,7 @@
                 </a>
 
                 <!-- Routing Card: Information -->
-                <a href="info.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer">
+                <a href="info.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
                     <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-book-open text-3xl text-blue-400"></i>
                     </div>
@@ -113,22 +74,20 @@
                 </a>
 
                 <!-- Internal Card: Media Gallery -->
-                <button onclick="window.admin.switchView('gallery')" class="dash-card bg-gray-800 border border-gray-700 hover:border-green-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer w-full">
+                <button onclick="window.admin.switchView('gallery')" class="dash-card bg-gray-800 border border-gray-700 hover:border-green-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer w-full transition-colors duration-300">
                     <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-images text-3xl text-green-400"></i>
                     </div>
                     <h2 class="text-xl font-bold text-white mb-2">Image Manager</h2>
                     <p class="text-xs text-gray-400">Upload assets to GitHub, manage files, and auto-convert PNG/JPGs to WebP.</p>
                 </button>
-
             </div>
         </div>
 
         <!-- VIEW 2: MEDIA GALLERY -->
-        <div id="view-gallery" class="hidden flex-col flex-grow relative w-full fade-in bg-gray-900">
+        <div id="view-gallery" class="hidden flex-col flex-grow relative w-full fade-in bg-gray-900 transition-colors duration-300">
             <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow">
                 
-                <!-- Upload Dropzone -->
                 <div class="bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl p-8 mb-8 text-center hover:border-indigo-500 transition-colors">
                     <i class="fa-solid fa-cloud-arrow-up text-4xl text-indigo-400 mb-3"></i>
                     <h3 class="text-lg font-bold text-white mb-1">Upload to GitHub</h3>
@@ -142,9 +101,7 @@
                 </div>
 
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-gray-700 pb-3 gap-3">
-                    <h2 class="text-xl font-bold"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> File Repository</h2>
-                    
-                    <!-- Bulk Action Controls -->
+                    <h2 class="text-xl font-bold text-gray-100"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> File Repository</h2>
                     <div class="flex gap-2 items-center w-full sm:w-auto justify-between sm:justify-end">
                         <button onclick="window.admin.selectAllNonWebp()" class="text-sm text-gray-400 hover:text-white" id="btnSelectAll"><i class="fa-solid fa-check-double mr-1"></i> Select Non-WebP</button>
                         <button onclick="window.admin.convertSelected()" id="btnConvertSelected" class="text-sm bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1.5 rounded hidden font-bold transition-colors shadow-lg"><i class="fa-solid fa-bolt mr-1"></i> Convert (<span id="selectedCount">0</span>)</button>
@@ -152,7 +109,6 @@
                     </div>
                 </div>
 
-                <!-- PROGRESS BAR UI -->
                 <div id="conversionProgressContainer" class="hidden w-full mb-6">
                     <div class="flex justify-between text-xs mb-1 font-bold text-gray-400">
                         <span class="text-indigo-400 animate-pulse"><i class="fas fa-spinner fa-spin mr-1"></i> Batch Converting Images...</span>
@@ -163,33 +119,29 @@
                     </div>
                 </div>
 
-                <!-- Grid -->
                 <div id="galleryLoading" class="text-center py-16 hidden">
                     <i class="fas fa-circle-notch fa-spin text-4xl text-indigo-500 mb-3"></i>
                     <p class="text-gray-400 text-sm animate-pulse">Fetching images from GitHub...</p>
                 </div>
 
-                <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    <!-- Images injected here -->
-                </div>
+                <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
             </main>
         </div>
     </div>
 
     <script>
         (function() {
-            const API_URL = "https://script.google.com/macros/s/AKfycbyNcCFpZaPBG4vOFPCJjO7Wg3z6m0FcHwKR1tRRbvK9D5cPKY2OBpKYtnx-86mQnKSz/exec";
+            const { API_URL } = window.MWR_GLOBALS;
             
             let authToken = ""; 
             let galleryImages = []; 
-            let selectedImages = new Set(); // Tracks multi-selected images
+            let selectedImages = new Set();
             let currentView = 'dashboard';
 
             const init = () => {
                 const savedToken = sessionStorage.getItem('mw_admin_token');
                 if(savedToken) {
                     authToken = savedToken;
-                    // Verify token validity quickly by requesting image list
                     sendRequest({ action: "list_images" })
                         .then(() => {
                             document.getElementById('loginScreen').classList.add('hidden');
@@ -202,12 +154,12 @@
                             authToken = "";
                         });
                 }
+                // Inject Sidebar
+                window.AppMenu.build(false, 'indigo');
             };
 
-            // --- VIEW SWITCHING ---
             const switchView = (viewName) => {
                 currentView = viewName;
-                
                 document.getElementById('view-dashboard').classList.add('hidden');
                 document.getElementById('view-gallery').classList.add('hidden');
                 
@@ -219,7 +171,6 @@
                     document.getElementById('topBarTitle').innerText = "Media Gallery";
                     loadGallery();
                 }
-
                 buildHeaderControls();
             };
 
@@ -233,7 +184,7 @@
                     `;
                 } else if (currentView === 'gallery') {
                     header.innerHTML = `
-                        <button onclick="window.admin.switchView('dashboard')" class="text-gray-400 hover:text-white mr-4 transition-colors font-bold text-sm">
+                        <button onclick="window.admin.switchView('dashboard')" class="text-gray-400 hover:text-gray-100 mr-4 transition-colors font-bold text-sm">
                             <i class="fa-solid fa-arrow-left mr-1"></i> Back
                         </button>
                         <span class="text-xs font-bold text-gray-400 border border-gray-600 rounded-lg px-3 py-1 bg-gray-900/50">${galleryImages.length} Files</span>
@@ -241,56 +192,28 @@
                 }
             };
 
-            const logout = () => {
-                sessionStorage.removeItem('mw_admin_token');
-                window.location.reload();
-            };
+            const logout = () => { sessionStorage.removeItem('mw_admin_token'); window.location.reload(); };
 
-            const toggleSidebar = () => {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebarOverlay');
-                if (sidebar.classList.contains('-translate-x-full')) {
-                    sidebar.classList.remove('-translate-x-full');
-                    overlay.classList.remove('hidden');
-                } else {
-                    sidebar.classList.add('-translate-x-full');
-                    overlay.classList.add('hidden');
-                }
-            };
-
-            // --- GENERAL APP LOGIC ---
             const login = async () => {
                 const user = document.getElementById('usernameInput').value.trim();
                 const pass = document.getElementById('passwordInput').value.trim();
                 const err = document.getElementById('loginError');
                 const btn = document.querySelector('#loginScreen button');
                 
-                if (!user || !pass) {
-                    err.innerText = "Please enter both Username and Password.";
-                    err.classList.remove('hidden');
-                    return;
-                }
+                if (!user || !pass) { err.innerText = "Please enter both Username and Password."; err.classList.remove('hidden'); return; }
 
-                btn.innerText = "Verifying...";
-                btn.disabled = true;
+                btn.innerText = "Verifying..."; btn.disabled = true;
 
                 try {
-                    const res = await fetch(API_URL, {
-                        method: "POST",
-                        body: JSON.stringify({ action: "check_auth", username: user, password: pass }),
-                        redirect: "follow"
-                    });
-                    
+                    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "check_auth", username: user, password: pass }), redirect: "follow" });
                     const data = await res.json();
                     if (data.error) throw new Error(data.error);
 
                     authToken = data.token;
                     sessionStorage.setItem('mw_admin_token', authToken);
-                    
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('appContainer').classList.remove('hidden');
                     switchView('dashboard');
-
                 } catch (e) {
                     err.innerText = e.message || "Incorrect Username or Password";
                     err.classList.remove('hidden');
@@ -302,18 +225,13 @@
             const sendRequest = async (payload) => {
                 payload.token = authToken; 
                 try {
-                    const res = await fetch(API_URL, { 
-                        method: "POST", 
-                        body: JSON.stringify(payload),
-                        redirect: "follow"
-                    });
+                    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload), redirect: "follow" });
                     const data = await res.json();
                     if(data.error) throw new Error(data.error);
                     return data;
                 } catch(e) { throw e; }
             };
 
-            // --- CLIENT SIDE WEBP CONVERSION & MULTI-SELECT ---
             const fileToBase64WebP = (file) => {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -323,11 +241,9 @@
                         img.src = e.target.result;
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
-                            canvas.width = img.width;
-                            canvas.height = img.height;
+                            canvas.width = img.width; canvas.height = img.height;
                             canvas.getContext('2d').drawImage(img, 0, 0);
-                            const webpDataUrl = canvas.toDataURL('image/webp', 0.85);
-                            resolve(webpDataUrl.split(',')[1]);
+                            resolve(canvas.toDataURL('image/webp', 0.85).split(',')[1]);
                         };
                         img.onerror = () => reject("Image processing failed.");
                     };
@@ -337,80 +253,56 @@
 
             const convertExistingToWebP = async (fileName, downloadUrl, path, sha) => {
                 if(!confirm(`Convert ${fileName} to WebP and automatically update any heroes using this image?`)) return;
-                
                 try {
-                    // Fetch heroes first to update them later
                     const heroes = await sendRequest({ action: "get_all_data" });
-
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous"; 
-                    img.src = downloadUrl;
+                    const img = new Image(); img.crossOrigin = "Anonymous"; img.src = downloadUrl;
                     await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
-                    
                     const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
+                    canvas.width = img.width; canvas.height = img.height;
                     canvas.getContext('2d').drawImage(img, 0, 0);
                     const base64 = canvas.toDataURL('image/webp', 0.85).split(',')[1];
-                    
                     const newName = fileName.replace(/\.(png|jpg|jpeg)$/i, '.webp');
-                    
                     const uploadRes = await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
                     
-                    // Update Heroes in Database
                     const affectedHeroes = heroes.filter(h => h.image === downloadUrl);
                     for (let hero of affectedHeroes) {
                         hero.image = uploadRes.url;
                         await sendRequest({ action: "save", data: hero });
                     }
-
                     await sendRequest({ action: 'delete_image', path: path, sha: sha });
-                    
                     alert(`Successfully converted to WebP! Auto-updated ${affectedHeroes.length} hero(es).`);
                     loadGallery();
-                } catch(e) {
-                    alert("Failed to convert image. CORS or API error: " + e.message);
-                }
+                } catch(e) { alert("Failed to convert image. CORS or API error: " + e.message); }
             };
 
-            // Bulk Control Functions
             const toggleImageSelection = (sha) => {
-                if(selectedImages.has(sha)) selectedImages.delete(sha);
-                else selectedImages.add(sha);
+                if(selectedImages.has(sha)) selectedImages.delete(sha); else selectedImages.add(sha);
                 updateBulkControls();
             };
 
             const selectAllNonWebp = () => {
                 const convertibles = galleryImages.filter(img => img.name.match(/\.(png|jpg|jpeg)$/i));
                 if(selectedImages.size === convertibles.length && convertibles.length > 0) {
-                    selectedImages.clear(); // Toggle off if all are currently selected
+                    selectedImages.clear(); 
                 } else {
                     convertibles.forEach(img => selectedImages.add(img.sha));
                 }
-                renderGallery(); 
-                updateBulkControls();
+                renderGallery(); updateBulkControls();
             };
 
             const updateBulkControls = () => {
                 const btn = document.getElementById('btnConvertSelected');
-                if(selectedImages.size > 0) {
-                    btn.classList.remove('hidden');
-                    document.getElementById('selectedCount').innerText = selectedImages.size;
-                } else {
-                    btn.classList.add('hidden');
-                }
+                if(selectedImages.size > 0) { btn.classList.remove('hidden'); document.getElementById('selectedCount').innerText = selectedImages.size; } 
+                else { btn.classList.add('hidden'); }
             };
 
-            // NEW: Batch Processing to avoid timeouts and improve speed
             const convertSelected = async () => {
                 if(selectedImages.size === 0) return;
                 if(!confirm(`Convert ${selectedImages.size} selected image(s) to WebP and automatically update all associated heroes?`)) return;
 
                 const btn = document.getElementById('btnConvertSelected');
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Processing...`;
-                btn.disabled = true;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Processing...`; btn.disabled = true;
 
-                // Show Progress Bar
                 const progressContainer = document.getElementById('conversionProgressContainer');
                 const progressBar = document.getElementById('conversionProgressBar');
                 const progressText = document.getElementById('conversionProgressText');
@@ -418,94 +310,57 @@
 
                 const imgsToConvert = galleryImages.filter(img => selectedImages.has(img.sha));
                 const total = imgsToConvert.length;
-                let completed = 0;
-                let updateCount = 0;
+                let completed = 0; let updateCount = 0;
 
                 const updateUI = () => {
-                    const percent = Math.round((completed / total) * 100);
-                    progressBar.style.width = `${percent}%`;
+                    progressBar.style.width = `${Math.round((completed / total) * 100)}%`;
                     progressText.innerText = `${completed} / ${total} Converted`;
-                };
-                
-                updateUI();
+                }; updateUI();
 
                 try {
                     const heroes = await sendRequest({ action: "get_all_data" });
-                    
-                    // Process in concurrent batches of 3 to speed up dramatically without hitting rate limits
                     const batchSize = 3;
                     for (let i = 0; i < total; i += batchSize) {
                         const batch = imgsToConvert.slice(i, i + batchSize);
-                        
                         await Promise.all(batch.map(async (img) => {
                             try {
-                                const imageObj = new Image();
-                                imageObj.crossOrigin = "Anonymous"; 
-                                imageObj.src = img.download_url;
+                                const imageObj = new Image(); imageObj.crossOrigin = "Anonymous"; imageObj.src = img.download_url;
                                 await new Promise((resolve, reject) => { imageObj.onload = resolve; imageObj.onerror = reject; });
-                                
-                                const canvas = document.createElement('canvas');
-                                canvas.width = imageObj.width;
-                                canvas.height = imageObj.height;
+                                const canvas = document.createElement('canvas'); canvas.width = imageObj.width; canvas.height = imageObj.height;
                                 canvas.getContext('2d').drawImage(imageObj, 0, 0);
                                 const base64 = canvas.toDataURL('image/webp', 0.85).split(',')[1];
-                                
                                 const newName = img.name.replace(/\.(png|jpg|jpeg)$/i, '.webp');
                                 const uploadRes = await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
                                 
-                                // Update Heroes in Database
                                 const affectedHeroes = heroes.filter(h => h.image === img.download_url);
                                 for (let hero of affectedHeroes) {
-                                    hero.image = uploadRes.url;
-                                    await sendRequest({ action: "save", data: hero });
-                                    updateCount++;
+                                    hero.image = uploadRes.url; await sendRequest({ action: "save", data: hero }); updateCount++;
                                 }
-
-                                // Delete old image
                                 await sendRequest({ action: 'delete_image', path: img.path, sha: img.sha });
-                                
-                            } catch(err) {
-                                console.error("Failed to convert " + img.name, err);
-                            } finally {
-                                completed++;
-                                updateUI();
-                            }
+                            } catch(err) { console.error("Failed to convert " + img.name, err); } 
+                            finally { completed++; updateUI(); }
                         }));
                     }
-                    
-                    // Add slight delay for visual completion
                     setTimeout(() => {
                         alert(`Bulk conversion complete! Auto-updated ${updateCount} hero(es).`);
-                        progressContainer.classList.add('hidden');
-                        loadGallery();
+                        progressContainer.classList.add('hidden'); loadGallery();
                     }, 500);
-
                 } catch(e) {
-                    alert("Bulk conversion error: " + e.message);
-                    progressContainer.classList.add('hidden');
+                    alert("Bulk conversion error: " + e.message); progressContainer.classList.add('hidden');
                 } finally {
-                    btn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Convert (<span id="selectedCount">${selectedImages.size}</span>)`;
-                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Convert (<span id="selectedCount">${selectedImages.size}</span>)`; btn.disabled = false;
                 }
             };
 
-            // --- MEDIA GALLERY LOGIC ---
             const loadGallery = async () => {
                 document.getElementById('galleryLoading').classList.remove('hidden');
                 document.getElementById('galleryGrid').innerHTML = '';
-                selectedImages.clear();
-                updateBulkControls();
-                
+                selectedImages.clear(); updateBulkControls();
                 try {
-                    const res = await sendRequest({ action: "list_images" });
-                    galleryImages = res || [];
-                    buildHeaderControls();
-                    renderGallery();
-                } catch(e) {
-                    alert("Failed to load gallery: " + e.message);
-                } finally {
-                    document.getElementById('galleryLoading').classList.add('hidden');
-                }
+                    galleryImages = await sendRequest({ action: "list_images" }) || [];
+                    buildHeaderControls(); renderGallery();
+                } catch(e) { alert("Failed to load gallery: " + e.message); } 
+                finally { document.getElementById('galleryLoading').classList.add('hidden'); }
             };
 
             const renderGallery = () => {
@@ -514,7 +369,6 @@
                     const isConvertible = img.name.match(/\.(png|jpg|jpeg)$/i);
                     const isChecked = selectedImages.has(img.sha) ? 'checked' : '';
                     
-                    // Add checkbox for standard images
                     const checkboxHtml = isConvertible 
                         ? `<input type="checkbox" class="absolute top-2 right-10 z-20 w-4 h-4 cursor-pointer accent-indigo-600 bg-gray-900 border-gray-600 rounded" onchange="window.admin.toggleImageSelection('${img.sha}')" ${isChecked}>` 
                         : '';
@@ -550,57 +404,35 @@
                 status.classList.remove('hidden');
 
                 try {
-                    let finalName = file.name;
-                    let finalBase64 = "";
-
+                    let finalName = file.name; let finalBase64 = "";
                     if (file.type.match(/image\/(png|jpeg|jpg)/)) {
                         finalName = finalName.replace(/\.(png|jpg|jpeg)$/i, '.webp');
                         finalBase64 = await fileToBase64WebP(file);
                     } else {
                         finalBase64 = await new Promise((res, rej) => {
-                            const reader = new FileReader();
-                            reader.onload = e => res(e.target.result.split(',')[1]);
-                            reader.onerror = rej;
-                            reader.readAsDataURL(file);
+                            const reader = new FileReader(); reader.onload = e => res(e.target.result.split(',')[1]); reader.onerror = rej; reader.readAsDataURL(file);
                         });
                     }
 
-                    const exists = galleryImages.find(img => img.name.toLowerCase() === finalName.toLowerCase());
-                    if (exists) {
-                        if (!confirm(`A file named "${finalName}" already exists. Do you want to overwrite it?`)) {
-                            status.classList.add('hidden');
-                            input.value = "";
-                            return;
-                        }
+                    if (galleryImages.find(img => img.name.toLowerCase() === finalName.toLowerCase()) && !confirm(`A file named "${finalName}" already exists. Overwrite?`)) {
+                        status.classList.add('hidden'); input.value = ""; return;
                     }
 
                     await sendRequest({ action: "upload_image", fileData: finalBase64, fileName: finalName });
-                    input.value = ""; 
-                    await loadGallery(); 
-                } catch(e) {
-                    alert("Upload failed: " + e.message);
-                } finally {
-                    status.classList.add('hidden');
-                }
+                    input.value = ""; await loadGallery(); 
+                } catch(e) { alert("Upload failed: " + e.message); } 
+                finally { status.classList.add('hidden'); }
             };
 
             const deleteFromGallery = async (path, sha) => {
                 if(!confirm("Permanently delete this image from GitHub? Broken images on the site will result if they are still linked.")) return;
-                try {
-                    await sendRequest({ action: "delete_image", path: path, sha: sha });
-                    loadGallery(); 
-                } catch(e) {
-                    alert("Failed to delete: " + e.message);
-                }
+                try { await sendRequest({ action: "delete_image", path: path, sha: sha }); loadGallery(); } 
+                catch(e) { alert("Failed to delete: " + e.message); }
             };
 
-            const copyUrl = (url) => {
-                navigator.clipboard.writeText(url).then(() => {
-                    alert("URL Copied to clipboard!");
-                });
-            };
+            const copyUrl = (url) => { navigator.clipboard.writeText(url).then(() => { alert("URL Copied to clipboard!"); }); };
 
-            window.admin = { init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, convertExistingToWebP, copyUrl, toggleSidebar, toggleImageSelection, selectAllNonWebp, convertSelected };
+            window.admin = { init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, convertExistingToWebP, copyUrl, toggleImageSelection, selectAllNonWebp, convertSelected };
         })();
 
         window.onload = window.admin.init;
