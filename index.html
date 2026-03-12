@@ -448,7 +448,7 @@
                                 heroEl.onclick = () => { isAdmin ? app.openEditModal(h) : app.openViewModal(h); };
                                 
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
-                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-zinc-900/60 rounded-full p-0.5 border border-zinc-100/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain filter invert opacity-80 group-hover:opacity-100"></div>`;
+                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-zinc-900/60 rounded-full p-0.5 border border-zinc-100/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain opacity-80 group-hover:opacity-100"></div>`;
 
                                 let dotHtml = '';
                                 if (h.lastUpdate && Math.ceil(Math.abs(new Date() - new Date(h.lastUpdate)) / (36e5)) < 72) {
