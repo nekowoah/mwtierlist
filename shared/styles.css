@@ -1,0 +1,94 @@
+/* shared/styles.css */
+
+/* --- THEME VARIABLES (RGBA Format for Tailwind Opacity Support) --- */
+:root {
+    /* DARK MODE (Default) */
+    --color-white: 255, 255, 255;
+    --color-black: 0, 0, 0;
+    --color-gray-100: 243, 244, 246;
+    --color-gray-200: 229, 231, 235;
+    --color-gray-300: 209, 213, 219;
+    --color-gray-400: 156, 163, 175;
+    --color-gray-500: 107, 114, 128;
+    --color-gray-600: 75, 85, 99;
+    --color-gray-700: 55, 65, 81;
+    --color-gray-800: 31, 41, 55;
+    --color-gray-900: 17, 24, 39;
+}
+
+[data-theme="light"] {
+    /* LIGHT MODE (Inverted Palette) */
+    --color-white: 17, 24, 39;
+    --color-black: 255, 255, 255;
+    --color-gray-100: 31, 41, 55;
+    --color-gray-200: 55, 65, 81;
+    --color-gray-300: 75, 85, 99;
+    --color-gray-400: 107, 114, 128;
+    --color-gray-500: 156, 163, 175;
+    --color-gray-600: 209, 213, 219;
+    --color-gray-700: 229, 231, 235;
+    --color-gray-800: 255, 255, 255;
+    --color-gray-900: 249, 250, 251;
+}
+
+/* Typography Plugin Overrides for Light Mode */
+[data-theme="light"] .prose-invert {
+    --tw-prose-body: rgba(var(--color-gray-800), 1);
+    --tw-prose-headings: rgba(var(--color-gray-900), 1);
+    --tw-prose-lead: rgba(var(--color-gray-700), 1);
+    --tw-prose-links: #3b82f6; 
+    --tw-prose-bold: rgba(var(--color-gray-900), 1);
+    --tw-prose-counters: rgba(var(--color-gray-600), 1);
+    --tw-prose-bullets: rgba(var(--color-gray-400), 1);
+    --tw-prose-hr: rgba(var(--color-gray-300), 1);
+    --tw-prose-quotes: rgba(var(--color-gray-900), 1);
+    --tw-prose-quote-borders: rgba(var(--color-gray-300), 1);
+    --tw-prose-captions: rgba(var(--color-gray-500), 1);
+    --tw-prose-code: rgba(var(--color-gray-900), 1);
+    --tw-prose-pre-code: rgba(var(--color-gray-200), 1);
+    --tw-prose-pre-bg: rgba(var(--color-gray-800), 1);
+}
+
+/* --- TIERLIST SPECIFIC CLASSES --- */
+.bg-tier-sss { background-color: #ef4444; color: black; }
+.bg-tier-ss { background-color: #f59e0b; color: black; }
+.bg-tier-s { background-color: #f97316; color: black; }
+.bg-tier-a { background-color: #eab308; color: black; }
+.bg-tier-b { background-color: #84cc16; color: black; }
+.bg-tier-c { background-color: #22c55e; color: black; }
+.bg-tier-d { background-color: #3b82f6; color: black; }
+.bg-tier-f { background-color: #6b7280; color: white; }
+.bg-tier-unranked { background-color: rgba(var(--color-gray-700), 1); color: white; border-color: rgba(var(--color-gray-600), 1); }
+
+.border-t-vip { border-top: 2px solid #fbbf24; box-shadow: 0 -2px 8px rgba(251, 191, 36, 0.6); }
+.border-t-limited { border-top: 2px solid #e879f9; box-shadow: 0 -2px 8px rgba(232, 121, 249, 0.6); }
+.border-t-basic { border-top: 2px solid #22c55e; box-shadow: 0 -2px 8px rgba(34, 197, 94, 0.6); }
+.border-t-normal { border-top: 2px solid rgba(var(--color-gray-600), 1); box-shadow: none; }
+
+.hero-portrait { transition: transform 0.2s, box-shadow 0.2s; }
+.hero-portrait:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -5px rgba(0,0,0,0.7); z-index: 10; }
+
+.modal-fade-in { animation: fadeIn 0.2s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+.class-btn-active { border-color: #eab308; background-color: rgba(234, 179, 8, 0.2); color: #eab308; }
+.class-btn-inactive { border-color: rgba(var(--color-gray-600), 1); opacity: 0.7; }
+.class-btn-inactive:hover { opacity: 1; border-color: rgba(var(--color-gray-400), 1); }
+
+.custom-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.tooltip {
+    visibility: hidden; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    padding: 4px 8px; background: rgba(0,0,0,0.9); color: white; font-size: 0.75rem;
+    border-radius: 4px; white-space: nowrap; z-index: 30; pointer-events: none;
+}
+.hero-portrait:hover .tooltip { visibility: visible; }
+
+/* Admin Dashboard Specific */
+.fade-in { animation: fadeInY 0.3s ease-in-out forwards; }
+@keyframes fadeInY { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.dash-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.dash-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
