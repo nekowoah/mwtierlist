@@ -20,16 +20,93 @@
     <meta property="og:image" content="https://i.imgur.com/aBuiCFr.png">
 
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    
+    <!-- FIXED: TAILWIND CONFIG WITH RGB TRANSPARENCY SUPPORT -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        white: 'rgb(var(--color-white) / <alpha-value>)',
+                        black: 'rgb(var(--color-black) / <alpha-value>)',
+                        gray: {
+                            900: 'rgb(var(--color-gray-900) / <alpha-value>)',
+                            800: 'rgb(var(--color-gray-800) / <alpha-value>)',
+                            700: 'rgb(var(--color-gray-700) / <alpha-value>)',
+                            600: 'rgb(var(--color-gray-600) / <alpha-value>)',
+                            500: 'rgb(var(--color-gray-500) / <alpha-value>)',
+                            400: 'rgb(var(--color-gray-400) / <alpha-value>)',
+                            300: 'rgb(var(--color-gray-300) / <alpha-value>)',
+                            200: 'rgb(var(--color-gray-200) / <alpha-value>)',
+                            100: 'rgb(var(--color-gray-100) / <alpha-value>)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Quill.js Rich Text Editor -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
+
+    <style>
+        /* FIXED: CSS VARIABLES IN RGB FORMAT */
+        :root {
+            /* DARK MODE (Default) */
+            --color-white: 255 255 255;
+            --color-black: 0 0 0;
+            --color-gray-100: 243 244 246;
+            --color-gray-200: 229 231 235;
+            --color-gray-300: 209 213 219;
+            --color-gray-400: 156 163 175;
+            --color-gray-500: 107 114 128;
+            --color-gray-600: 75 85 99;
+            --color-gray-700: 55 65 81;
+            --color-gray-800: 31 41 55;
+            --color-gray-900: 17 24 39;
+        }
+
+        [data-theme="light"] {
+            /* LIGHT MODE (Inverted) */
+            --color-white: 17 24 39;
+            --color-black: 255 255 255;
+            --color-gray-100: 31 41 55;
+            --color-gray-200: 55 65 81;
+            --color-gray-300: 75 85 99;
+            --color-gray-400: 107 114 128;
+            --color-gray-500: 156 163 175;
+            --color-gray-600: 209 213 219;
+            --color-gray-700: 229 231 235;
+            --color-gray-800: 255 255 255;
+            --color-gray-900: 249 250 251;
+        }
+
+        /* Ensures typography plugin adapts to light mode cleanly */
+        [data-theme="light"] .prose-invert {
+            --tw-prose-body: rgb(var(--color-gray-800));
+            --tw-prose-headings: rgb(var(--color-gray-900));
+            --tw-prose-lead: rgb(var(--color-gray-700));
+            --tw-prose-links: #3b82f6; 
+            --tw-prose-bold: rgb(var(--color-gray-900));
+            --tw-prose-counters: rgb(var(--color-gray-600));
+            --tw-prose-bullets: rgb(var(--color-gray-400));
+            --tw-prose-hr: rgb(var(--color-gray-300));
+            --tw-prose-quotes: rgb(var(--color-gray-900));
+            --tw-prose-quote-borders: rgb(var(--color-gray-300));
+            --tw-prose-captions: rgb(var(--color-gray-500));
+            --tw-prose-code: rgb(var(--color-gray-900));
+            --tw-prose-pre-code: rgb(var(--color-gray-200));
+            --tw-prose-pre-bg: rgb(var(--color-gray-800));
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col">
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
 
     <!-- Navigation -->
-    <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl">
+    <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-4">
             <div class="flex items-center gap-4 sm:gap-6 flex-shrink-0">
                 <div class="flex items-center gap-2 sm:gap-3">
@@ -58,12 +135,12 @@
         </div>
 
         <!-- PUBLIC VIEW -->
-        <article id="contentViewer" class="hidden prose prose-invert prose-blue prose-img:rounded-xl prose-a:text-blue-400 max-w-none w-full bg-gray-800/40 p-6 sm:p-10 rounded-2xl border border-gray-700/50 shadow-2xl">
+        <article id="contentViewer" class="hidden prose prose-invert prose-blue prose-img:rounded-xl prose-a:text-blue-400 max-w-none w-full bg-gray-800/40 p-6 sm:p-10 rounded-2xl border border-gray-700/50 shadow-2xl transition-colors duration-300">
             <!-- Data injected here -->
         </article>
 
         <!-- ADMIN EDITOR VIEW -->
-        <div id="editorWrapper" class="hidden bg-gray-100 text-gray-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-gray-300 mt-4">
+        <div id="editorWrapper" class="hidden bg-gray-100 text-gray-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-gray-300 mt-4 transition-colors duration-300">
             <div class="bg-gray-200 p-4 border-b border-gray-300 flex justify-between items-center">
                 <h3 class="font-bold text-gray-800 text-sm uppercase tracking-wider"><i class="fa-solid fa-pen-nib mr-2"></i> Page Editor</h3>
                 <div class="flex gap-2">
@@ -75,7 +152,7 @@
         </div>
     </main>
     
-    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto">
+    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto transition-colors duration-300">
         <p>MWR Tierlist! Built by the Legion Community</p>
     </footer>
 
