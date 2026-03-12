@@ -3,7 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWR Tierlist</title>
+    
+    <!-- PRIMARY SEO META TAGS -->
+    <title>MWR Tierlist | Best Heroes & Strategy Guide</title>
+    <meta name="title" content="Mini Warriors Reborn Tierlist">
+    <meta name="description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
+    <meta name="keywords" content="MWR, Mini Warriors Reborn, Mini Warriors, Mini Warriors Reborn tierlist, Mini Warriors tierlist, Legion Community Hub">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+
+    <!-- OPEN GRAPH / FACEBOOK / DISCORD (For nice link previews) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nekowoah.github.io/mwtierlist/">
+    <meta property="og:title" content="Mini Warriors Reborn Tierlist">
+    <meta property="og:description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
+    <meta property="og:image" content="https://i.imgur.com/1h28KPo.png">
+
+    <!-- TWITTER -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://nekowoah.github.io/mwtierlist/">
+    <meta property="twitter:title" content="Mini Warriors Reborn Tierlist">
+    <meta property="twitter:description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
+    <meta property="twitter:image" content="https://i.imgur.com/1h28KPo.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
@@ -46,11 +68,9 @@
     <!-- Navigation (Sticky Top Bar) -->
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl">
         <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col gap-2">
-            <!-- Updated flex properties to left-align components on mobile screens -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 w-full">
                 
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full md:w-auto">
-                    <!-- Menu & Logo -->
                     <div class="flex items-center gap-2 sm:gap-3">
                         <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors mr-1 outline-none">
                             <i class="fa-solid fa-bars text-lg sm:text-xl"></i>
@@ -59,15 +79,13 @@
                         <span class="font-bold text-lg sm:text-xl tracking-wide sm:block" id="siteTitleText">MWR Tierlist</span>
                     </div>
                     
-                    <!-- Tabs -->
                     <div class="flex bg-gray-900 rounded-lg p-1 w-full sm:w-auto justify-between sm:justify-start">
-                        <button onclick="app.setMode('early')" id="tab-early" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Early Game</button>
-                        <button onclick="app.setMode('late')" id="tab-late" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-lg transition-colors">Late Game</button>
+                        <button onclick="app.setMode('early')" id="tab-early" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Early</button>
+                        <button onclick="app.setMode('late')" id="tab-late" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-lg transition-colors">Late</button>
                         <button onclick="app.setMode('sacrament')" id="tab-sacrament" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
                     </div>
                 </div>
 
-                <!-- Right Side Controls -->
                 <div class="flex gap-3 sm:gap-4 items-center w-full md:w-auto justify-between md:justify-end" id="navControls">
                     <div class="relative group flex-grow md:flex-grow-0">
                         <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search..." class="bg-gray-900/50 text-white rounded-full px-4 py-1.5 pl-9 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
@@ -142,7 +160,6 @@
 
         <div id="tierListContainer" class="flex flex-col gap-4 select-none opacity-0 transition-opacity duration-500"></div>
 
-        <!-- Mobile Rank Info -->
         <div class="lg:hidden mt-8 text-xs text-gray-400 space-y-2 bg-gray-800/50 p-4 rounded-lg border border-gray-700 shadow-md">
             <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that often used and have a noticeable impact in battles.</p>
             <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill space or support stronger heroes.</p>
@@ -201,8 +218,6 @@
                                 <div class="flex gap-2">
                                     <div class="relative flex-grow">
                                         <input type="url" id="heroImage" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full focus:border-indigo-500 outline-none text-white pr-10">
-                                        
-                                        <!-- NEW: Browse Image Library Button -->
                                         <button type="button" onclick="app.openImageSelector()" title="Browse Image Library" class="absolute right-2 top-2 text-gray-400 hover:text-white mt-0.5">
                                             <i class="fa-solid fa-magnifying-glass"></i>
                                         </button>
@@ -260,7 +275,7 @@
         </div>
     </div>
 
-    <!-- NEW: Image Selector Modal -->
+    <!-- Image Selector Modal -->
     <div id="imageSelectModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="app.closeImageSelector()"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[75vh]">
@@ -295,7 +310,6 @@
         </div>
     </div>
 
-    <!-- 1. IMPORT THE SMART MENU -->
     <script src="menu.js"></script>
 
     <script>
@@ -327,7 +341,7 @@
             let activeTypeFilters = new Set(['VIP', 'Limited', 'Basic Limited', 'Normal']);
             let showAwakenedOnly = false;
             let cachedLogs = null;
-            let cachedGalleryImages = null; // Caches library images
+            let cachedGalleryImages = null; 
             
             let isAdmin = false;
             let authToken = "";
@@ -350,10 +364,8 @@
             };
 
             const init = async () => {
-                // Populate rank dropdowns for edit modal
                 document.querySelectorAll('.rank-select').forEach(s => s.innerHTML = RANKS.map(r => `<option value="${r}">${r}</option>`).join(''));
 
-                // Admin Hash Check
                 if (window.location.hash === '#admin') {
                     const savedToken = sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
@@ -375,9 +387,7 @@
                     }
                 }
 
-                // 2. TRIGGER THE SMART MENU BUILDER ('indigo' acts as the accent color)
                 AppMenu.build(isAdmin, 'indigo');
-
                 renderClassButtons();
                 updateInfo();
 
@@ -389,7 +399,6 @@
                     }
                 });
 
-                // Fast Cache Load
                 const cachedData = localStorage.getItem('mwr_tierlist_data');
                 if (cachedData) {
                     try {
@@ -400,7 +409,6 @@
                     } catch(e) { console.error(e); }
                 }
 
-                // Background Sync
                 try {
                     const res = await fetch(API_URL);
                     const freshHeroes = await res.json();
@@ -636,7 +644,6 @@
                     document.getElementById('heroAwaken').value = "No";
                     document.getElementById('btnDelete').classList.add('hidden');
                     
-                    // SET DEFAULTS FOR NEW HEROES
                     document.getElementById('rankEarly').value = "Unranked";
                     document.getElementById('rankLate').value = "Unranked";
                     document.getElementById('rankSacr').value = "Unranked";
@@ -717,12 +724,11 @@
                 };
             };
             
-            // --- NEW: VISUAL IMAGE SELECTOR MODAL LOGIC ---
+            // --- VISUAL IMAGE SELECTOR ---
             const openImageSelector = async () => {
                 document.getElementById('imageSelectModal').classList.remove('hidden');
                 const content = document.getElementById('imageSelectContent');
                 
-                // Fetch from GitHub only once per session to save API calls
                 if (!cachedGalleryImages) {
                     content.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10"><i class="fas fa-circle-notch fa-spin text-3xl mb-3 text-indigo-500"></i><p>Loading GitHub Image Library...</p></div>';
                     try {
@@ -737,14 +743,11 @@
                 }
             };
 
-            const closeImageSelector = () => {
-                document.getElementById('imageSelectModal').classList.add('hidden');
-            };
+            const closeImageSelector = () => document.getElementById('imageSelectModal').classList.add('hidden');
 
             const renderImageSelector = () => {
                 const content = document.getElementById('imageSelectContent');
                 const searchTerm = document.getElementById('imageSearchInput').value.toLowerCase();
-                
                 const filtered = cachedGalleryImages.filter(img => img.name.toLowerCase().includes(searchTerm));
                 
                 if (filtered.length === 0) {
@@ -765,11 +768,7 @@
             };
 
             const filterImageSelector = () => renderImageSelector();
-
-            const selectImage = (url) => {
-                document.getElementById('heroImage').value = url;
-                closeImageSelector();
-            };
+            const selectImage = (url) => { document.getElementById('heroImage').value = url; closeImageSelector(); };
 
             const toggleChangelog = async () => {
                 const modal = document.getElementById('changelogModal');
@@ -803,12 +802,7 @@
                 } else { modal.classList.add('hidden'); }
             };
 
-            return { 
-                init, setMode, render, openViewModal, closeViewModal, openEditModal, closeEditModal, 
-                setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, 
-                saveHero, deleteHero, uploadImage, exitAdmin,
-                openImageSelector, closeImageSelector, filterImageSelector, selectImage // NEW EXPORTS
-            };
+            return { init, setMode, render, openViewModal, closeViewModal, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, saveHero, deleteHero, uploadImage, exitAdmin, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
         })();
 
         window.onload = app.init;
