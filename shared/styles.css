@@ -18,8 +18,10 @@
 
 [data-theme="light"] {
     /* LIGHT MODE (Inverted Palette) */
-    --color-white: 17, 24, 39;
-    --color-black: 255, 255, 255;
+    --color-white: 17, 24, 39;       /* White text becomes dark gray */
+    --color-black: 255, 255, 255;    /* Black overlays become white */
+    
+    /* We invert the grayscale so light mode works natively */
     --color-gray-100: 31, 41, 55;
     --color-gray-200: 55, 65, 81;
     --color-gray-300: 75, 85, 99;
@@ -27,26 +29,30 @@
     --color-gray-500: 156, 163, 175;
     --color-gray-600: 209, 213, 219;
     --color-gray-700: 229, 231, 235;
-    --color-gray-800: 255, 255, 255;
-    --color-gray-900: 249, 250, 251;
+    
+    /* Makes Top Bar & Cards Light Gray instead of Pure White */
+    --color-gray-800: 243, 244, 246; 
+    
+    /* Makes the main background body Pure White */
+    --color-gray-900: 255, 255, 255; 
 }
 
-/* Typography Plugin Overrides for Light Mode */
+/* FIX: Typography Plugin Overrides for Light Mode Readability */
 [data-theme="light"] .prose-invert {
-    --tw-prose-body: rgba(var(--color-gray-800), 1);
-    --tw-prose-headings: rgba(var(--color-gray-900), 1);
-    --tw-prose-lead: rgba(var(--color-gray-700), 1);
+    --tw-prose-body: rgba(var(--color-gray-200), 1);
+    --tw-prose-headings: rgba(var(--color-white), 1);
+    --tw-prose-lead: rgba(var(--color-gray-300), 1);
     --tw-prose-links: #3b82f6; 
-    --tw-prose-bold: rgba(var(--color-gray-900), 1);
-    --tw-prose-counters: rgba(var(--color-gray-600), 1);
+    --tw-prose-bold: rgba(var(--color-white), 1);
+    --tw-prose-counters: rgba(var(--color-gray-400), 1);
     --tw-prose-bullets: rgba(var(--color-gray-400), 1);
-    --tw-prose-hr: rgba(var(--color-gray-300), 1);
-    --tw-prose-quotes: rgba(var(--color-gray-900), 1);
-    --tw-prose-quote-borders: rgba(var(--color-gray-300), 1);
-    --tw-prose-captions: rgba(var(--color-gray-500), 1);
-    --tw-prose-code: rgba(var(--color-gray-900), 1);
-    --tw-prose-pre-code: rgba(var(--color-gray-200), 1);
-    --tw-prose-pre-bg: rgba(var(--color-gray-800), 1);
+    --tw-prose-hr: rgba(var(--color-gray-600), 1);
+    --tw-prose-quotes: rgba(var(--color-gray-100), 1);
+    --tw-prose-quote-borders: rgba(var(--color-gray-600), 1);
+    --tw-prose-captions: rgba(var(--color-gray-400), 1);
+    --tw-prose-code: rgba(var(--color-white), 1);
+    --tw-prose-pre-code: rgba(var(--color-gray-900), 1);
+    --tw-prose-pre-bg: rgba(var(--color-gray-100), 1);
 }
 
 /* --- TIERLIST SPECIFIC CLASSES --- */
@@ -70,10 +76,6 @@
 
 .modal-fade-in { animation: fadeIn 0.2s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-.class-btn-active { border-color: #eab308; background-color: rgba(234, 179, 8, 0.2); color: #eab308; }
-.class-btn-inactive { border-color: rgba(var(--color-gray-600), 1); opacity: 0.7; }
-.class-btn-inactive:hover { opacity: 1; border-color: rgba(var(--color-gray-400), 1); }
 
 .custom-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
 
