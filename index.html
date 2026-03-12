@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWR Tierlist | Best Heroes & Strategy Guide</title>
+    <title>Mini Warriors Reborn | Tierlist & Info</title>
     
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
@@ -26,7 +26,7 @@
                 
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full md:w-auto">
                     <div class="flex items-center gap-2 sm:gap-3">
-                        <button onclick="AppMenu.toggleSidebar()" class="text-gray-400 hover:text-gray-100 transition-colors mr-1 outline-none">
+                        <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-gray-100 transition-colors mr-1 outline-none">
                             <i class="fa-solid fa-bars text-lg sm:text-xl"></i>
                         </button>
                         <img id="adminIconBadge" src="https://i.imgur.com/1h28KPo.png" class="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)] transition-all">
@@ -128,7 +128,6 @@
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
             <div class="relative h-64 md:h-auto md:w-5/12 bg-gray-900 transition-colors duration-300">
                 <img id="viewImage" src="" class="w-full h-full object-cover opacity-80">
-                <!-- FIX: Removed side-shadow (md:bg-gradient-to-r) and used a uniform bottom fade matched to theme -->
                 <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
                 <div class="absolute bottom-4 left-4 right-4">
                     <h2 id="viewName" class="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md"></h2>
@@ -261,6 +260,7 @@
         </div>
     </div>
 
+    <!-- Sidebar HTML is injected here by JS, but we need to define the fallback for toggleSidebar -->
     <script>
         const app = (() => {
             const GLOBALS = window.MWR_GLOBALS || {};
@@ -280,6 +280,22 @@
             
             let isAdmin = false;
             let authToken = "";
+            
+            const toggleSidebar = () => {
+                if (window.AppMenu && window.AppMenu.toggleSidebar) {
+                    window.AppMenu.toggleSidebar();
+                } else {
+                    console.warn("AppMenu is not initialized yet.");
+                }
+            };
+            
+            const exitAdmin = () => {
+                if (window.AppMenu && window.AppMenu.exitAdmin) {
+                    window.AppMenu.exitAdmin();
+                } else {
+                    console.warn("AppMenu is not initialized yet.");
+                }
+            };
 
             const init = async () => {
                 if (!window.MWR_GLOBALS) {
@@ -301,7 +317,12 @@
                     } else { window.location.href = 'admin.html'; return; }
                 }
 
-                window.AppMenu.build(isAdmin, 'indigo');
+                if (window.AppMenu && window.AppMenu.build) {
+                    window.AppMenu.build(isAdmin, 'indigo');
+                } else {
+                    console.error("AppMenu is missing from globals.js");
+                }
+                
                 renderClassButtons();
                 updateInfo();
 
@@ -691,7 +712,7 @@
                 } else { modal.classList.add('hidden'); }
             };
 
-            return { init, setMode, render, openViewModal, closeViewModal, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, saveHero, deleteHero, uploadImage, exitAdmin, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
+            return { init, setMode, render, openViewModal, closeViewModal, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, exitAdmin, saveHero, deleteHero, uploadImage, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
         })();
 
         window.onload = app.init;
