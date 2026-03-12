@@ -52,8 +52,10 @@
         .ql-editor.ql-blank::before {
             color: rgba(var(--color-gray-500), 1) !important;
         }
+        /* FIX: Ensure the text isn't blending into the background by forcing !important */
         .ql-editor {
-            color: rgba(var(--color-gray-200), 1);
+            color: rgba(var(--color-gray-200), 1) !important;
+            min-height: 500px;
         }
     </style>
 </head>
@@ -96,7 +98,7 @@
                 </div>
             </div>
             <!-- UPDATED: Removed bg-white so it inherits the container's background -->
-            <div id="quillEditor" class="bg-gray-800 transition-colors duration-300" style="min-height: 500px; font-size: 16px;"></div>
+            <div id="quillEditor" class="bg-gray-800 transition-colors duration-300" style="font-size: 16px;"></div>
         </div>
     </main>
     
@@ -146,19 +148,27 @@
                     viewerEl.innerHTML = rawHtmlContent;
                     loadingEl.classList.add('hidden');
                     viewerEl.classList.remove('hidden');
+                    console.log("Loaded content from cache. Length:", rawHtmlContent.length);
                 }
 
                 try {
                     const res = await fetch(API_URL + "?view=info");
                     const data = await res.json();
+                    
+                    if (data.error) {
+                        console.error("API returned an error:", data.error);
+                        throw new Error(data.error);
+                    }
+
                     if (data.content && data.content !== rawHtmlContent) {
+                        console.log("New content fetched from server. Length:", data.content.length);
                         rawHtmlContent = data.content;
                         viewerEl.innerHTML = rawHtmlContent;
                         localStorage.setItem('mwr_info_data', rawHtmlContent);
                         
-                        // FIX: If the editor is already open when background data arrives, sync it!
+                        // If the editor is already open when background data arrives, sync it via dangerouslyPasteHTML
                         if (quillInstance && !document.getElementById('editorWrapper').classList.contains('hidden')) {
-                            quillInstance.root.innerHTML = rawHtmlContent;
+                            quillInstance.clipboard.dangerouslyPasteHTML(rawHtmlContent);
                         }
                         
                         loadingEl.classList.add('hidden');
@@ -169,7 +179,8 @@
                         }
                     }
                 } catch(e) {
-                    if(!cachedInfo) loadingEl.innerHTML = `<p class="text-red-400">Failed to load information page.</p>`;
+                    console.error("Failed to fetch Info Data:", e);
+                    if(!cachedInfo) loadingEl.innerHTML = `<p class="text-red-400">Failed to load information page. Check console for details.</p>`;
                 }
             };
 
@@ -178,73 +189,86 @@
                 document.getElementById('editorWrapper').classList.remove('hidden');
                 document.getElementById('btnEditPage').classList.add('hidden');
 
-                if (!quillInstance) {
-                    quillInstance = new Quill('#quillEditor', {
-                        theme: 'snow',
-                        modules: {
-                            toolbar: {
-                                container: [
-                                    [{ 'header': [1, 2, 3, false] }],
-                                    ['bold', 'italic', 'underline', 'strike'],
-                                    [{ 'color': [] }, { 'background': [] }],
-                                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                                    ['link', 'image', 'video'],
-                                    ['clean']
-                                ],
-                                // CUSTOM IMAGE HANDLER: Uploads to GitHub instead of saving raw base64 data
-                                handlers: {
-                                    image: function() {
-                                        const input = document.createElement('input');
-                                        input.setAttribute('type', 'file');
-                                        input.setAttribute('accept', 'image/*');
-                                        input.click();
+                try {
+                    if (!quillInstance) {
+                        console.log("Initializing Quill for the first time...");
+                        
+                        // FIX 1: Pre-inject the HTML into the div BEFORE initializing Quill. 
+                        // This forces Quill's parser to adopt the exact HTML structure correctly on boot.
+                        document.getElementById('quillEditor').innerHTML = rawHtmlContent || '';
 
-                                        input.onchange = async () => {
-                                            const file = input.files[0];
-                                            if (!file) return;
+                        quillInstance = new Quill('#quillEditor', {
+                            theme: 'snow',
+                            modules: {
+                                toolbar: {
+                                    container: [
+                                        [{ 'header': [1, 2, 3, false] }],
+                                        ['bold', 'italic', 'underline', 'strike'],
+                                        [{ 'color': [] }, { 'background': [] }],
+                                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                        ['link', 'image', 'video'],
+                                        ['clean']
+                                    ],
+                                    // CUSTOM IMAGE HANDLER: Uploads to GitHub instead of saving raw base64 data
+                                    handlers: {
+                                        image: function() {
+                                            const input = document.createElement('input');
+                                            input.setAttribute('type', 'file');
+                                            input.setAttribute('accept', 'image/*');
+                                            input.click();
 
-                                            const btn = document.getElementById('btnSaveInfo');
-                                            const oldText = btn.innerText;
-                                            btn.innerText = "Uploading Image to Server..."; 
-                                            btn.disabled = true;
+                                            input.onchange = async () => {
+                                                const file = input.files[0];
+                                                if (!file) return;
 
-                                            const reader = new FileReader();
-                                            reader.readAsDataURL(file);
-                                            reader.onload = async () => {
-                                                const base64 = reader.result.split(',')[1];
-                                                try {
-                                                    const res = await fetch(API_URL, {
-                                                        method: "POST",
-                                                        body: JSON.stringify({ 
-                                                            action: "upload_image", 
-                                                            token: authToken, 
-                                                            fileData: base64, 
-                                                            fileName: "info_img_" + Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9.]/g, "") 
-                                                        }),
-                                                        redirect: "follow"
-                                                    });
-                                                    const data = await res.json();
-                                                    if(data.error) throw new Error(data.error);
+                                                const btn = document.getElementById('btnSaveInfo');
+                                                const oldText = btn.innerText;
+                                                btn.innerText = "Uploading Image to Server..."; 
+                                                btn.disabled = true;
 
-                                                    const range = quillInstance.getSelection(true);
-                                                    quillInstance.insertEmbed(range.index, 'image', data.url);
-                                                } catch(e) {
-                                                    alert("Image upload failed: " + e.message);
-                                                } finally {
-                                                    btn.innerText = oldText; 
-                                                    btn.disabled = false;
-                                                }
+                                                const reader = new FileReader();
+                                                reader.readAsDataURL(file);
+                                                reader.onload = async () => {
+                                                    const base64 = reader.result.split(',')[1];
+                                                    try {
+                                                        const res = await fetch(API_URL, {
+                                                            method: "POST",
+                                                            body: JSON.stringify({ 
+                                                                action: "upload_image", 
+                                                                token: authToken, 
+                                                                fileData: base64, 
+                                                                fileName: "info_img_" + Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9.]/g, "") 
+                                                            }),
+                                                            redirect: "follow"
+                                                        });
+                                                        const data = await res.json();
+                                                        if(data.error) throw new Error(data.error);
+
+                                                        const range = quillInstance.getSelection(true);
+                                                        quillInstance.insertEmbed(range.index, 'image', data.url);
+                                                    } catch(e) {
+                                                        alert("Image upload failed: " + e.message);
+                                                        console.error("Image Upload Error:", e);
+                                                    } finally {
+                                                        btn.innerText = oldText; 
+                                                        btn.disabled = false;
+                                                    }
+                                                };
                                             };
-                                        };
+                                        }
                                     }
                                 }
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        console.log("Quill already initialized, re-pasting data...");
+                        // FIX 2: If we are just toggling the editor back on, use the official paste command
+                        quillInstance.clipboard.dangerouslyPasteHTML(rawHtmlContent || '');
+                    }
+                } catch (err) {
+                    console.error("Editor Boot Error:", err);
+                    alert("Failed to start the editor. Press F12 to check the console for details.");
                 }
-                
-                // FIX: Bypass the strict parser and insert HTML directly so it doesn't get wiped
-                quillInstance.root.innerHTML = rawHtmlContent || '';
             };
 
             const cancelEditor = () => {
@@ -257,6 +281,7 @@
                 if (!quillInstance) return;
                 const btn = document.getElementById('btnSaveInfo');
                 btn.innerText = "Saving..."; btn.disabled = true;
+                
                 const newHtml = quillInstance.root.innerHTML;
 
                 // GUARDRAIL: Prevent saving if user dragged/copy-pasted raw image data
@@ -267,7 +292,7 @@
                 }
 
                 if (newHtml.length > 49000) {
-                    alert("Error: The text is too long for Google Sheets to save. Please reduce the length.");
+                    alert(`Error: The text is too long for Google Sheets to save (${newHtml.length} characters). Please reduce the length.`);
                     btn.innerText = "Save & Publish"; btn.disabled = false;
                     return;
                 }
@@ -279,14 +304,21 @@
                         redirect: "follow" 
                     });
                     const data = await res.json();
+                    
                     if(data.error) throw new Error(data.error);
 
                     rawHtmlContent = newHtml;
                     localStorage.setItem('mwr_info_data', rawHtmlContent);
                     document.getElementById('contentViewer').innerHTML = rawHtmlContent;
                     cancelEditor();
-                } catch(e) { alert("Failed to save: " + e.message); } 
-                finally { btn.innerText = "Save & Publish"; btn.disabled = false; }
+                    console.log("Save successful!");
+
+                } catch(e) { 
+                    alert("Failed to save: " + e.message); 
+                    console.error("Save Error:", e);
+                } finally { 
+                    btn.innerText = "Save & Publish"; btn.disabled = false; 
+                }
             };
 
             return { init, enableEditor, cancelEditor, saveInfo };
