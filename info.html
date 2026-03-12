@@ -3,7 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWR Information</title>
+    
+    <!-- PRIMARY SEO META TAGS -->
+    <title>MWR Tierlist | Best Heroes & Strategy Guide</title>
+    <meta name="title" content="Mini Warriors Reborn Tierlist">
+    <meta name="description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
+    <meta name="keywords" content="MWR, Mini Warriors Reborn, Mini Warriors, Mini Warriors Reborn tierlist, Mini Warriors tierlist, Legion Community Hub">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+
+    <!-- OPEN GRAPH / FACEBOOK / DISCORD (For nice link previews) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://nekowoah.github.io/mwtierlist/">
+    <meta property="og:title" content="Mini Warriors Reborn Tierlist">
+    <meta property="og:description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
+    <meta property="og:image" content="https://i.imgur.com/1h28KPo.png">
+
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Quill.js Rich Text Editor -->
@@ -94,7 +109,6 @@
             };
 
             const init = async () => {
-                // Admin Hash Check
                 if (window.location.hash === '#admin') {
                     const savedToken = sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
@@ -116,9 +130,7 @@
                     }
                 }
 
-                // 2. TRIGGER THE SMART MENU BUILDER ('blue' acts as the accent color)
                 AppMenu.build(isAdmin, 'blue');
-
                 loadData();
             };
 
@@ -154,7 +166,6 @@
                 }
             };
 
-            // --- EDITOR LOGIC ---
             const enableEditor = () => {
                 document.getElementById('contentViewer').classList.add('hidden');
                 document.getElementById('editorWrapper').classList.remove('hidden');
