@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MWR Tierlist | Information & Guides</title>
     
-    <meta name="description" content="Mini Warriors Reborn Community Information Page">
-    <meta name="keywords" content="MWR, Mini Warriors Reborn, Mini Warriors, Mini Warriors Reborn tierlist, Mini Warriors tierlist, Legion Community Hub, Mini Warriors wiki, Mini warriors reborn wiki">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+
+    <meta name="description" content="Read the latest guides, rules, and announcements for the Mini Warriors Reborn tierlist.">
+    <meta name="keywords" content="MWR, Mini Warriors Reborn, Mini Warriors, guides, tierlist rules">
 
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script src="shared/globals.js"></script>
@@ -64,7 +66,8 @@
 
     <script>
         const app = (() => {
-            const { API_URL } = window.MWR_GLOBALS;
+            const GLOBALS = window.MWR_GLOBALS || {};
+            const API_URL = GLOBALS.API_URL || "";
             
             let isAdmin = false;
             let authToken = "";
@@ -72,25 +75,21 @@
             let quillInstance = null;
 
             const init = async () => {
+                if (!window.MWR_GLOBALS) {
+                    document.getElementById('loading').innerHTML = `<div class="bg-red-900/20 border border-red-500/50 rounded-xl p-6 max-w-md mx-auto mt-10"><i class="fa-solid fa-triangle-exclamation text-4xl text-red-500 mb-3"></i><h3 class="text-xl font-black text-white mb-2">Missing Shared Files</h3><p class="text-gray-300 text-sm">Cannot find shared/globals.js</p></div>`;
+                    return; 
+                }
+
                 if (window.location.hash === '#admin') {
                     const savedToken = sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
                         isAdmin = true;
                         authToken = savedToken;
-                        
                         document.getElementById('siteTitleText').innerText = "Editor Mode";
                         document.getElementById('adminIconBadge').className = "w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] transition-all";
                         document.getElementById('discordLink').classList.add('hidden');
-                        
-                        document.getElementById('navControls').insertAdjacentHTML('afterbegin', `
-                            <button onclick="app.enableEditor()" id="btnEditPage" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 sm:py-2 rounded-lg transition-colors text-xs sm:text-sm font-bold shadow-lg flex-shrink-0">
-                                <i class="fa-solid fa-pen-to-square mr-1.5"></i> Edit Article
-                            </button>
-                        `);
-                    } else {
-                        window.location.href = 'admin.html';
-                        return;
-                    }
+                        document.getElementById('navControls').insertAdjacentHTML('afterbegin', `<button onclick="app.enableEditor()" id="btnEditPage" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 sm:py-2 rounded-lg transition-colors text-xs sm:text-sm font-bold shadow-lg flex-shrink-0"><i class="fa-solid fa-pen-to-square mr-1.5"></i> Edit Article</button>`);
+                    } else { window.location.href = 'admin.html'; return; }
                 }
 
                 window.AppMenu.build(isAdmin, 'blue');
