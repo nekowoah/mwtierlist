@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="U-Bmd2oCVtZVWkVI7f3NjXAZR0plJHrrC--UcSlGh7k" />
     
     <!-- PRIMARY SEO META TAGS -->
     <title>Mini Warriors Reborn Tierlist and Guides</title>
@@ -27,7 +26,9 @@
     <meta property="twitter:description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
     <meta property="twitter:image" content="https://i.imgur.com/aBuiCFr.png">
 
-<script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FIXED: TAILWIND CONFIG WITH RGB TRANSPARENCY SUPPORT -->
     <script>
         tailwind.config = {
             theme: {
@@ -51,10 +52,14 @@
             }
         }
     </script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
     
     <style>
+        /* FIXED: CSS VARIABLES IN RGB FORMAT */
         :root {
+            /* DARK MODE (Default) */
             --color-white: 255 255 255;
             --color-black: 0 0 0;
             --color-gray-100: 243 244 246;
@@ -69,6 +74,7 @@
         }
 
         [data-theme="light"] {
+            /* LIGHT MODE (Inverted) */
             --color-white: 17 24 39;
             --color-black: 255 255 255;
             --color-gray-100: 31 41 55;
@@ -82,9 +88,6 @@
             --color-gray-900: 249 250 251;
         }
 
-        /* Make sure to keep any existing custom classes like .bg-tier-sss here! */
-
-Finally, make sure the `<body>` tag in all your files has the `transition-colors duration-300` classes added to it so the theme fades in smoothly! `<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">`
         .bg-tier-sss { background-color: #ef4444; color: black; }
         .bg-tier-ss { background-color: #f59e0b; color: black; }
         .bg-tier-s { background-color: #f97316; color: black; }
@@ -98,7 +101,11 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
         .border-t-vip { border-top: 2px solid #fbbf24; box-shadow: 0 -2px 8px rgba(251, 191, 36, 0.6); }
         .border-t-limited { border-top: 2px solid #c90dde; box-shadow: 0 -2px 8px rgba(244, 114, 182, 0.6); }
         .border-t-basic { border-top: 2px solid #22c55e; box-shadow: 0 -2px 8px rgba(34, 197, 94, 0.6); }
-        .border-t-normal { border-top: 2px solid #575e63; box-shadow: none; }
+        
+        /* Updated border variables to use rgb() */
+        .border-t-normal { border-top: 2px solid rgb(var(--color-gray-600)); box-shadow: none; }
+        .class-btn-inactive { border-color: rgb(var(--color-gray-600)); opacity: 0.7; }
+        .class-btn-inactive:hover { opacity: 1; border-color: rgb(var(--color-gray-400)); }
 
         .hero-portrait { transition: transform 0.2s, box-shadow 0.2s; }
         .hero-portrait:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -5px rgba(0,0,0,0.7); z-index: 10; }
@@ -107,8 +114,6 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .class-btn-active { border-color: #eab308; background-color: rgba(234, 179, 8, 0.2); color: #eab308; }
-        .class-btn-inactive { border-color: #4b5563; opacity: 0.7; }
-        .class-btn-inactive:hover { opacity: 1; border-color: #9ca3af; }
 
         .custom-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -118,36 +123,36 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
         .hero-portrait:hover .tooltip { visibility: visible; }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col">
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
 
     <!-- Navigation (Sticky Top Bar) -->
-    <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl">
+    <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col gap-2">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 w-full">
                 
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full md:w-auto">
                     <div class="flex items-center gap-2 sm:gap-3">
-                        <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors mr-1 outline-none">
+                        <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-gray-100 transition-colors mr-1 outline-none">
                             <i class="fa-solid fa-bars text-lg sm:text-xl"></i>
                         </button>
                         <img id="adminIconBadge" src="https://i.imgur.com/1h28KPo.png" class="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)] transition-all">
                         <span class="font-bold text-lg sm:text-xl tracking-wide sm:block" id="siteTitleText">MWR Tierlist</span>
                     </div>
                     
-                    <div class="flex bg-gray-900 rounded-lg p-1 w-full sm:w-auto justify-between sm:justify-start">
-                        <button onclick="app.setMode('early')" id="tab-early" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Early Game</button>
+                    <div class="flex bg-gray-900 rounded-lg p-1 w-full sm:w-auto justify-between sm:justify-start transition-colors duration-300">
+                        <button onclick="app.setMode('early')" id="tab-early" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-gray-100 transition-colors">Early Game</button>
                         <button onclick="app.setMode('late')" id="tab-late" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold bg-indigo-600 text-white shadow-lg transition-colors">Late Game</button>
-                        <button onclick="app.setMode('sacrament')" id="tab-sacrament" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
+                        <button onclick="app.setMode('sacrament')" id="tab-sacrament" class="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-bold text-gray-400 hover:text-gray-100 transition-colors">Sacrament</button>
                     </div>
                 </div>
 
                 <div class="flex gap-3 sm:gap-4 items-center w-full md:w-auto justify-between md:justify-end" id="navControls">
                     <div class="relative group flex-grow md:flex-grow-0">
-                        <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search..." class="bg-gray-900/50 text-white rounded-full px-4 py-1.5 pl-9 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
+                        <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search..." class="bg-gray-900/50 text-gray-100 rounded-full px-4 py-1.5 pl-9 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
                         <i class="fa-solid fa-search absolute left-3 top-2 text-gray-400 text-xs group-focus-within:text-yellow-500"></i>
                     </div>
                     <div class="flex gap-3 items-center flex-shrink-0">
-                        <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-white transition-colors" title="View Changelog"><i class="fa-solid fa-clock-rotate-left text-lg"></i></button>
+                        <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-gray-100 transition-colors" title="View Changelog"><i class="fa-solid fa-clock-rotate-left text-lg"></i></button>
                         <a href="https://dsc.gg/legion-mw" id="discordLink" target="_blank" class="bg-[#5865F2] hover:bg-[#4752C4] text-white p-1.5 rounded-full transition-colors w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-lg" title="Join our Discord">
                             <i class="fa-brands fa-discord text-sm sm:text-base"></i>
                         </a>
@@ -159,19 +164,19 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
     </nav>
 
     <!-- Info & Legend Section -->
-    <div class="bg-gray-800/80 border-b border-gray-700 backdrop-blur-sm relative z-30">
+    <div class="bg-gray-800/80 border-b border-gray-700 backdrop-blur-sm relative z-30 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-4">
             <div class="flex flex-col md:flex-row justify-between items-start gap-6">
                 <div class="flex-1 w-full">
                     <h2 id="listTitle" class="text-base font-bold text-white uppercase tracking-wider mb-1">Tier List</h2>
                     <p id="listDesc" class="text-gray-300 text-sm leading-relaxed max-w-4xl"></p>
-                    <div class="hidden lg:block mt-2 text-[12px] text-gray-400 space-y-0.5 max-w-4xl bg-gray-900/30 p-2 rounded-lg border border-gray-700/50">
-                        <p><strong class="text-gray-300 font-bold">A-SSS:</strong> Heroes that often used and have a noticeable impact in battles.</p>
-                        <p><strong class="text-gray-300 font-bold">C-B:</strong> Heroes that are often used to fill space or support stronger heroes.</p>
-                        <p><strong class="text-gray-300 font-bold">F-D:</strong> Heroes that can safely replaced with certain high star purple rarity heroes.</p>
+                    <div class="hidden lg:block mt-2 text-[12px] text-gray-400 space-y-0.5 max-w-4xl bg-gray-900/30 p-2 rounded-lg border border-gray-700/50 transition-colors duration-300">
+                        <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that often used and have a noticeable impact in battles.</p>
+                        <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill space or support stronger heroes.</p>
+                        <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can safely replaced with certain high star purple rarity heroes.</p>
                     </div>
                 </div>
-                <div class="bg-gray-900/80 p-2.5 sm:p-3 rounded-lg border border-gray-700 w-full md:w-auto md:min-w-[15rem] shrink-0 shadow-lg">
+                <div class="bg-gray-900/80 p-2.5 sm:p-3 rounded-lg border border-gray-700 w-full md:w-auto md:min-w-[15rem] shrink-0 shadow-lg transition-colors duration-300">
                     <h3 class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 border-b border-gray-700/50 pb-1 text-center">Legend</h3>
                     <div class="grid grid-cols-2 gap-x-2 gap-y-1 sm:gap-y-1.5 text-[10px] sm:text-[11px] text-gray-300 select-none">
                         <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-yellow-400 shadow-[0_-2px_4px_rgba(250,204,21,0.6)] rounded-sm"></span> VIP</div>
@@ -197,7 +202,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                 <button onclick="app.toggleTypeMenu()" id="typeFilterBtn" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded p-0 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center shadow-sm w-8 h-8 sm:w-auto sm:h-auto">
                     <i class="fa-solid fa-filter text-base sm:text-xs sm:mr-1"></i><span class="hidden sm:inline">Filters</span>
                 </button>
-                <div id="typeMenu" class="hidden absolute top-full right-0 sm:left-auto sm:right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 flex flex-col gap-1">
+                <div id="typeMenu" class="hidden absolute top-full right-0 sm:left-auto sm:right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 flex flex-col gap-1 transition-colors duration-300">
                     <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input type="checkbox" checked onchange="app.toggleType('VIP')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-yellow-400 font-bold">VIP</span></label>
                     <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input type="checkbox" checked onchange="app.toggleType('Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-purple-400 font-bold">Limited</span></label>
                     <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input type="checkbox" checked onchange="app.toggleType('Basic Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-green-400 font-bold">Basic Limited</span></label>
@@ -215,7 +220,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
 
         <div id="tierListContainer" class="flex flex-col gap-4 select-none opacity-0 transition-opacity duration-500"></div>
 
-        <div class="lg:hidden mt-8 text-xs text-gray-400 space-y-2 bg-gray-800/50 p-4 rounded-lg border border-gray-700 shadow-md">
+        <div class="lg:hidden mt-8 text-xs text-gray-400 space-y-2 bg-gray-800/50 p-4 rounded-lg border border-gray-700 shadow-md transition-colors duration-300">
             <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that often used and have a noticeable impact in battles.</p>
             <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill space or support stronger heroes.</p>
             <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can safely replaced with certain high star purple rarity heroes.</p>
@@ -223,17 +228,17 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto">
+    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto transition-colors duration-300">
         <p>MWR Tierlist! Built by the Legion Community</p>
     </footer>
 
     <!-- Hero Detail Modal (Public View) -->
     <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeViewModal()"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden modal-fade-in flex flex-col md:flex-row">
-            <div class="relative h-64 md:h-auto md:w-5/12 bg-gray-900">
+        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
+            <div class="relative h-64 md:h-auto md:w-5/12 bg-gray-900 transition-colors duration-300">
                 <img id="viewImage" src="" class="w-full h-full object-cover opacity-80">
-                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent md:bg-gradient-to-r"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent md:bg-gradient-to-r"></div>
                 <div class="absolute bottom-4 left-4 right-4">
                     <h2 id="viewName" class="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-md"></h2>
                     <div class="flex flex-wrap gap-2 items-center">
@@ -261,7 +266,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
         <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="app.closeEditModal()"></div>
         <div class="fixed inset-0 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4">
-                <div class="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl w-full max-w-lg p-6 relative">
+                <div class="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl w-full max-w-lg p-6 relative transition-colors duration-300">
                     <h3 class="text-xl font-bold mb-4 text-indigo-400" id="editTitle">Edit Hero</h3>
                     
                     <form id="heroForm" onsubmit="event.preventDefault(); app.saveHero();">
@@ -306,7 +311,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
 
                         <div class="mb-4"><label class="text-xs text-gray-400 uppercase font-bold block mb-1">Role</label><input type="text" id="heroRole" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full outline-none text-white"></div>
 
-                        <div class="bg-gray-700/50 p-3 rounded mb-4">
+                        <div class="bg-gray-700/50 p-3 rounded mb-4 border border-gray-600">
                              <label class="text-xs text-indigo-400 uppercase font-bold block mb-2">Rankings</label>
                              <div class="grid grid-cols-3 gap-2">
                                 <div><span class="text-[10px] text-gray-400 block mb-1">EARLY</span><select id="rankEarly" class="rank-select bg-gray-900 w-full rounded border border-gray-600 text-sm py-1"></select></div>
@@ -333,7 +338,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
     <!-- Image Selector Modal -->
     <div id="imageSelectModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="app.closeImageSelector()"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[75vh]">
+        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[75vh] transition-colors duration-300">
             
             <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-gray-900">
                 <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-images mr-2 text-indigo-400"></i> Select Image</h3>
@@ -347,7 +352,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                 </div>
             </div>
             
-            <div id="imageSelectContent" class="overflow-y-auto flex-grow p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 content-start bg-[#13151a]">
+            <div id="imageSelectContent" class="overflow-y-auto flex-grow p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 content-start bg-gray-900 transition-colors duration-300">
                 <!-- Images injected here -->
             </div>
         </div>
@@ -356,7 +361,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
     <!-- Changelog Modal -->
     <div id="changelogModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.toggleChangelog()"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden modal-fade-in flex flex-col h-[80vh]">
+        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden modal-fade-in flex flex-col h-[80vh] transition-colors duration-300">
             <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-gray-900">
                 <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-history mr-2 text-indigo-400"></i> Changelog</h3>
                 <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-times"></i></button>
@@ -419,8 +424,10 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
             };
 
             const init = async () => {
+                // Populate rank dropdowns for edit modal
                 document.querySelectorAll('.rank-select').forEach(s => s.innerHTML = RANKS.map(r => `<option value="${r}">${r}</option>`).join(''));
 
+                // Admin Hash Check
                 if (window.location.hash === '#admin') {
                     const savedToken = sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
@@ -442,7 +449,9 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                     }
                 }
 
+                // 2. TRIGGER THE SMART MENU BUILDER ('indigo' acts as the accent color)
                 AppMenu.build(isAdmin, 'indigo');
+
                 renderClassButtons();
                 updateInfo();
 
@@ -454,6 +463,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                     }
                 });
 
+                // Fast Cache Load
                 const cachedData = localStorage.getItem('mwr_tierlist_data');
                 if (cachedData) {
                     try {
@@ -464,6 +474,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                     } catch(e) { console.error(e); }
                 }
 
+                // Background Sync
                 try {
                     const res = await fetch(API_URL);
                     const freshHeroes = await res.json();
@@ -495,7 +506,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                         const btnClass = isActive ? 'class-btn-active' : 'class-btn-inactive';
                         const iconStyle = isActive ? '' : 'opacity-70';
                         return `
-                        <button onclick="app.setFilter('${cls}')" class="${btnClass} border rounded p-0.5 sm:p-0 sm:px-2 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 text-gray-300 hover:text-white w-8 h-8 sm:w-auto sm:h-auto">
+                        <button onclick="app.setFilter('${cls}')" class="${btnClass} border rounded p-0.5 sm:p-0 sm:px-2 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 text-gray-400 hover:text-white w-8 h-8 sm:w-auto sm:h-auto">
                             <img src="${CLASS_ICONS[cls]}" class="w-6 h-6 sm:w-4 sm:h-4 rounded-full object-cover ${iconStyle}">
                             <span class="hidden sm:inline">${cls}</span>
                         </button>
@@ -568,7 +579,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                     if (heroesInRow.length === 0) return;
 
                     const rowDiv = document.createElement('div');
-                    rowDiv.className = 'flex w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700 shadow-md min-h-[110px]';
+                    rowDiv.className = 'flex w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700 shadow-md min-h-[110px] transition-colors duration-300';
 
                     const baseRankLower = baseRank.replace(/[+-]/g, '').toLowerCase(); 
                     const rankColorClass = baseRank === 'Unranked' ? 'bg-tier-unranked' : `bg-tier-${baseRankLower}`;
@@ -579,7 +590,7 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                     labelDiv.innerText = baseRank;
 
                     const contentDiv = document.createElement('div');
-                    contentDiv.className = 'flex-1 flex flex-col bg-[#13151a]';
+                    contentDiv.className = 'flex-1 flex flex-col bg-gray-900';
 
                     const subGroups = { '+': [], 'neutral': [], '-': [] };
                     heroesInRow.forEach(h => {
@@ -612,12 +623,13 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                                 heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded overflow-hidden ${topBorderClass} group transition-all`;
                                 heroEl.onclick = () => { isAdmin ? app.openEditModal(h) : app.openViewModal(h); };
                                 
+                                // FIXED: Use static dark border and bg for class icons so they don't break in light mode
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
-                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-black/60 rounded-full p-0.5 border border-white/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain"></div>`;
+                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-zinc-900/60 rounded-full p-0.5 border border-zinc-100/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain"></div>`;
 
                                 let dotHtml = '';
                                 if (h.lastUpdate && Math.ceil(Math.abs(new Date() - new Date(h.lastUpdate)) / (36e5)) < 72) {
-                                    dotHtml = '<div class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white/20 z-20 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse"></div>';
+                                    dotHtml = '<div class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-zinc-100/20 z-20 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse"></div>';
                                 }
 
                                 const { sub } = parseRank(h[currentMode]);
@@ -779,7 +791,6 @@ Finally, make sure the `<body>` tag in all your files has the `transition-colors
                 };
             };
             
-            // --- VISUAL IMAGE SELECTOR ---
             const openImageSelector = async () => {
                 document.getElementById('imageSelectModal').classList.remove('hidden');
                 const content = document.getElementById('imageSelectContent');
