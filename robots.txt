@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://nekowoah.github.io/mwtierlist/sitemap.xml
+Sitemap: https://nekowoah.github.io/mwtierlist/google_sitemap.xml
