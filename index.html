@@ -106,17 +106,23 @@
 
         <div id="loading" class="text-center py-16">
             <div class="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-yellow-500 mb-3"></div>
-            <p class="text-gray-500 text-sm animate-pulse" id="loadingText">Retrieving Data...</p>
+            <p class="text-gray-500 text-sm animate-pulse">Retrieving Data...</p>
         </div>
 
         <div id="tierListContainer" class="flex flex-col gap-4 select-none opacity-0 transition-opacity duration-500"></div>
+
+        <div class="lg:hidden mt-8 text-xs text-gray-400 space-y-2 bg-gray-800/50 p-4 rounded-lg border border-gray-700 shadow-md transition-colors duration-300">
+            <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that often used and have a noticeable impact in battles.</p>
+            <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill space or support stronger heroes.</p>
+            <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can safely replaced with certain high star purple rarity heroes.</p>
+        </div>
     </main>
 
     <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto transition-colors duration-300">
         <p>MWR Tierlist! Built by the Legion Community</p>
     </footer>
 
-    <!-- HERO VIEW MODAL -->
+    <!-- Hero Detail Modal -->
     <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeViewModal()"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
@@ -145,13 +151,14 @@
         </div>
     </div>
 
-    <!-- HERO EDIT MODAL (Admin Only) -->
+    <!-- Edit Hero Modal (Admin Only) -->
     <div id="editModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="app.closeEditModal()"></div>
         <div class="fixed inset-0 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4">
                 <div class="bg-gray-800 border border-gray-700 rounded-lg shadow-2xl w-full max-w-lg p-6 relative transition-colors duration-300">
                     <h3 class="text-xl font-bold mb-4 text-indigo-400" id="editTitle">Edit Hero</h3>
+                    
                     <form id="heroForm" onsubmit="event.preventDefault(); app.saveHero();">
                         <input type="hidden" id="heroId">
                         <div class="grid grid-cols-1 gap-4 mb-4">
@@ -161,7 +168,9 @@
                                 <div class="flex gap-2">
                                     <div class="relative flex-grow">
                                         <input type="url" id="heroImage" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full focus:border-indigo-500 outline-none text-white pr-10">
-                                        <button type="button" onclick="app.openImageSelector()" title="Browse Image Library" class="absolute right-2 top-2 text-gray-400 hover:text-white mt-0.5"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                        <button type="button" onclick="app.openImageSelector()" title="Browse Image Library" class="absolute right-2 top-2 text-gray-400 hover:text-white mt-0.5">
+                                            <i class="fa-solid fa-magnifying-glass"></i>
+                                        </button>
                                     </div>
                                     <label class="bg-gray-700 hover:bg-gray-600 text-white rounded px-3 py-2 cursor-pointer border border-gray-600 transition-colors" title="Upload & Auto WebP">
                                         <i class="fa-solid fa-cloud-arrow-up"></i><input type="file" id="fileInput" accept="image/*" class="hidden" onchange="app.uploadImage()">
@@ -179,7 +188,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Type</label>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Hero Type</label>
                                 <select id="heroType" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full outline-none text-white">
                                     <option value="Normal">Normal</option><option value="VIP">VIP</option><option value="Limited">Limited</option><option value="Basic Limited">Basic Limited</option>
                                 </select>
@@ -216,25 +225,30 @@
         </div>
     </div>
 
-    <!-- IMAGE SELECTOR MODAL (Admin Only) -->
+    <!-- Image Selector Modal -->
     <div id="imageSelectModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="app.closeImageSelector()"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col h-[75vh] transition-colors duration-300">
+            
             <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-gray-900">
                 <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-images mr-2 text-indigo-400"></i> Select Image</h3>
                 <button type="button" onclick="app.closeImageSelector()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-times"></i></button>
             </div>
+            
             <div class="p-3 border-b border-gray-700 bg-gray-800 flex gap-2">
                 <div class="relative flex-grow">
                     <i class="fa-solid fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
                     <input type="text" id="imageSearchInput" onkeyup="app.filterImageSelector()" placeholder="Search by hero name..." class="w-full bg-gray-900 border border-gray-600 rounded px-4 py-1.5 pl-8 text-sm text-white focus:border-indigo-500 outline-none">
                 </div>
             </div>
-            <div id="imageSelectContent" class="overflow-y-auto flex-grow p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 content-start bg-gray-900 transition-colors duration-300"></div>
+            
+            <div id="imageSelectContent" class="overflow-y-auto flex-grow p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 content-start bg-gray-900 transition-colors duration-300">
+                <!-- Images injected here -->
+            </div>
         </div>
     </div>
 
-    <!-- CHANGELOG MODAL -->
+    <!-- Changelog Modal -->
     <div id="changelogModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.toggleChangelog()"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden modal-fade-in flex flex-col h-[80vh] transition-colors duration-300">
@@ -257,6 +271,7 @@
             let showAwakenedOnly = false;
             let cachedLogs = null;
             let cachedGalleryImages = null; 
+            
             let isAdmin = false;
             let authToken = "";
 
@@ -309,6 +324,7 @@
                 try {
                     const res = await fetch(API_URL);
                     const freshHeroes = await res.json();
+                    
                     const freshStr = JSON.stringify(freshHeroes);
                     if (!cachedData || cachedData !== freshStr) {
                         heroes = freshHeroes;
@@ -317,6 +333,7 @@
                         document.getElementById('tierListContainer').classList.remove('opacity-0');
                         render();
                     }
+                    
                     fetch(API_URL + "?view=logs").then(r => r.json()).then(data => { if (Array.isArray(data)) cachedLogs = data; });
                 } catch(e) {
                     if (!cachedData) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`;
@@ -336,7 +353,7 @@
                         const iconStyle = isActive ? '' : 'opacity-70';
                         return `
                         <button onclick="app.setFilter('${cls}')" class="${btnClass} border rounded p-0.5 sm:p-0 sm:px-2 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 text-gray-400 hover:text-white w-8 h-8 sm:w-auto sm:h-auto">
-                            <img src="${CLASS_ICONS[cls]}" class="w-6 h-6 sm:w-4 sm:h-4 rounded-full object-cover ${iconStyle}">
+                            <img src="${CLASS_ICONS[cls]}" class="w-6 h-6 sm:w-4 sm:h-4 rounded-full object-cover bg-zinc-900/80 p-0.5 border border-zinc-500/30 ${iconStyle}">
                             <span class="hidden sm:inline">${cls}</span>
                         </button>
                     `}).join('');
@@ -364,7 +381,11 @@
                 document.getElementById('listDesc').innerText = TIER_INFO[currentMode].desc;
             };
 
-            const setFilter = (cls) => { currentFilter = currentFilter === cls ? 'All' : cls; renderClassButtons(); render(); };
+            const setFilter = (cls) => {
+                currentFilter = currentFilter === cls ? 'All' : cls;
+                renderClassButtons();
+                render();
+            };
 
             const parseRank = (fullRank) => {
                 if (!fullRank || fullRank === 'Unranked' || fullRank === '') return { base: 'Unranked', sub: '' };
@@ -426,6 +447,7 @@
                     });
 
                     let hasPrevContent = false;
+
                     ['+', 'neutral', '-'].forEach(subKey => {
                         if (subGroups[subKey].length > 0) {
                             if (hasPrevContent) {
@@ -447,8 +469,9 @@
                                 heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded overflow-hidden ${topBorderClass} group transition-all`;
                                 heroEl.onclick = () => { isAdmin ? app.openEditModal(h) : app.openViewModal(h); };
                                 
+                                // FIXED: Removed filter invert. Images stay white natively. Background stays zinc-900.
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
-                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-zinc-900/60 rounded-full p-0.5 border border-zinc-100/10 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain filter invert opacity-80 group-hover:opacity-100"></div>`;
+                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-zinc-900/80 rounded-full p-0.5 border border-zinc-500/30 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain opacity-80 group-hover:opacity-100"></div>`;
 
                                 let dotHtml = '';
                                 if (h.lastUpdate && Math.ceil(Math.abs(new Date() - new Date(h.lastUpdate)) / (36e5)) < 72) {
@@ -459,7 +482,7 @@
                                 let subColor = 'text-zinc-100'; 
                                 if (sub === '+') subColor = 'text-green-400';
                                 if (sub === '-') subColor = 'text-red-400';
-                                const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-zinc-900/80 border border-zinc-100/10 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
+                                const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-zinc-900/80 border border-zinc-500/30 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
                                 
                                 const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
                                 const tooltipMsg = isAdmin ? "Click to Edit" : "Click to View Info";
@@ -488,12 +511,16 @@
                 document.getElementById('viewImage').src = h.image || 'https://placehold.co/400/5A5F66/FFFFFF?text=No+Image';
                 document.getElementById('viewName').innerHTML = h.name + ((h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-2"></i>' : '');
                 document.getElementById('viewClass').innerText = h.heroClass;
+                
                 const typeContainer = document.getElementById('viewTypeContainer');
                 if (h.heroType === 'VIP') typeContainer.innerHTML = '<span class="text-xs font-bold text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded border border-yellow-500/30">VIP</span>';
                 else if (h.heroType === 'Limited') typeContainer.innerHTML = '<span class="text-xs font-bold text-purple-400 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-500/30">Limited</span>';
                 else if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeContainer.innerHTML = '<span class="text-xs font-bold text-green-400 bg-green-900/30 px-2 py-0.5 rounded border border-green-500/30">Basic Limited</span>';
                 else typeContainer.innerHTML = '';
-                document.getElementById('viewAwakenContainer').innerHTML = (h.hasAwaken === 'Yes') ? '<span class="text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-500/30">Awakened</span>' : '';
+
+                const awakenContainer = document.getElementById('viewAwakenContainer');
+                if (h.hasAwaken === 'Yes') awakenContainer.innerHTML = '<span class="text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-500/30">Awakened</span>';
+                else awakenContainer.innerHTML = '';
 
                 document.getElementById('viewEarly').innerText = h.early || '-';
                 document.getElementById('viewLate').innerText = h.late || '-';
@@ -501,6 +528,7 @@
                 ['Early', 'Late', 'Sacr'].forEach(m => document.getElementById(`view${m}`).className = "text-xl font-black text-gray-500");
                 const activeId = currentMode === 'sacrament' ? 'viewSacr' : `view${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)}`;
                 document.getElementById(activeId).className = "text-2xl font-black text-yellow-400 drop-shadow-lg";
+                
                 document.getElementById('viewRole').innerText = h.role || "No specific role defined.";
                 document.getElementById('viewNotes').innerText = h.notes || "No analysis available.";
                 document.getElementById('viewModal').classList.remove('hidden');
@@ -548,18 +576,29 @@
             const saveHero = async () => {
                 const btn = document.getElementById('btnSave');
                 btn.innerText = "Saving..."; btn.disabled = true;
+                
                 const formData = {
-                    id: document.getElementById('heroId').value, name: document.getElementById('heroName').value,
-                    image: document.getElementById('heroImage').value, heroClass: document.getElementById('heroClass').value,
-                    heroType: document.getElementById('heroType').value, hasAwaken: document.getElementById('heroAwaken').value,
-                    role: document.getElementById('heroRole').value, notes: document.getElementById('heroNotes').value,
-                    early: document.getElementById('rankEarly').value, late: document.getElementById('rankLate').value,
-                    sacrament: document.getElementById('rankSacr').value, lastUpdate: new Date().toISOString()
+                    id: document.getElementById('heroId').value,
+                    name: document.getElementById('heroName').value,
+                    image: document.getElementById('heroImage').value,
+                    heroClass: document.getElementById('heroClass').value,
+                    heroType: document.getElementById('heroType').value,
+                    hasAwaken: document.getElementById('heroAwaken').value,
+                    role: document.getElementById('heroRole').value,
+                    notes: document.getElementById('heroNotes').value,
+                    early: document.getElementById('rankEarly').value,
+                    late: document.getElementById('rankLate').value,
+                    sacrament: document.getElementById('rankSacr').value,
+                    lastUpdate: new Date().toISOString()
                 };
+
                 const existingIndex = heroes.findIndex(h => h.id == formData.id);
                 if (existingIndex >= 0) heroes[existingIndex] = { ...heroes[existingIndex], ...formData };
                 else { formData.id = formData.id || "temp_" + Date.now(); heroes.push(formData); }
-                render(); closeEditModal();
+                
+                render();
+                closeEditModal();
+
                 try {
                     const res = await sendRequest({ action: "save", data: formData });
                     if(formData.id.startsWith("temp_") && res.id) {
@@ -574,7 +613,8 @@
                 if(!confirm("Delete this hero?")) return;
                 const id = document.getElementById('heroId').value;
                 heroes = heroes.filter(h => h.id != id);
-                render(); closeEditModal();
+                render();
+                closeEditModal();
                 try { await sendRequest({ action: "delete", id: id }); } 
                 catch(e) { alert("Delete failed! Reverting."); window.location.reload(); }
             };
@@ -584,6 +624,7 @@
                 const file = input.files[0];
                 if(!file) return;
                 document.getElementById('uploadLoading').classList.remove('hidden');
+                
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = async function () {
@@ -599,14 +640,19 @@
             const openImageSelector = async () => {
                 document.getElementById('imageSelectModal').classList.remove('hidden');
                 const content = document.getElementById('imageSelectContent');
+                
                 if (!cachedGalleryImages) {
                     content.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10"><i class="fas fa-circle-notch fa-spin text-3xl mb-3 text-indigo-500"></i><p>Loading GitHub Image Library...</p></div>';
                     try {
                         const res = await sendRequest({ action: "list_images" });
                         cachedGalleryImages = res || [];
                         renderImageSelector();
-                    } catch (e) { content.innerHTML = `<div class="col-span-full text-center text-red-400 py-10">Error loading library: ${e.message}</div>`; }
-                } else { renderImageSelector(); }
+                    } catch (e) {
+                        content.innerHTML = `<div class="col-span-full text-center text-red-400 py-10">Error loading library: ${e.message}</div>`;
+                    }
+                } else {
+                    renderImageSelector();
+                }
             };
 
             const closeImageSelector = () => document.getElementById('imageSelectModal').classList.add('hidden');
@@ -615,7 +661,12 @@
                 const content = document.getElementById('imageSelectContent');
                 const searchTerm = document.getElementById('imageSearchInput').value.toLowerCase();
                 const filtered = cachedGalleryImages.filter(img => img.name.toLowerCase().includes(searchTerm));
-                if (filtered.length === 0) { content.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">No images found.</div>'; return; }
+                
+                if (filtered.length === 0) {
+                    content.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">No images found.</div>';
+                    return;
+                }
+
                 content.innerHTML = filtered.map(img => `
                     <div onclick="app.selectImage('${img.download_url}')" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-indigo-500 rounded-lg cursor-pointer overflow-hidden transition-all shadow-md group flex flex-col h-28 relative">
                         <div class="flex-grow flex items-center justify-center p-2 relative overflow-hidden bg-black/20">
@@ -663,7 +714,7 @@
                 } else { modal.classList.add('hidden'); }
             };
 
-            return { init, setMode, render, openViewModal, closeViewModal, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, saveHero, deleteHero, uploadImage, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
+            return { init, setMode, render, openViewModal, closeViewModal, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, saveHero, deleteHero, uploadImage, exitAdmin, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
         })();
 
         window.onload = app.init;
