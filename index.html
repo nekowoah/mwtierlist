@@ -27,67 +27,64 @@
     <meta property="twitter:description" content="The ultimate Mini Warriors Reborn (MWR) Tierlist. Discover the best heroes for early game, late game, and sacrament priority. Built by the Legion Community.">
     <meta property="twitter:image" content="https://i.imgur.com/aBuiCFr.png">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- NEW: TAILWIND DYNAMIC THEME CONFIGURATION -->
+<script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        white: 'var(--color-white)',
-                        black: 'var(--color-black)',
+                        white: 'rgb(var(--color-white) / <alpha-value>)',
+                        black: 'rgb(var(--color-black) / <alpha-value>)',
                         gray: {
-                            900: 'var(--color-gray-900)',
-                            800: 'var(--color-gray-800)',
-                            700: 'var(--color-gray-700)',
-                            600: 'var(--color-gray-600)',
-                            500: 'var(--color-gray-500)',
-                            400: 'var(--color-gray-400)',
-                            300: 'var(--color-gray-300)',
-                            200: 'var(--color-gray-200)',
-                            100: 'var(--color-gray-100)',
+                            900: 'rgb(var(--color-gray-900) / <alpha-value>)',
+                            800: 'rgb(var(--color-gray-800) / <alpha-value>)',
+                            700: 'rgb(var(--color-gray-700) / <alpha-value>)',
+                            600: 'rgb(var(--color-gray-600) / <alpha-value>)',
+                            500: 'rgb(var(--color-gray-500) / <alpha-value>)',
+                            400: 'rgb(var(--color-gray-400) / <alpha-value>)',
+                            300: 'rgb(var(--color-gray-300) / <alpha-value>)',
+                            200: 'rgb(var(--color-gray-200) / <alpha-value>)',
+                            100: 'rgb(var(--color-gray-100) / <alpha-value>)',
                         }
                     }
                 }
             }
         }
     </script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
     
     <style>
-        /* NEW: CSS VARIABLE THEME DEFINITIONS */
         :root {
-            /* DARK MODE (Default) */
-            --color-white: #ffffff;
-            --color-black: #000000;
-            --color-gray-100: #f3f4f6;
-            --color-gray-200: #e5e7eb;
-            --color-gray-300: #d1d5db;
-            --color-gray-400: #9ca3af;
-            --color-gray-500: #6b7280;
-            --color-gray-600: #4b5563;
-            --color-gray-700: #374151;
-            --color-gray-800: #1f2937;
-            --color-gray-900: #111827;
+            --color-white: 255 255 255;
+            --color-black: 0 0 0;
+            --color-gray-100: 243 244 246;
+            --color-gray-200: 229 231 235;
+            --color-gray-300: 209 213 219;
+            --color-gray-400: 156 163 175;
+            --color-gray-500: 107 114 128;
+            --color-gray-600: 75 85 99;
+            --color-gray-700: 55 65 81;
+            --color-gray-800: 31 41 55;
+            --color-gray-900: 17 24 39;
         }
 
         [data-theme="light"] {
-            /* LIGHT MODE (Inverted Palette) */
-            --color-white: #111827;     /* White text becomes dark gray */
-            --color-black: #ffffff;     /* Black overlays become white overlays */
-            --color-gray-100: #1f2937;  /* Light text becomes dark */
-            --color-gray-200: #374151;
-            --color-gray-300: #4b5563;
-            --color-gray-400: #6b7280;  /* Muted text */
-            --color-gray-500: #9ca3af;
-            --color-gray-600: #d1d5db;
-            --color-gray-700: #e5e7eb;  /* Borders become light gray */
-            --color-gray-800: #ffffff;  /* Content cards become pure white */
-            --color-gray-900: #f9fafb;  /* App background becomes off-white */
+            --color-white: 17 24 39;
+            --color-black: 255 255 255;
+            --color-gray-100: 31 41 55;
+            --color-gray-200: 55 65 81;
+            --color-gray-300: 75 85 99;
+            --color-gray-400: 107 114 128;
+            --color-gray-500: 156 163 175;
+            --color-gray-600: 209 213 219;
+            --color-gray-700: 229 231 235;
+            --color-gray-800: 255 255 255;
+            --color-gray-900: 249 250 251;
         }
+
+        /* Make sure to keep any existing custom classes like .bg-tier-sss here! */
+
+Finally, make sure the `<body>` tag in all your files has the `transition-colors duration-300` classes added to it so the theme fades in smoothly! `<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">`
         .bg-tier-sss { background-color: #ef4444; color: black; }
         .bg-tier-ss { background-color: #f59e0b; color: black; }
         .bg-tier-s { background-color: #f97316; color: black; }
