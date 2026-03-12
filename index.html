@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Warriors Reborn | Tierlist & Info</title>
+    <title>Legion's Mini Warriors Reborn Collection | Tierlist & Info</title>
     
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
@@ -365,9 +365,8 @@
                             : 'border-[#4b5563] bg-[#1f2937] text-[#d1d5db] opacity-70 hover:opacity-100 hover:border-[#9ca3af] hover:text-white';
                         
                         return `
-                        <button onclick="app.setFilter('${cls}')" class="${btnClass} border rounded p-1 sm:px-2.5 sm:py-1.5 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 min-w-[2.5rem] min-h-[2.5rem] sm:min-w-0 sm:min-h-0 shadow-sm">
-                            <!-- FIX: Removed background/border from img, increased size to w-5/h-5 (desktop) and w-7/h-7 (mobile) -->
-                            <img src="${CLASS_ICONS[cls]}" class="w-7 h-7 sm:w-5 sm:h-5 object-contain">
+                        <button onclick="app.setFilter('${cls}')" class="${btnClass} border rounded p-0.5 sm:p-0 sm:px-2 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 w-8 h-8 sm:w-auto sm:h-auto shadow-sm">
+                            <img src="${CLASS_ICONS[cls]}" class="w-6 h-6 sm:w-4 sm:h-4 object-contain">
                             <span class="hidden sm:inline">${cls}</span>
                         </button>
                     `}).join('');
