@@ -7,7 +7,7 @@
     
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
-    <meta name="description" content="Read the latest guides, rules, and announcements for the Mini Warriors Reborn tierlist.">
+    <meta name="description" content="Read the latest guides, info, and announcements for the Mini Warriors Reborn tierlist.">
     <meta name="keywords" content="MWR, Mini Warriors Reborn, Mini Warriors, guides, tierlist rules">
 
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -155,8 +155,18 @@
                         rawHtmlContent = data.content;
                         viewerEl.innerHTML = rawHtmlContent;
                         localStorage.setItem('mwr_info_data', rawHtmlContent);
+                        
+                        // FIX: If the editor is already open when background data arrives, sync it!
+                        if (quillInstance && !document.getElementById('editorWrapper').classList.contains('hidden')) {
+                            quillInstance.root.innerHTML = rawHtmlContent;
+                        }
+                        
                         loadingEl.classList.add('hidden');
-                        viewerEl.classList.remove('hidden');
+                        
+                        // Only show viewer if editor isn't active
+                        if (document.getElementById('editorWrapper').classList.contains('hidden')) {
+                            viewerEl.classList.remove('hidden');
+                        }
                     }
                 } catch(e) {
                     if(!cachedInfo) loadingEl.innerHTML = `<p class="text-red-400">Failed to load information page.</p>`;
@@ -233,8 +243,8 @@
                     });
                 }
                 
-                // FIX: Use correctly supported Quill API to set HTML content
-                quillInstance.clipboard.dangerouslyPasteHTML(rawHtmlContent || '');
+                // FIX: Bypass the strict parser and insert HTML directly so it doesn't get wiped
+                quillInstance.root.innerHTML = rawHtmlContent || '';
             };
 
             const cancelEditor = () => {
