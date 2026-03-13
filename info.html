@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+    <!-- FIX: Added unpkg.com to script-src to allow the Image Resize plugin to load -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
         <!-- PRIMARY SEO META TAGS -->
     <title>Legion's Mini Warriors Reborn Archive</title>
@@ -34,9 +35,10 @@
     <link rel="stylesheet" href="shared/styles.css">
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
 
-    <!-- Quill Rich Text Editor -->
+    <!-- Quill Rich Text Editor & Image Resizer Plugin -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://unpkg.com/quill-image-resize@3.0.9/image-resize.min.js"></script>
 
     <style>
         .ql-toolbar.ql-snow, .ql-container.ql-snow { border-color: rgba(var(--color-gray-700), 1) !important; font-family: inherit !important; }
@@ -50,6 +52,13 @@
         .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
         .modal-fade-in { animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* FIX: Ensure Tailwind Prose respects Quill's alignment classes */
+        .prose .ql-align-center { text-align: center; }
+        .prose .ql-align-right { text-align: right; }
+        .prose .ql-align-justify { text-align: justify; }
+        .prose .ql-align-center img { margin-left: auto; margin-right: auto; display: block; }
+        .prose .ql-align-right img { margin-left: auto; margin-right: 0; display: block; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
@@ -61,7 +70,7 @@
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
                 <img src="https://i.imgur.com/1h28KPo.png" class="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">
-                <span class="font-bold text-lg sm:text-xl tracking-wide hidden sm:inline">MWR Guides & Info</span>
+                <span class="font-bold text-lg sm:text-xl tracking-wide hidden sm:inline">MWR Information</span>
             </div>
             <div class="flex gap-3 items-center justify-end" id="navControls">
                 <!-- Admin Add Button injected here dynamically -->
@@ -145,7 +154,7 @@
                     </div>
                 </div>
 
-                <div class="border border-gray-700 rounded-lg overflow-hidden bg-gray-900">
+                <div class="border border-gray-700 rounded-lg overflow-hidden bg-gray-900 relative">
                     <div id="quillEditor"></div>
                 </div>
             </div>
@@ -263,15 +272,25 @@
 
             const initQuill = () => {
                 if (quillInstance) return;
+                
+                // Register the ImageResize module if the script loaded properly
+                if (window.ImageResize) {
+                    Quill.register('modules/imageResize', window.ImageResize.default || window.ImageResize);
+                }
+
                 quillInstance = new Quill('#quillEditor', {
                     theme: 'snow',
                     modules: {
+                        imageResize: { 
+                            displaySize: true // Enables the drag-to-resize handles
+                        },
                         toolbar: {
                             container: [
                                 [{ 'header': [1, 2, 3, false] }],
                                 ['bold', 'italic', 'underline', 'strike'],
                                 [{ 'color': [] }, { 'background': [] }],
                                 [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                [{ 'align': [] }], // FIX: Added Text & Image Alignment dropdown
                                 ['link', 'image', 'video'],
                                 ['clean']
                             ],
@@ -282,6 +301,7 @@
                                     input.onchange = async () => {
                                         const file = input.files[0]; if (!file) return;
                                         const btn = document.getElementById('btnSave');
+                                        const oldText = btn.innerText;
                                         btn.innerText = "Uploading..."; btn.disabled = true;
                                         const reader = new FileReader(); reader.readAsDataURL(file);
                                         reader.onload = async () => {
@@ -296,7 +316,7 @@
                                                 const range = quillInstance.getSelection(true);
                                                 quillInstance.insertEmbed(range.index, 'image', data.url);
                                             } catch(e) { alert("Upload failed"); } 
-                                            finally { btn.innerText = "Save & Publish"; btn.disabled = false; }
+                                            finally { btn.innerText = oldText; btn.disabled = false; }
                                         };
                                     };
                                 }
