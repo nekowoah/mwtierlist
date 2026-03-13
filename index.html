@@ -160,8 +160,23 @@
                     <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600 relative overflow-hidden"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Late</span><span id="viewLate" class="text-xl font-black text-white"></span></div>
                     <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Sacrament</span><span id="viewSacr" class="text-xl font-black text-white"></span></div>
                 </div>
-                <div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3><p id="viewRole" class="text-sm text-gray-200 leading-relaxed italic border-l-4 border-yellow-500 pl-3"></p></div>
-                <div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Analysis & Notes</h3><div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700"><p id="viewNotes" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p></div></div>
+
+                <!-- TABS -->
+                <div class="flex border-b border-gray-700 mt-2">
+                    <button id="tabOverviewBtn" onclick="app.switchModalTab('overview')" class="px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors">Overview</button>
+                    <button id="tabHistoryBtn" onclick="app.switchModalTab('history')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">History</button>
+                </div>
+
+                <!-- OVERVIEW CONTENT -->
+                <div id="modalOverviewContent" class="flex flex-col gap-5">
+                    <div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3><p id="viewRole" class="text-sm text-gray-200 leading-relaxed italic border-l-4 border-yellow-500 pl-3"></p></div>
+                    <div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Analysis & Notes</h3><div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700"><p id="viewNotes" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p></div></div>
+                </div>
+
+                <!-- HISTORY CONTENT -->
+                <div id="modalHistoryContent" class="hidden flex-col gap-3 overflow-y-auto pr-1">
+                    <!-- Javascript will inject individual changelogs here -->
+                </div>
             </div>
             <button onclick="app.closeViewModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white bg-black/50 rounded-full w-8 h-8 flex items-center justify-center transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -549,9 +564,61 @@
                 
                 document.getElementById('viewRole').innerText = h.role || "No specific role defined.";
                 document.getElementById('viewNotes').innerText = h.notes || "No analysis available.";
+
+                // Populate Individual History
+                const historyContainer = document.getElementById('modalHistoryContent');
+                if (cachedLogs && cachedLogs.length > 0) {
+                    const heroLogs = cachedLogs.filter(log => 
+                        log.heroId === h.id || 
+                        log.details.includes(`Updated ${h.name}:`) || 
+                        log.details.includes(`Created new hero: ${h.name}`)
+                    );
+
+                    if (heroLogs.length > 0) {
+                        historyContainer.innerHTML = heroLogs.map(l => {
+                            let dateStr = "Unknown Date";
+                            try { dateStr = new Date(l.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch(e) {}
+                            return `<div class="bg-gray-900/50 border border-gray-700 p-3 rounded-lg text-xs">
+                                <div class="flex justify-between mb-1.5"><span class="font-bold text-indigo-400">${dateStr}</span><span class="${l.action==='CREATE'?'text-green-400':l.action==='DELETE'?'text-red-400':'text-blue-400'} font-bold">${l.action}</span></div>
+                                <span class="text-gray-300 block whitespace-pre-wrap">${l.details}</span>
+                            </div>`;
+                        }).join('');
+                    } else {
+                        historyContainer.innerHTML = `<div class="text-center text-gray-500 py-6 italic">No recorded history for this hero yet.</div>`;
+                    }
+                } else {
+                    historyContainer.innerHTML = `<div class="text-center text-gray-500 py-6"><i class="fas fa-circle-notch fa-spin mr-2"></i> Loading logs...</div>`;
+                }
+
+                // Default to overview tab when opening
+                app.switchModalTab('overview');
+
                 document.getElementById('viewModal').classList.remove('hidden');
             };
             const closeViewModal = () => document.getElementById('viewModal').classList.add('hidden');
+
+            const switchModalTab = (tab) => {
+                const overviewBtn = document.getElementById('tabOverviewBtn');
+                const historyBtn = document.getElementById('tabHistoryBtn');
+                const overviewContent = document.getElementById('modalOverviewContent');
+                const historyContent = document.getElementById('modalHistoryContent');
+
+                if (tab === 'overview') {
+                    overviewBtn.className = "px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors";
+                    historyBtn.className = "px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors";
+                    overviewContent.classList.remove('hidden');
+                    overviewContent.classList.add('flex');
+                    historyContent.classList.add('hidden');
+                    historyContent.classList.remove('flex');
+                } else {
+                    historyBtn.className = "px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors";
+                    overviewBtn.className = "px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors";
+                    historyContent.classList.remove('hidden');
+                    historyContent.classList.add('flex');
+                    overviewContent.classList.add('hidden');
+                    overviewContent.classList.remove('flex');
+                }
+            };
 
             const openEditModal = (h = null) => {
                 const modal = document.getElementById('editModal');
@@ -732,7 +799,7 @@
                 } else { modal.classList.add('hidden'); }
             };
 
-            return { init, setMode, render, openViewModal, closeViewModal, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, exitAdmin, saveHero, deleteHero, uploadImage, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
+            return { init, setMode, render, openViewModal, closeViewModal, switchModalTab, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, exitAdmin, saveHero, deleteHero, uploadImage, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
         })();
 
         window.onload = app.init;
