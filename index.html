@@ -568,11 +568,8 @@
                 // Populate Individual History
                 const historyContainer = document.getElementById('modalHistoryContent');
                 if (cachedLogs && cachedLogs.length > 0) {
-                    const heroLogs = cachedLogs.filter(log => 
-                        log.heroId === h.id || 
-                        log.details.includes(`Updated ${h.name}:`) || 
-                        log.details.includes(`Created new hero: ${h.name}`)
-                    );
+                    // FAST LOGIC: Exclusively matches the backfilled ID, ignoring slow string searches
+                    const heroLogs = cachedLogs.filter(log => log.heroId === h.id);
 
                     if (heroLogs.length > 0) {
                         historyContainer.innerHTML = heroLogs.map(l => {
