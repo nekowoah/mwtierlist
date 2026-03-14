@@ -142,7 +142,6 @@
     <!-- Hero Detail Modal -->
     <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal()"></div>
-        <!-- FIX: Updated sizing rules for completely static height and safe mobile widths -->
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-[95vw] md:w-[90vw] max-w-lg md:max-w-4xl lg:max-w-5xl h-[90vh] md:h-[650px] overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
             
             <!-- Image Panel -->
@@ -178,7 +177,6 @@
                 <div class="relative flex-grow mt-4 overflow-hidden">
                     
                     <!-- OVERVIEW CONTENT -->
-                    <!-- FIX: absolute inset-0 ensures it fills exactly the wrapper box -->
                     <div id="modalOverviewContent" class="absolute inset-0 flex-col gap-5 overflow-y-auto pr-2 hide-scrollbar">
                         <div>
                             <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3>
@@ -403,16 +401,35 @@
                     if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) menu.classList.add('hidden');
                 });
 
-                // Fetching new data from backend (No local storage caching to ensure Skills sync)
+                // STALE-WHILE-REVALIDATE CACHING (Instant Load)
+                const cachedHeroes = localStorage.getItem('mwr_tierlist_data');
+                if (cachedHeroes) {
+                    try {
+                        heroes = JSON.parse(cachedHeroes);
+                        document.getElementById('loading').classList.add('hidden'); 
+                        document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+                        render();
+                    } catch(e) { console.warn("Cache parse error", e); }
+                }
+
+                // Fetching new data from backend silently
                 try {
                     const res = await fetch(API_URL);
-                    heroes = await res.json();
-                    document.getElementById('loading').classList.add('hidden'); 
-                    document.getElementById('tierListContainer').classList.remove('opacity-0'); 
-                    render();
+                    const freshData = await res.json();
+                    
+                    // Only re-render if the database actually changed
+                    if (JSON.stringify(heroes) !== JSON.stringify(freshData)) {
+                        heroes = freshData;
+                        localStorage.setItem('mwr_tierlist_data', JSON.stringify(heroes));
+                        document.getElementById('loading').classList.add('hidden'); 
+                        document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+                        render();
+                    }
                     
                     fetch(API_URL + "?view=logs").then(r => r.json()).then(data => { if (Array.isArray(data)) cachedLogs = data; });
-                } catch(e) { document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; }
+                } catch(e) { 
+                    if (!cachedHeroes) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; 
+                }
             };
 
             const toggleTypeMenu = () => document.getElementById('typeMenu').classList.toggle('hidden');
@@ -596,12 +613,17 @@
                 document.getElementById('modalNotes').innerText = h.notes || "No analysis available.";
 
                 // ---> SKILLS DATA POPULATION <---
-                document.getElementById('content-skill').innerText = h.skill || "No skill data available.";
+                let skillTitleHtml = h.skillName ? `<h4 class="text-sm font-bold text-blue-400 mb-2 border-b border-gray-700/50 pb-1">${h.skillName}</h4>` : '';
+                document.getElementById('content-skill').innerHTML = skillTitleHtml + (h.skill || "No skill data available.");
                 
-                let sacrHtml = '';
+                // FIX: Implemented Absolute Center Positioning for hollow numbers inside icons
+                let sacrTitleHtml = h.sacramentName ? `<h4 class="text-sm font-bold text-yellow-400 mb-3 border-b border-gray-700/50 pb-1">${h.sacramentName}</h4>` : '';
+                let sacrHtml = sacrTitleHtml;
+                let hasSacr = false;
                 const sacrs = [h.s1, h.s2, h.s3, h.s4, h.s5];
                 sacrs.forEach((text, index) => {
                     if(text && text.trim() !== '') {
+                        hasSacr = true;
                         sacrHtml += `
                         <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
                             <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-0.5">
@@ -612,14 +634,16 @@
                         </div>`;
                     }
                 });
-                document.getElementById('content-sacrament').innerHTML = sacrHtml || '<div class="text-center text-gray-500 py-6 italic">No sacrament data available.</div>';
+                document.getElementById('content-sacrament').innerHTML = hasSacr ? sacrHtml : '<div class="text-center text-gray-500 py-6 italic">No sacrament data available.</div>';
 
-                let awakenHtml = '';
+                let awakenTitleHtml = h.awakenName ? `<h4 class="text-sm font-bold text-red-400 mb-3 border-b border-gray-700/50 pb-1">${h.awakenName}</h4>` : '';
+                let awakenHtml = awakenTitleHtml;
+                let hasAwaken = false;
                 if (h.hasAwaken === 'Yes') {
                     const awakens = [h.aw1, h.aw2, h.aw3];
                     awakens.forEach((text, index) => {
                         if(text && text.trim() !== '') {
-                            // FIX: Replaced FontAwesome trick with custom SVG hollow flame image
+                            hasAwaken = true;
                             awakenHtml += `
                             <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
                                 <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-0.5">
@@ -631,7 +655,7 @@
                         }
                     });
                 }
-                document.getElementById('content-awakening').innerHTML = awakenHtml || '<div class="text-center text-gray-500 py-6 italic">This hero has not been awakened yet.</div>';
+                document.getElementById('content-awakening').innerHTML = hasAwaken ? awakenHtml : '<div class="text-center text-gray-500 py-6 italic">This hero has not been awakened yet.</div>';
 
                 // ---> HISTORY POPULATION <---
                 const historyContainer = document.getElementById('modalHistoryContent');
