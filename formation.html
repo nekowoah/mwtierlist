@@ -24,8 +24,8 @@
         .hero-circle:hover { transform: scale(1.05); }
         .hero-circle.selected { transform: scale(1.15); box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.8); z-index: 10; }
         
-        /* FIX: Force grid cells to be perfectly square */
-        .grid-cell { aspect-ratio: 1 / 1; transition: background-color 0.2s; }
+        /* Grid Cells - Aspect ratio is now handled safely by the parent container */
+        .grid-cell { transition: background-color 0.2s; }
         .grid-cell:hover { background-color: rgba(255, 255, 255, 0.05); }
         .grid-cell.drag-over { background-color: rgba(99, 102, 241, 0.3); border-color: #6366f1; }
         
@@ -58,7 +58,6 @@
     </nav>
 
     <!-- Main Workspace -->
-    <!-- The flex-col-reverse forces Grid to top on mobile, md:flex-row snaps Pool to left on desktop! -->
     <main class="flex-grow flex flex-col-reverse md:flex-row max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4 h-[calc(100vh-64px)] overflow-hidden">
         
         <!-- Left/Bottom: Hero Pool (Scrollable) -->
@@ -87,19 +86,23 @@
                 <div class="text-xs font-bold text-gray-400 bg-gray-900 px-2 py-1 rounded border border-gray-700"><span id="heroCount" class="text-blue-400">0</span> / 30 Placed</div>
             </div>
 
-            <!-- The Grid (5 Cols x 7 Rows) -->
-            <!-- FIX: Added max-w-md and mx-auto so the uniform squares don't stretch off the screen on wide devices -->
-            <div class="w-full max-w-[320px] sm:max-w-md mx-auto">
-                <div id="boardContainer" class="w-full bg-gray-900 border border-gray-700 p-1.5 sm:p-2 rounded-lg grid grid-cols-5 grid-rows-7 gap-1 sm:gap-1.5 relative overflow-hidden">
-                    <!-- JS Injected 35 Cells -->
+            <!-- NEW WRAPPER: Handles Desktop vs Mobile layout for Grid & Legend -->
+            <div class="flex flex-col lg:flex-row flex-grow min-h-0 gap-3 w-full">
+                <!-- FIX: The Dynamic Grid Wrapper -->
+                <!-- Flex-1 allows it to fill the remaining space exactly. Min-h-0 and Min-w-0 prevent flex overflows. -->
+                <div class="flex-1 min-w-0 min-h-0 flex items-center justify-center py-1 overflow-hidden">
+                    <!-- The 5:7 aspect ratio forces the board to be perfectly proportioned, max-width prevents horizontal overflow -->
+                    <div id="boardContainer" class="bg-gray-900 border border-gray-700 p-1.5 rounded-lg grid grid-cols-5 grid-rows-7 gap-1 sm:gap-1.5 relative h-full" style="aspect-ratio: 5/7; max-width: 100%; max-height: 100%;">
+                        <!-- JS Injected 35 Cells -->
+                    </div>
                 </div>
-            </div>
 
-            <!-- Legend -->
-            <div class="mt-3 flex-shrink-0 bg-gray-900 border border-gray-700 rounded-lg p-2 min-h-[3rem] max-h-[5rem] overflow-y-auto hide-scroll">
-                <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Active AOE Auras</h4>
-                <div id="legendContainer" class="flex flex-wrap gap-x-3 gap-y-1">
-                    <span class="text-xs text-gray-600 italic">Place buffing heroes to see footprints</span>
+                <!-- Legend -->
+                <div class="flex-shrink-0 lg:w-48 bg-gray-900 border border-gray-700 rounded-lg p-2 min-h-[3rem] max-h-[5rem] lg:max-h-none lg:h-full overflow-y-auto hide-scroll flex flex-col">
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 lg:mb-2 lg:border-b lg:border-gray-700 lg:pb-1">Active AOE Auras</h4>
+                    <div id="legendContainer" class="flex flex-wrap lg:flex-col gap-x-3 gap-y-1 lg:gap-y-2">
+                        <span class="text-xs text-gray-600 italic">Place buffing heroes to see footprints</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -200,7 +203,6 @@
                     return classMatch && searchMatch;
                 }).sort((a,b) => a.name.localeCompare(b.name));
 
-                // FIX: Single DOM Assignment completely eliminates the UI Lag
                 container.innerHTML = filtered.map(h => {
                     let typeClass = 'type-normal';
                     if(h.heroType === 'VIP') typeClass = 'type-vip';
@@ -232,7 +234,7 @@
                 for(let y = 0; y < 7; y++) {
                     for(let x = 0; x < 5; x++) {
                         const cell = document.createElement('div');
-                        cell.className = "grid-cell bg-gray-800 border border-gray-700 rounded md:rounded-md relative flex items-center justify-center overflow-hidden cursor-pointer";
+                        cell.className = "grid-cell bg-gray-800 border border-gray-700 rounded relative flex items-center justify-center overflow-hidden cursor-pointer";
                         cell.dataset.x = x; cell.dataset.y = y;
                         
                         // Interaction Listeners
@@ -272,6 +274,11 @@
 
                     if(conf.wholeRow) { for(let i=0; i<5; i++) addAoe(i, ph.y); }
                     if(conf.wholeCol) { for(let i=0; i<7; i++) addAoe(ph.x, i); }
+                    if(conf.wholeFormation) {
+                        for(let cx=0; cx<5; cx++) {
+                            for(let cy=0; cy<7; cy++) addAoe(cx, cy);
+                        }
+                    }
                     
                     conf.grid.forEach(pt => addAoe(ph.x + pt.x, ph.y + pt.y));
                 });
@@ -300,8 +307,9 @@
                         if(heroData.heroType === 'Limited') typeClass = 'type-limited';
                         if(heroData.heroType === 'Basic Limited' || heroData.heroType === 'Basic Banner') typeClass = 'type-basic';
 
+                        // FIX: Added 'aspect-square' to the portrait div to force a perfect circle regardless of the cell's exact pixel dimensions
                         cell.innerHTML += `
-                            <div class="relative w-[90%] h-[90%] bg-[#4b5563] rounded-full border-[1.5px] sm:border-2 ${typeClass} z-10 shadow-md flex-shrink-0" title="Tap to Remove">
+                            <div class="relative w-[85%] aspect-square bg-[#4b5563] rounded-full border-[1.5px] sm:border-2 ${typeClass} z-10 shadow-md flex-shrink-0 flex items-center justify-center" title="Tap to Remove">
                                 <img src="${heroData.image}" class="w-full h-full object-cover rounded-full pointer-events-none">
                                 <div class="absolute -top-1 -right-1 bg-black/80 rounded-full w-4 h-4 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none"><i class="fa-solid fa-times text-[8px] text-red-400"></i></div>
                             </div>
