@@ -164,6 +164,7 @@
                 <!-- TABS -->
                 <div class="flex border-b border-gray-700 mt-2">
                     <button id="tabOverviewBtn" onclick="app.switchModalTab('overview')" class="px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors">Overview</button>
+                    <button id="tabSkillsBtn" onclick="app.switchModalTab('skills')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">Skills & Info</button>
                     <button id="tabHistoryBtn" onclick="app.switchModalTab('history')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">History</button>
                 </div>
 
@@ -171,6 +172,18 @@
                 <div id="modalOverviewContent" class="flex flex-col gap-5">
                     <div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3><p id="viewRole" class="text-sm text-gray-200 leading-relaxed italic border-l-4 border-yellow-500 pl-3"></p></div>
                     <div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Analysis & Notes</h3><div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700"><p id="viewNotes" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p></div></div>
+                </div>
+
+                <!-- SKILLS & INFO CONTENT -->
+                <div id="modalSkillsContent" class="hidden flex-col gap-4">
+                    <div class="flex bg-gray-900 rounded-full p-1 mx-auto w-max border border-gray-700 shadow-inner">
+                        <button id="subtab-skill" onclick="app.switchSkillTab('skill')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white shadow-md transition-colors">Skill</button>
+                        <button id="subtab-sacrament" onclick="app.switchSkillTab('sacrament')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
+                        <button id="subtab-awakening" onclick="app.switchSkillTab('awakening')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Awakening</button>
+                    </div>
+                    <div id="content-skill" class="bg-gray-900/50 rounded-lg p-4 border border-gray-700 text-sm text-gray-300 leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-[40vh]"></div>
+                    <div id="content-sacrament" class="hidden flex-col gap-3 overflow-y-auto max-h-[40vh] pr-2"></div>
+                    <div id="content-awakening" class="hidden flex-col gap-3 overflow-y-auto max-h-[40vh] pr-2"></div>
                 </div>
 
                 <!-- HISTORY CONTENT -->
@@ -565,6 +578,43 @@
                 document.getElementById('viewRole').innerText = h.role || "No specific role defined.";
                 document.getElementById('viewNotes').innerText = h.notes || "No analysis available.";
 
+                // Populate Skills Data
+                document.getElementById('content-skill').innerText = h.skill || "No skill data available.";
+                
+                let sacrHtml = '';
+                const sacrs = [h.s1, h.s2, h.s3, h.s4, h.s5];
+                sacrs.forEach((text, index) => {
+                    if(text && text.trim() !== '') {
+                        sacrHtml += `
+                        <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
+                            <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-star text-2xl sm:text-3xl text-transparent" style="-webkit-text-stroke: 2px #eab308;"></i>
+                                <span class="absolute text-[10px] sm:text-[11px] font-black text-yellow-500 pt-0.5">${index + 1}</span>
+                            </div>
+                            <div class="text-xs sm:text-sm text-gray-300 leading-relaxed pt-1 whitespace-pre-wrap">${text}</div>
+                        </div>`;
+                    }
+                });
+                document.getElementById('content-sacrament').innerHTML = sacrHtml || '<div class="text-center text-gray-500 py-6 italic">No sacrament data available.</div>';
+
+                let awakenHtml = '';
+                if (h.hasAwaken === 'Yes') {
+                    const awakens = [h.aw1, h.aw2, h.aw3];
+                    awakens.forEach((text, index) => {
+                        if(text && text.trim() !== '') {
+                            awakenHtml += `
+                            <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
+                                <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-1">
+                                    <i class="fa-solid fa-fire text-2xl sm:text-3xl text-transparent" style="-webkit-text-stroke: 2px #ef4444;"></i>
+                                    <span class="absolute text-[10px] sm:text-[11px] font-black text-red-500 pt-1.5">${index + 1}</span>
+                                </div>
+                                <div class="text-xs sm:text-sm text-gray-300 leading-relaxed pt-1 whitespace-pre-wrap">${text}</div>
+                            </div>`;
+                        }
+                    });
+                }
+                document.getElementById('content-awakening').innerHTML = awakenHtml || '<div class="text-center text-gray-500 py-6 italic">This hero has not been awakened yet.</div>';
+
                 // Populate Individual History
                 const historyContainer = document.getElementById('modalHistoryContent');
                 if (cachedLogs && cachedLogs.length > 0) {
@@ -589,32 +639,48 @@
 
                 // Default to overview tab when opening
                 app.switchModalTab('overview');
+                app.switchSkillTab('skill');
 
                 document.getElementById('viewModal').classList.remove('hidden');
             };
             const closeViewModal = () => document.getElementById('viewModal').classList.add('hidden');
 
             const switchModalTab = (tab) => {
-                const overviewBtn = document.getElementById('tabOverviewBtn');
-                const historyBtn = document.getElementById('tabHistoryBtn');
-                const overviewContent = document.getElementById('modalOverviewContent');
-                const historyContent = document.getElementById('modalHistoryContent');
+                const tabs = ['overview', 'skills', 'history'];
+                tabs.forEach(t => {
+                    const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`);
+                    const content = document.getElementById(`modal${t.charAt(0).toUpperCase() + t.slice(1)}Content`);
+                    if(!btn || !content) return;
+                    
+                    if (t === tab) {
+                        btn.className = "px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors";
+                        content.classList.remove('hidden');
+                        content.classList.add('flex');
+                    } else {
+                        btn.className = "px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors";
+                        content.classList.add('hidden');
+                        content.classList.remove('flex');
+                    }
+                });
+            };
 
-                if (tab === 'overview') {
-                    overviewBtn.className = "px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors";
-                    historyBtn.className = "px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors";
-                    overviewContent.classList.remove('hidden');
-                    overviewContent.classList.add('flex');
-                    historyContent.classList.add('hidden');
-                    historyContent.classList.remove('flex');
-                } else {
-                    historyBtn.className = "px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors";
-                    overviewBtn.className = "px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors";
-                    historyContent.classList.remove('hidden');
-                    historyContent.classList.add('flex');
-                    overviewContent.classList.add('hidden');
-                    overviewContent.classList.remove('flex');
-                }
+            const switchSkillTab = (tab) => {
+                const tabs = ['skill', 'sacrament', 'awakening'];
+                tabs.forEach(t => {
+                    const btn = document.getElementById(`subtab-${t}`);
+                    const content = document.getElementById(`content-${t}`);
+                    if(!btn || !content) return;
+
+                    if (t === tab) {
+                        btn.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white shadow-md transition-colors";
+                        content.classList.remove('hidden');
+                        content.classList.add(t === 'skill' ? 'block' : 'flex');
+                    } else {
+                        btn.className = "px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors";
+                        content.classList.add('hidden');
+                        content.classList.remove('block', 'flex');
+                    }
+                });
             };
 
             const openEditModal = (h = null) => {
@@ -796,7 +862,7 @@
                 } else { modal.classList.add('hidden'); }
             };
 
-            return { init, setMode, render, openViewModal, closeViewModal, switchModalTab, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, exitAdmin, saveHero, deleteHero, uploadImage, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
+            return { init, setMode, render, openViewModal, closeViewModal, switchModalTab, switchSkillTab, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, exitAdmin, saveHero, deleteHero, uploadImage, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
         })();
 
         window.onload = app.init;
