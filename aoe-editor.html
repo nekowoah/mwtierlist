@@ -101,6 +101,10 @@
                             <input type="checkbox" id="chkCol" class="w-5 h-5 accent-indigo-500 bg-gray-800 border-gray-600 rounded">
                             <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Affects Entire Column</span>
                         </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="chkFormation" class="w-5 h-5 accent-yellow-500 bg-gray-800 border-gray-600 rounded">
+                            <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Affects Entire Formation</span>
+                        </label>
                     </div>
                 </div>
 
@@ -244,12 +248,14 @@
                 const existing = aoeDB[id];
                 if (existing) {
                     gridState = [...existing.grid];
-                    document.getElementById('chkRow').checked = existing.wholeRow;
-                    document.getElementById('chkCol').checked = existing.wholeCol;
+                    document.getElementById('chkRow').checked = existing.wholeRow || false;
+                    document.getElementById('chkCol').checked = existing.wholeCol || false;
+                    document.getElementById('chkFormation').checked = existing.wholeFormation || false;
                 } else {
                     gridState = [];
                     document.getElementById('chkRow').checked = false;
                     document.getElementById('chkCol').checked = false;
+                    document.getElementById('chkFormation').checked = false;
                 }
 
                 renderHeroes(); // Update selection ring
@@ -284,6 +290,7 @@
                 gridState = [];
                 document.getElementById('chkRow').checked = false;
                 document.getElementById('chkCol').checked = false;
+                document.getElementById('chkFormation').checked = false;
                 updateGridVisuals();
             };
 
@@ -298,7 +305,8 @@
                     heroId: selectedHero.id,
                     grid: gridState,
                     wholeRow: document.getElementById('chkRow').checked,
-                    wholeCol: document.getElementById('chkCol').checked
+                    wholeCol: document.getElementById('chkCol').checked,
+                    wholeFormation: document.getElementById('chkFormation').checked
                 };
 
                 try {
