@@ -141,27 +141,29 @@
 
     <!-- Hero Detail Modal -->
     <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeViewModal()"></div>
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal()"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
             <div class="relative h-64 md:h-auto md:w-5/12 bg-gray-900 transition-colors duration-300">
-                <img id="viewImage" src="" class="w-full h-full object-cover opacity-80">
+                <img id="modalImage" src="" class="w-full h-full object-cover opacity-80">
                 <div class="absolute bottom-4 left-4 right-4">
-                    <h2 id="viewName" class="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
+                    <h2 id="modalName" class="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
                     <div class="flex flex-wrap gap-2 items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                        <span id="viewClass" class="text-xs font-bold text-indigo-400 uppercase tracking-wider bg-gray-800 px-2 py-0.5 rounded border border-gray-600 shadow-sm"></span>
-                        <div id="viewTypeContainer"></div>
-                        <div id="viewAwakenContainer"></div>
+                        <span id="modalClass" class="text-xs font-bold text-indigo-400 uppercase tracking-wider bg-gray-800 px-2 py-0.5 rounded border border-gray-600 shadow-sm"></span>
+                        <div id="modalTypeContainer"></div>
+                        <div id="modalAwakenContainer"></div>
                     </div>
                 </div>
             </div>
+            
             <div class="p-6 md:w-7/12 flex flex-col gap-5 overflow-y-auto max-h-[60vh] md:max-h-none">
+                <!-- Ranks -->
                 <div class="grid grid-cols-3 gap-2 text-center">
-                    <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Early</span><span id="viewEarly" class="text-xl font-black text-white"></span></div>
-                    <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600 relative overflow-hidden"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Late</span><span id="viewLate" class="text-xl font-black text-white"></span></div>
-                    <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Sacrament</span><span id="viewSacr" class="text-xl font-black text-white"></span></div>
+                    <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Early</span><span id="modalEarly" class="text-xl font-black text-white"></span></div>
+                    <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600 relative overflow-hidden"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Late</span><span id="modalLate" class="text-xl font-black text-white"></span></div>
+                    <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Sacrament</span><span id="modalSacr" class="text-xl font-black text-white"></span></div>
                 </div>
 
-                <!-- TABS -->
+                <!-- TABS (Overview / Skills / History) -->
                 <div class="flex border-b border-gray-700 mt-2">
                     <button id="tabOverviewBtn" onclick="app.switchModalTab('overview')" class="px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors">Overview</button>
                     <button id="tabSkillsBtn" onclick="app.switchModalTab('skills')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">Skills & Info</button>
@@ -170,8 +172,16 @@
 
                 <!-- OVERVIEW CONTENT -->
                 <div id="modalOverviewContent" class="flex flex-col gap-5">
-                    <div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3><p id="viewRole" class="text-sm text-gray-200 leading-relaxed italic border-l-4 border-yellow-500 pl-3"></p></div>
-                    <div><h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Analysis & Notes</h3><div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700"><p id="viewNotes" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p></div></div>
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3>
+                        <p id="modalRole" class="text-sm text-gray-200 leading-relaxed italic border-l-4 border-yellow-500 pl-3"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Analysis & Notes</h3>
+                        <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                            <p id="modalNotes" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- SKILLS & INFO CONTENT -->
@@ -187,11 +197,11 @@
                 </div>
 
                 <!-- HISTORY CONTENT -->
-                <div id="modalHistoryContent" class="hidden flex-col gap-3 overflow-y-auto pr-1">
-                    <!-- Javascript will inject individual changelogs here -->
+                <div id="modalHistoryContent" class="hidden flex-col gap-3 overflow-y-auto max-h-[40vh] pr-2">
+                    <!-- Injected via JS -->
                 </div>
             </div>
-            <button onclick="app.closeViewModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white bg-black/50 rounded-full w-8 h-8 flex items-center justify-center transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
+            <button onclick="app.closeModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white bg-black/50 rounded-full w-8 h-8 flex items-center justify-center transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
         </div>
     </div>
 
@@ -304,7 +314,6 @@
         </div>
     </div>
 
-    <!-- Sidebar HTML is injected here by JS, but we need to define the fallback for toggleSidebar -->
     <script>
         const app = (() => {
             const GLOBALS = window.MWR_GLOBALS || {};
@@ -376,22 +385,16 @@
                     if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) menu.classList.add('hidden');
                 });
 
-                const cachedData = localStorage.getItem('mwr_tierlist_data');
-                if (cachedData) {
-                    try { heroes = JSON.parse(cachedData); document.getElementById('loading').classList.add('hidden'); document.getElementById('tierListContainer').classList.remove('opacity-0'); render(); } 
-                    catch(e) {}
-                }
-
+                // Fetching new data from backend (No local storage caching to ensure Skills sync)
                 try {
                     const res = await fetch(API_URL);
-                    const freshHeroes = await res.json();
-                    const freshStr = JSON.stringify(freshHeroes);
-                    if (!cachedData || cachedData !== freshStr) {
-                        heroes = freshHeroes; localStorage.setItem('mwr_tierlist_data', freshStr);
-                        document.getElementById('loading').classList.add('hidden'); document.getElementById('tierListContainer').classList.remove('opacity-0'); render();
-                    }
+                    heroes = await res.json();
+                    document.getElementById('loading').classList.add('hidden'); 
+                    document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+                    render();
+                    
                     fetch(API_URL + "?view=logs").then(r => r.json()).then(data => { if (Array.isArray(data)) cachedLogs = data; });
-                } catch(e) { if (!cachedData) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; }
+                } catch(e) { document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; }
             };
 
             const toggleTypeMenu = () => document.getElementById('typeMenu').classList.toggle('hidden');
@@ -403,8 +406,6 @@
                 if (container) {
                     container.innerHTML = Object.keys(CLASS_ICONS).map(cls => {
                         const isActive = currentFilter === cls;
-                        
-                        // FIX: Hardcoded hex colors so the buttons permanently stay dark blue-gray in all themes
                         const btnClass = isActive 
                             ? 'border-yellow-500 bg-[rgba(234,179,8,0.2)] text-yellow-500' 
                             : 'border-[#4b5563] bg-[#1f2937] text-[#d1d5db] opacity-70 hover:opacity-100 hover:border-[#9ca3af] hover:text-white';
@@ -511,9 +512,8 @@
                                 if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') topBorderClass = 'border-t-basic';
 
                                 heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded overflow-hidden ${topBorderClass} group transition-all`;
-                                heroEl.onclick = () => { isAdmin ? app.openEditModal(h) : app.openViewModal(h); };
+                                heroEl.onclick = () => { isAdmin ? app.openEditModal(h) : app.openModal(h); };
                                 
-                                // FIX: Hardcoded original dark backgrounds for absolute icons to persist in light mode
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
                                 const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-[#111827]/80 rounded-full p-0.5 border border-[#4b5563]/50 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain opacity-80 group-hover:opacity-100"></div>`;
 
@@ -551,34 +551,33 @@
                 });
             };
 
-            const openViewModal = (h) => {
-                document.getElementById('viewImage').src = h.image || 'https://placehold.co/400/5A5F66/FFFFFF?text=No+Image';
-                document.getElementById('viewName').innerHTML = h.name + ((h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-2"></i>' : '');
+            const openModal = (h) => {
+                document.getElementById('modalImage').src = h.image || 'https://placehold.co/400/5A5F66/FFFFFF?text=No+Image';
+                document.getElementById('modalName').innerHTML = h.name + ((h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-2"></i>' : '');
                 
-                // FIX: Used dynamic gray squares for badges so they flip neatly in light mode
-                document.getElementById('viewClass').innerText = h.heroClass;
+                document.getElementById('modalClass').innerText = h.heroClass;
                 
-                const typeContainer = document.getElementById('viewTypeContainer');
+                const typeContainer = document.getElementById('modalTypeContainer');
                 if (h.heroType === 'VIP') typeContainer.innerHTML = '<span class="text-xs font-bold text-yellow-500 bg-gray-800 px-2 py-0.5 rounded border border-gray-600 shadow-sm"><i class="fa-solid fa-crown mr-1"></i>VIP</span>';
                 else if (h.heroType === 'Limited') typeContainer.innerHTML = '<span class="text-xs font-bold text-purple-400 bg-gray-800 px-2 py-0.5 rounded border border-gray-600 shadow-sm"><i class="fa-solid fa-star mr-1"></i>Limited</span>';
                 else if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeContainer.innerHTML = '<span class="text-xs font-bold text-green-500 bg-gray-800 px-2 py-0.5 rounded border border-gray-600 shadow-sm"><i class="fa-solid fa-leaf mr-1"></i>Basic Limited</span>';
                 else typeContainer.innerHTML = '';
 
-                const awakenContainer = document.getElementById('viewAwakenContainer');
+                const awakenContainer = document.getElementById('modalAwakenContainer');
                 if (h.hasAwaken === 'Yes') awakenContainer.innerHTML = '<span class="text-xs font-bold text-red-500 bg-gray-800 px-2 py-0.5 rounded border border-gray-600 shadow-sm"><i class="fa-solid fa-fire-flame-curved mr-1"></i>Awakened</span>';
                 else awakenContainer.innerHTML = '';
 
-                document.getElementById('viewEarly').innerText = h.early || '-';
-                document.getElementById('viewLate').innerText = h.late || '-';
-                document.getElementById('viewSacr').innerText = h.sacrament || '-';
-                ['Early', 'Late', 'Sacr'].forEach(m => document.getElementById(`view${m}`).className = "text-xl font-black text-gray-500");
-                const activeId = currentMode === 'sacrament' ? 'viewSacr' : `view${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)}`;
+                document.getElementById('modalEarly').innerText = h.early || '-';
+                document.getElementById('modalLate').innerText = h.late || '-';
+                document.getElementById('modalSacr').innerText = h.sacrament || '-';
+                ['Early', 'Late', 'Sacr'].forEach(m => document.getElementById(`modal${m}`).className = "text-xl font-black text-gray-500");
+                const activeId = currentMode === 'sacrament' ? 'modalSacr' : `modal${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)}`;
                 document.getElementById(activeId).className = "text-2xl font-black text-yellow-400 drop-shadow-lg";
                 
-                document.getElementById('viewRole').innerText = h.role || "No specific role defined.";
-                document.getElementById('viewNotes').innerText = h.notes || "No analysis available.";
+                document.getElementById('modalRole').innerText = h.role || "No specific role defined.";
+                document.getElementById('modalNotes').innerText = h.notes || "No analysis available.";
 
-                // Populate Skills Data
+                // ---> SKILLS DATA POPULATION <---
                 document.getElementById('content-skill').innerText = h.skill || "No skill data available.";
                 
                 let sacrHtml = '';
@@ -615,17 +614,15 @@
                 }
                 document.getElementById('content-awakening').innerHTML = awakenHtml || '<div class="text-center text-gray-500 py-6 italic">This hero has not been awakened yet.</div>';
 
-                // Populate Individual History
+                // ---> HISTORY POPULATION <---
                 const historyContainer = document.getElementById('modalHistoryContent');
                 if (cachedLogs && cachedLogs.length > 0) {
-                    // FAST LOGIC: Exclusively matches the backfilled ID, ignoring slow string searches
-                    const heroLogs = cachedLogs.filter(log => log.heroId === h.id);
-
+                    const heroLogs = cachedLogs.filter(log => log.heroId === h.id || (log.details && log.details.includes(h.name)));
                     if (heroLogs.length > 0) {
                         historyContainer.innerHTML = heroLogs.map(l => {
                             let dateStr = "Unknown Date";
                             try { dateStr = new Date(l.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch(e) {}
-                            return `<div class="bg-gray-900/50 border border-gray-700 p-3 rounded-lg text-xs">
+                            return `<div class="bg-gray-800/80 border border-gray-700 p-3 rounded-lg text-xs">
                                 <div class="flex justify-between mb-1.5"><span class="font-bold text-indigo-400">${dateStr}</span><span class="${l.action==='CREATE'?'text-green-400':l.action==='DELETE'?'text-red-400':'text-blue-400'} font-bold">${l.action}</span></div>
                                 <span class="text-gray-300 block whitespace-pre-wrap">${l.details}</span>
                             </div>`;
@@ -643,7 +640,7 @@
 
                 document.getElementById('viewModal').classList.remove('hidden');
             };
-            const closeViewModal = () => document.getElementById('viewModal').classList.add('hidden');
+            const closeModal = () => document.getElementById('viewModal').classList.add('hidden');
 
             const switchModalTab = (tab) => {
                 const tabs = ['overview', 'skills', 'history'];
@@ -862,7 +859,7 @@
                 } else { modal.classList.add('hidden'); }
             };
 
-            return { init, setMode, render, openViewModal, closeViewModal, switchModalTab, switchSkillTab, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, exitAdmin, saveHero, deleteHero, uploadImage, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
+            return { init, setMode, render, openModal, closeModal, switchModalTab, switchSkillTab, openEditModal, closeEditModal, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, exitAdmin, saveHero, deleteHero, uploadImage, openImageSelector, closeImageSelector, filterImageSelector, selectImage };
         })();
 
         window.onload = app.init;
