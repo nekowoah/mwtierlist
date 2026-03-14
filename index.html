@@ -140,13 +140,16 @@
     </footer>
 
     <!-- Hero Detail Modal -->
-    <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal()"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
-            <div class="relative h-64 md:h-auto md:w-5/12 bg-gray-900 transition-colors duration-300">
+        <!-- FIX: Updated sizing rules for completely static height and safe mobile widths -->
+        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-[95vw] md:w-[90vw] max-w-lg md:max-w-4xl lg:max-w-5xl h-[90vh] md:h-[650px] overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
+            
+            <!-- Image Panel -->
+            <div class="relative h-56 sm:h-64 md:h-full md:w-5/12 bg-gray-900 transition-colors duration-300 flex-shrink-0">
                 <img id="modalImage" src="" class="w-full h-full object-cover opacity-80">
                 <div class="absolute bottom-4 left-4 right-4">
-                    <h2 id="modalName" class="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
+                    <h2 id="modalName" class="text-2xl sm:text-3xl font-black text-white leading-tight mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
                     <div class="flex flex-wrap gap-2 items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                         <span id="modalClass" class="text-xs font-bold text-indigo-400 uppercase tracking-wider bg-gray-800 px-2 py-0.5 rounded border border-gray-600 shadow-sm"></span>
                         <div id="modalTypeContainer"></div>
@@ -155,53 +158,68 @@
                 </div>
             </div>
             
-            <div class="p-6 md:w-7/12 flex flex-col gap-5 overflow-y-auto max-h-[60vh] md:max-h-none">
+            <!-- Content Panel -->
+            <div class="p-4 sm:p-6 md:w-7/12 flex flex-col flex-grow overflow-hidden">
                 <!-- Ranks -->
-                <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="grid grid-cols-3 gap-2 text-center flex-shrink-0">
                     <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Early</span><span id="modalEarly" class="text-xl font-black text-white"></span></div>
                     <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600 relative overflow-hidden"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Late</span><span id="modalLate" class="text-xl font-black text-white"></span></div>
                     <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Sacrament</span><span id="modalSacr" class="text-xl font-black text-white"></span></div>
                 </div>
 
                 <!-- TABS (Overview / Skills / History) -->
-                <div class="flex border-b border-gray-700 mt-2">
+                <div class="flex border-b border-gray-700 mt-3 flex-shrink-0">
                     <button id="tabOverviewBtn" onclick="app.switchModalTab('overview')" class="px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors">Overview</button>
                     <button id="tabSkillsBtn" onclick="app.switchModalTab('skills')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">Skills & Info</button>
                     <button id="tabHistoryBtn" onclick="app.switchModalTab('history')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">History</button>
                 </div>
 
-                <!-- OVERVIEW CONTENT -->
-                <div id="modalOverviewContent" class="flex flex-col gap-5">
-                    <div>
-                        <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3>
-                        <p id="modalRole" class="text-sm text-gray-200 leading-relaxed italic border-l-4 border-yellow-500 pl-3"></p>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Analysis & Notes</h3>
-                        <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-                            <p id="modalNotes" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
+                <!-- SCROLLABLE CONTENT WRAPPER -->
+                <div class="relative flex-grow mt-4 overflow-hidden">
+                    
+                    <!-- OVERVIEW CONTENT -->
+                    <!-- FIX: absolute inset-0 ensures it fills exactly the wrapper box -->
+                    <div id="modalOverviewContent" class="absolute inset-0 flex-col gap-5 overflow-y-auto pr-2 hide-scrollbar">
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3>
+                            <p id="modalRole" class="text-sm text-gray-200 leading-relaxed italic border-l-4 border-yellow-500 pl-3"></p>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Analysis & Notes</h3>
+                            <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                                <p id="modalNotes" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- SKILLS & INFO CONTENT -->
-                <div id="modalSkillsContent" class="hidden flex-col gap-4">
-                    <div class="flex bg-gray-900 rounded-full p-1 mx-auto w-max border border-gray-700 shadow-inner">
-                        <button id="subtab-skill" onclick="app.switchSkillTab('skill')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white shadow-md transition-colors">Skill</button>
-                        <button id="subtab-sacrament" onclick="app.switchSkillTab('sacrament')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
-                        <button id="subtab-awakening" onclick="app.switchSkillTab('awakening')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Awakening</button>
+                    <!-- SKILLS & INFO CONTENT -->
+                    <div id="modalSkillsContent" class="hidden absolute inset-0 flex-col gap-4 overflow-hidden">
+                        <!-- Sub-tab Bar -->
+                        <div class="flex bg-gray-900 rounded-full p-1 mx-auto w-max border border-gray-700 shadow-inner flex-shrink-0">
+                            <button id="subtab-skill" onclick="app.switchSkillTab('skill')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white shadow-md transition-colors">Skill</button>
+                            <button id="subtab-sacrament" onclick="app.switchSkillTab('sacrament')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
+                            <button id="subtab-awakening" onclick="app.switchSkillTab('awakening')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Awakening</button>
+                        </div>
+                        
+                        <!-- Scrollable Sub-Containers -->
+                        <div class="relative flex-grow overflow-hidden">
+                            <div id="content-skill" class="absolute inset-0 overflow-y-auto pr-2 hide-scrollbar bg-gray-900/50 rounded-lg p-4 border border-gray-700 text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></div>
+                            <div id="content-sacrament" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar"></div>
+                            <div id="content-awakening" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar"></div>
+                        </div>
                     </div>
-                    <div id="content-skill" class="bg-gray-900/50 rounded-lg p-4 border border-gray-700 text-sm text-gray-300 leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-[40vh]"></div>
-                    <div id="content-sacrament" class="hidden flex-col gap-3 overflow-y-auto max-h-[40vh] pr-2"></div>
-                    <div id="content-awakening" class="hidden flex-col gap-3 overflow-y-auto max-h-[40vh] pr-2"></div>
-                </div>
 
-                <!-- HISTORY CONTENT -->
-                <div id="modalHistoryContent" class="hidden flex-col gap-3 overflow-y-auto max-h-[40vh] pr-2">
-                    <!-- Injected via JS -->
+                    <!-- HISTORY CONTENT -->
+                    <div id="modalHistoryContent" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar">
+                        <!-- Injected via JS -->
+                    </div>
+                    
                 </div>
             </div>
-            <button onclick="app.closeModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white bg-black/50 rounded-full w-8 h-8 flex items-center justify-center transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
+            
+            <button onclick="app.closeModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white bg-black/50 hover:bg-black rounded-full w-8 h-8 flex items-center justify-center transition-colors z-10 shadow-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
     </div>
 
@@ -580,15 +598,16 @@
                 // ---> SKILLS DATA POPULATION <---
                 document.getElementById('content-skill').innerText = h.skill || "No skill data available.";
                 
+                // FIX: Implemented Absolute Center Positioning for hollow numbers inside icons
                 let sacrHtml = '';
                 const sacrs = [h.s1, h.s2, h.s3, h.s4, h.s5];
                 sacrs.forEach((text, index) => {
                     if(text && text.trim() !== '') {
                         sacrHtml += `
                         <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
-                            <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-1">
+                            <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-0.5">
                                 <i class="fa-solid fa-star text-2xl sm:text-3xl text-transparent" style="-webkit-text-stroke: 2px #eab308;"></i>
-                                <span class="absolute text-[10px] sm:text-[11px] font-black text-yellow-500 pt-0.5">${index + 1}</span>
+                                <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[1px] sm:mt-[2px] text-[10px] sm:text-[11px] font-black text-yellow-500">${index + 1}</span>
                             </div>
                             <div class="text-xs sm:text-sm text-gray-300 leading-relaxed pt-1 whitespace-pre-wrap">${text}</div>
                         </div>`;
@@ -603,9 +622,9 @@
                         if(text && text.trim() !== '') {
                             awakenHtml += `
                             <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
-                                <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-1">
+                                <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-0.5">
                                     <i class="fa-solid fa-fire text-2xl sm:text-3xl text-transparent" style="-webkit-text-stroke: 2px #ef4444;"></i>
-                                    <span class="absolute text-[11px] sm:text-[13px] font-black text-red-500 mt-1.5 sm:mt-2.5">${index + 1}</span>
+                                    <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[3px] sm:mt-[4px] text-[10px] sm:text-[11px] font-black text-red-500">${index + 1}</span>
                                 </div>
                                 <div class="text-xs sm:text-sm text-gray-300 leading-relaxed pt-1 whitespace-pre-wrap">${text}</div>
                             </div>`;
@@ -671,6 +690,7 @@
                     if (t === tab) {
                         btn.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white shadow-md transition-colors";
                         content.classList.remove('hidden');
+                        // Use block for skill text, flex for the others
                         content.classList.add(t === 'skill' ? 'block' : 'flex');
                     } else {
                         btn.className = "px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors";
