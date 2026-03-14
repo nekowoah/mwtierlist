@@ -65,6 +65,7 @@ window.AppMenu = (() => {
 
     const pages = [
         { name: "Tierlist", url: "index.html", icon: "fa-list-ul" },
+        { name: "Formation Builder", url: "formation.html", icon: "fa-chess-board" },
         { name: "Information", url: "info.html", icon: "fa-book-open" }
     ];
 
