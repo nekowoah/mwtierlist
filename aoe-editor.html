@@ -71,28 +71,32 @@
         </div>
 
         <!-- Right Column: The 5x5 Editor -->
-        <div class="w-full md:w-1/2 flex flex-col items-center justify-center bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-lg h-[80vh] relative">
+        <div class="w-full md:w-1/2 flex flex-col items-center justify-center bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-lg h-[80vh] relative overflow-hidden">
             
             <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/90 backdrop-blur-sm z-10 rounded-xl">
                 <i class="fa-solid fa-hand-pointer text-5xl text-gray-600 mb-4"></i>
                 <p class="text-gray-400 font-bold">Select a hero from the pool to edit their AOE.</p>
             </div>
 
-            <div class="w-full max-w-md flex flex-col items-center">
-                <div class="mb-6 text-center w-full">
+            <!-- FIX: Added h-full and min-h-0 to the wrapper so flex-grow works properly -->
+            <div class="w-full max-w-md flex flex-col items-center h-full min-h-0">
+                
+                <div class="mb-3 sm:mb-4 text-center w-full flex-shrink-0">
                     <h2 id="editorTitle" class="text-2xl font-black text-white drop-shadow-md">Editing: <span class="text-yellow-400">Hero Name</span></h2>
                     <p class="text-xs text-gray-400 mt-1">Click cells to define their buffing footprint</p>
                 </div>
 
-                <!-- 5x5 Interactive Grid -->
-                <div id="aoeGrid" class="grid grid-cols-5 gap-1.5 w-full aspect-square bg-gray-900 p-2 rounded-xl border border-gray-700 shadow-inner mb-6 relative">
-                    <!-- JS Injected 25 Cells -->
+                <!-- FIX: The Dynamic Grid Wrapper (Shrink-wraps the 5x5 board) -->
+                <div class="w-full flex-grow min-h-0 flex items-center justify-center py-2 overflow-hidden">
+                    <div id="aoeGrid" class="bg-gray-900 p-1.5 sm:p-2 rounded-xl border border-gray-700 shadow-inner grid grid-cols-5 gap-1 sm:gap-1.5 relative h-full" style="aspect-ratio: 1 / 1; max-width: 100%; max-height: 100%;">
+                        <!-- JS Injected 25 Cells -->
+                    </div>
                 </div>
 
                 <!-- Modifiers -->
-                <div class="w-full bg-gray-900 border border-gray-700 rounded-lg p-4 mb-6">
+                <div class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 sm:p-4 mt-4 mb-4 flex-shrink-0">
                     <h3 class="text-xs font-bold text-gray-500 uppercase mb-3">Infinite Range Modifiers</h3>
-                    <div class="flex flex-col gap-3">
+                    <div class="flex flex-col gap-2 sm:gap-3">
                         <label class="flex items-center gap-3 cursor-pointer group">
                             <input type="checkbox" id="chkRow" class="w-5 h-5 accent-indigo-500 bg-gray-800 border-gray-600 rounded">
                             <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Affects Entire Row</span>
@@ -108,9 +112,9 @@
                     </div>
                 </div>
 
-                <div class="w-full flex justify-between gap-4">
-                    <button onclick="app.clearGrid()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg transition-colors border border-gray-600 shadow-md">Clear</button>
-                    <button id="btnSave" onclick="app.saveData()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg transition-colors shadow-[0_0_15px_rgba(79,70,229,0.4)]">Save AOE</button>
+                <div class="w-full flex justify-between gap-4 flex-shrink-0">
+                    <button onclick="app.clearGrid()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2.5 sm:py-3 rounded-lg transition-colors border border-gray-600 shadow-md">Clear</button>
+                    <button id="btnSave" onclick="app.saveData()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 sm:py-3 rounded-lg transition-colors shadow-[0_0_15px_rgba(79,70,229,0.4)]">Save AOE</button>
                 </div>
             </div>
         </div>
