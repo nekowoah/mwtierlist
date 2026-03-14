@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
     <title>MWR | AOE Footprint Editor</title>
@@ -19,22 +18,26 @@
         .hero-circle:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
         .hero-circle.selected { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.8); }
 
-        /* Type Colors for Circles */
         .type-vip { border-color: #fbbf24; }
         .type-limited { border-color: #c90dde; }
         .type-basic { border-color: #22c55e; }
         .type-normal { border-color: #6b7280; }
         
-        /* FIX: Ensure Editor cells stay perfectly square */
-        .aoe-cell { aspect-ratio: 1 / 1; transition: all 0.15s ease-in-out; }
-        .aoe-cell.active { background-color: rgba(99, 102, 241, 0.6); border-color: rgba(129, 140, 248, 1); box-shadow: inset 0 0 10px rgba(99, 102, 241, 0.3); }
-        .aoe-cell:hover:not(.center-cell) { background-color: rgba(99, 102, 241, 0.3); cursor: pointer; }
-        .center-cell { aspect-ratio: 1 / 1; background-color: rgba(31, 41, 55, 1); cursor: default; }
+        .aoe-cell, .center-cell { aspect-ratio: 1 / 1; transition: all 0.15s ease-in-out; }
+        .aoe-cell:hover:not(.center-cell) { background-color: rgba(255, 255, 255, 0.05); cursor: pointer; }
+        .center-cell { background-color: rgba(31, 41, 55, 1); cursor: default; }
+
+        /* NEW: Seamless Layer Preview */
+        .aoe-layer {
+            position: absolute;
+            top: -2px; bottom: -2px; left: -2px; right: -2px;
+            pointer-events: none;
+            z-index: 5;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
 
-    <!-- Navbar -->
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-4">
             <div class="flex items-center gap-4">
@@ -53,24 +56,16 @@
         <p class="text-gray-400 font-bold animate-pulse">Loading Hero Database & Geometries...</p>
     </div>
 
-    <!-- Main Workspace -->
     <main id="workspace" class="flex-grow flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 gap-6 hidden">
         
-        <!-- Left Column: Hero Pool -->
         <div class="w-full md:w-1/2 flex flex-col bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg h-[80vh]">
             <div class="p-4 border-b border-gray-700 bg-gray-900/50">
                 <input type="text" id="searchInput" onkeyup="app.filterHeroes()" placeholder="Search heroes..." class="w-full bg-gray-900 text-white rounded-lg px-4 py-2 border border-gray-600 text-sm outline-none focus:border-yellow-500 transition-colors mb-3">
-                <div class="flex flex-wrap gap-2 justify-center" id="classFilters">
-                    <!-- JS Injected Filters -->
-                </div>
+                <div class="flex flex-wrap gap-2 justify-center" id="classFilters"></div>
             </div>
-            
-            <div id="heroPool" class="flex-grow overflow-y-auto p-4 grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-8 gap-3 content-start">
-                <!-- JS Injected Circles -->
-            </div>
+            <div id="heroPool" class="flex-grow overflow-y-auto p-4 grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-8 gap-3 content-start"></div>
         </div>
 
-        <!-- Right Column: The 5x5 Editor -->
         <div class="w-full md:w-1/2 flex flex-col items-center justify-center bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-lg h-[80vh] relative overflow-hidden">
             
             <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/90 backdrop-blur-sm z-10 rounded-xl">
@@ -78,7 +73,6 @@
                 <p class="text-gray-400 font-bold">Select a hero from the pool to edit their AOE.</p>
             </div>
 
-            <!-- FIX: Added h-full and min-h-0 to the wrapper so flex-grow works properly -->
             <div class="w-full max-w-md flex flex-col items-center h-full min-h-0">
                 
                 <div class="mb-3 sm:mb-4 text-center w-full flex-shrink-0">
@@ -86,27 +80,26 @@
                     <p class="text-xs text-gray-400 mt-1">Click cells to define their buffing footprint</p>
                 </div>
 
-                <!-- FIX: The Dynamic Grid Wrapper (Shrink-wraps the 5x5 board) -->
                 <div class="w-full flex-grow min-h-0 flex items-center justify-center py-2 overflow-hidden">
-                    <div id="aoeGrid" class="bg-gray-900 p-1.5 sm:p-2 rounded-xl border border-gray-700 shadow-inner grid grid-cols-5 gap-1 sm:gap-1.5 relative h-full" style="aspect-ratio: 1 / 1; max-width: 100%; max-height: 100%;">
+                    <!-- FIX: Set exact 4px gap -->
+                    <div id="aoeGrid" class="bg-gray-900 p-1.5 sm:p-2 rounded-xl border border-gray-700 shadow-inner grid grid-cols-5 gap-[4px] relative h-full" style="aspect-ratio: 1 / 1; max-width: 100%; max-height: 100%;">
                         <!-- JS Injected 25 Cells -->
                     </div>
                 </div>
 
-                <!-- Modifiers -->
                 <div class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 sm:p-4 mt-4 mb-4 flex-shrink-0">
                     <h3 class="text-xs font-bold text-gray-500 uppercase mb-3">Infinite Range Modifiers</h3>
                     <div class="flex flex-col gap-2 sm:gap-3">
                         <label class="flex items-center gap-3 cursor-pointer group">
-                            <input type="checkbox" id="chkRow" class="w-5 h-5 accent-indigo-500 bg-gray-800 border-gray-600 rounded">
+                            <input type="checkbox" id="chkRow" onchange="app.updateGridVisuals()" class="w-5 h-5 accent-indigo-500 bg-gray-800 border-gray-600 rounded">
                             <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Affects Entire Row</span>
                         </label>
                         <label class="flex items-center gap-3 cursor-pointer group">
-                            <input type="checkbox" id="chkCol" class="w-5 h-5 accent-indigo-500 bg-gray-800 border-gray-600 rounded">
+                            <input type="checkbox" id="chkCol" onchange="app.updateGridVisuals()" class="w-5 h-5 accent-indigo-500 bg-gray-800 border-gray-600 rounded">
                             <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Affects Entire Column</span>
                         </label>
                         <label class="flex items-center gap-3 cursor-pointer group">
-                            <input type="checkbox" id="chkFormation" class="w-5 h-5 accent-yellow-500 bg-gray-800 border-gray-600 rounded">
+                            <input type="checkbox" id="chkFormation" onchange="app.updateGridVisuals()" class="w-5 h-5 accent-yellow-500 bg-gray-800 border-gray-600 rounded">
                             <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Affects Entire Formation</span>
                         </label>
                     </div>
@@ -126,10 +119,10 @@
             const { API_URL, CLASS_ICONS } = window.MWR_GLOBALS;
             
             let heroes = [];
-            let aoeDB = {}; // Map of heroId -> aoeData
+            let aoeDB = {}; 
             let currentFilter = 'All';
             let selectedHero = null;
-            let gridState = []; // Array of relative coords [{x, y}]
+            let gridState = []; 
             let authToken = "";
 
             const init = async () => {
@@ -144,7 +137,6 @@
                 buildFilters();
 
                 try {
-                    // Fetch Heroes AND current AOE mappings concurrently
                     const [heroRes, aoeRes] = await Promise.all([
                         fetch(API_URL + "?view=all"),
                         fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "get_aoe", token: authToken }) })
@@ -184,7 +176,6 @@
                 const search = document.getElementById('searchInput').value.toLowerCase();
                 const container = document.getElementById('heroPool');
 
-                // Sort: Assigned AOEs first, then alphabetically
                 const sorted = [...heroes].sort((a,b) => {
                     const hasA = aoeDB[a.id] ? 1 : 0;
                     const hasB = aoeDB[b.id] ? 1 : 0;
@@ -192,7 +183,6 @@
                     return a.name.localeCompare(b.name);
                 });
 
-                // FIX: Single DOM assignment to remove click lag
                 container.innerHTML = sorted.map(h => {
                     if (currentFilter !== 'All' && h.heroClass !== currentFilter) return '';
                     if (search && !h.name.toLowerCase().includes(search)) return '';
@@ -218,22 +208,21 @@
                 const grid = document.getElementById('aoeGrid');
                 grid.innerHTML = '';
                 
-                // 5x5 grid (y: 0->4, x: 0->4). Center is 2,2.
                 for(let y = 0; y < 5; y++) {
                     for(let x = 0; x < 5; x++) {
                         const cell = document.createElement('div');
                         
                         if(x === 2 && y === 2) {
-                            cell.className = "center-cell flex items-center justify-center rounded-lg border border-gray-700 relative overflow-hidden";
+                            cell.className = "center-cell flex items-center justify-center rounded-lg border border-gray-700 relative";
                             cell.id = "centerHeroCell";
+                            cell.dataset.relx = 0;
+                            cell.dataset.rely = 0;
                         } else {
-                            // Calculate relative offset from center
-                            const relX = x - 2;
-                            const relY = y - 2;
-                            cell.className = "aoe-cell bg-gray-800 border border-gray-700 rounded-lg";
+                            const relX = x - 2; const relY = y - 2;
+                            cell.className = "aoe-cell bg-gray-800 border border-gray-700 rounded-lg relative overflow-visible";
                             cell.dataset.relx = relX;
                             cell.dataset.rely = relY;
-                            cell.onclick = () => toggleCell(cell, relX, relY);
+                            cell.onclick = () => toggleCell(relX, relY);
                         }
                         grid.appendChild(cell);
                     }
@@ -245,10 +234,13 @@
                 document.getElementById('emptyState').classList.add('hidden');
                 document.getElementById('editorTitle').innerHTML = `Editing: <span class="text-yellow-400">${selectedHero.name}</span>`;
                 
-                // Set center image
-                document.getElementById('centerHeroCell').innerHTML = `<img src="${selectedHero.image}" class="w-[85%] h-[85%] object-cover rounded-full border-2 border-gray-500 shadow-[0_0_10px_rgba(0,0,0,0.8)]">`;
+                // Keep image z-index above layers
+                document.getElementById('centerHeroCell').innerHTML = `
+                    <div class="relative z-10 w-[85%] h-[85%] rounded-full border-2 border-gray-500 shadow-[0_0_10px_rgba(0,0,0,0.8)] bg-gray-800 overflow-hidden">
+                        <img src="${selectedHero.image}" class="w-full h-full object-cover pointer-events-none">
+                    </div>
+                `;
 
-                // Load existing data if any
                 const existing = aoeDB[id];
                 if (existing) {
                     gridState = [...existing.grid];
@@ -262,30 +254,69 @@
                     document.getElementById('chkFormation').checked = false;
                 }
 
-                renderHeroes(); // Update selection ring
+                renderHeroes(); 
                 updateGridVisuals();
             };
 
-            const toggleCell = (cellElement, rx, ry) => {
+            const toggleCell = (rx, ry) => {
                 if(!selectedHero) return;
                 
                 const index = gridState.findIndex(p => p.x === rx && p.y === ry);
-                if (index > -1) {
-                    gridState.splice(index, 1);
-                    cellElement.classList.remove('active');
-                } else {
-                    gridState.push({x: rx, y: ry});
-                    cellElement.classList.add('active');
-                }
+                if (index > -1) gridState.splice(index, 1);
+                else gridState.push({x: rx, y: ry});
+                
+                updateGridVisuals();
             };
 
             const updateGridVisuals = () => {
-                document.querySelectorAll('.aoe-cell').forEach(cell => {
-                    const rx = parseInt(cell.dataset.relx);
-                    const ry = parseInt(cell.dataset.rely);
-                    const isActive = gridState.some(p => p.x === rx && p.y === ry);
-                    if(isActive) cell.classList.add('active');
-                    else cell.classList.remove('active');
+                const activeSet = new Set();
+                const wholeRow = document.getElementById('chkRow').checked;
+                const wholeCol = document.getElementById('chkCol').checked;
+                const wholeFormation = document.getElementById('chkFormation').checked;
+
+                const addAoe = (x, y) => {
+                    if (x >= -2 && x <= 2 && y >= -2 && y <= 2) activeSet.add(`${x},${y}`);
+                };
+
+                gridState.forEach(p => addAoe(p.x, p.y));
+                if (wholeRow) { for(let i=-2; i<=2; i++) addAoe(i, 0); }
+                if (wholeCol) { for(let i=-2; i<=2; i++) addAoe(0, i); }
+                if (wholeFormation) {
+                    for(let x=-2; x<=2; x++) { for(let y=-2; y<=2; y++) addAoe(x, y); }
+                }
+
+                // Clear old shapes
+                document.querySelectorAll('.aoe-layer').forEach(el => el.remove());
+                
+                // Draw Unified Border Outline
+                document.querySelectorAll('.aoe-cell, .center-cell').forEach(cell => {
+                    const x = parseInt(cell.dataset.relx);
+                    const y = parseInt(cell.dataset.rely);
+                    
+                    if (activeSet.has(`${x},${y}`)) {
+                        const hasTop = activeSet.has(`${x},${y-1}`);
+                        const hasBottom = activeSet.has(`${x},${y+1}`);
+                        const hasLeft = activeSet.has(`${x-1},${y}`);
+                        const hasRight = activeSet.has(`${x+1},${y}`);
+
+                        const fillCol = "rgba(99, 102, 241, 0.35)"; 
+                        const borderCol = "rgba(99, 102, 241, 0.9)";
+                        
+                        let borderClasses = "";
+                        let borderStyle = `background-color: ${fillCol}; border-color: ${borderCol};`;
+
+                        if (!hasTop) { borderClasses += " border-t-[2px]"; borderStyle += ` border-top-style: dashed;`; }
+                        if (!hasBottom) { borderClasses += " border-b-[2px]"; borderStyle += ` border-bottom-style: dashed;`; }
+                        if (!hasLeft) { borderClasses += " border-l-[2px]"; borderStyle += ` border-left-style: dashed;`; }
+                        if (!hasRight) { borderClasses += " border-r-[2px]"; borderStyle += ` border-right-style: dashed;`; }
+
+                        if (!hasTop && !hasLeft) borderClasses += " rounded-tl-[8px]";
+                        if (!hasTop && !hasRight) borderClasses += " rounded-tr-[8px]";
+                        if (!hasBottom && !hasLeft) borderClasses += " rounded-bl-[8px]";
+                        if (!hasBottom && !hasRight) borderClasses += " rounded-br-[8px]";
+
+                        cell.innerHTML += `<div class="aoe-layer ${borderClasses}" style="${borderStyle}"></div>`;
+                    }
                 });
             };
 
@@ -323,7 +354,6 @@
                     
                     if(result.error) throw new Error(result.error);
                     
-                    // Update local DB to reflect visual indicator
                     aoeDB[selectedHero.id] = payload;
                     renderHeroes(); 
                     
@@ -341,7 +371,7 @@
                 }
             };
 
-            return { init, setFilter, filterHeroes, selectHero, clearGrid, saveData };
+            return { init, setFilter, filterHeroes, selectHero, clearGrid, saveData, updateGridVisuals };
         })();
 
         window.onload = app.init;
