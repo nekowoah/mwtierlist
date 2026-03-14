@@ -598,7 +598,6 @@
                 // ---> SKILLS DATA POPULATION <---
                 document.getElementById('content-skill').innerText = h.skill || "No skill data available.";
                 
-                // FIX: Implemented Absolute Center Positioning for hollow numbers inside icons
                 let sacrHtml = '';
                 const sacrs = [h.s1, h.s2, h.s3, h.s4, h.s5];
                 sacrs.forEach((text, index) => {
@@ -620,11 +619,12 @@
                     const awakens = [h.aw1, h.aw2, h.aw3];
                     awakens.forEach((text, index) => {
                         if(text && text.trim() !== '') {
+                            // FIX: Replaced FontAwesome trick with custom SVG hollow flame image
                             awakenHtml += `
                             <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
                                 <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-0.5">
-                                    <i class="fa-solid fa-fire text-2xl sm:text-3xl text-transparent" style="-webkit-text-stroke: 2px #ef4444;"></i>
-                                    <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[3px] sm:mt-[4px] text-[10px] sm:text-[11px] font-black text-red-500">${index + 1}</span>
+                                    <img src="https://raw.githubusercontent.com/nekowoah/mwtierlist/3376c4a83406f64142878937bab951804f4e9533/images/icons/fire-hollow.svg" class="w-6 h-6 sm:w-8 sm:h-8 object-contain">
+                                    <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[2px] sm:mt-[3px] text-[10px] sm:text-[12px] font-black text-red-500">${index + 1}</span>
                                 </div>
                                 <div class="text-xs sm:text-sm text-gray-300 leading-relaxed pt-1 whitespace-pre-wrap">${text}</div>
                             </div>`;
