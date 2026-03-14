@@ -388,7 +388,8 @@
                 try {
                     const res = await fetch(API_URL, {
                         method: "POST",
-                        body: JSON.stringify({ action: "save_formation", data: { grid: placedHeroes } }),
+                        // FIX: Send the raw array directly to prevent double-nesting on the backend
+                        body: JSON.stringify({ action: "save_formation", data: placedHeroes }),
                         redirect: "follow"
                     });
                     const data = await res.json();
@@ -435,7 +436,13 @@
                     
                     if(data.error) throw new Error(data.error);
                     
-                    placedHeroes = data.grid || [];
+                    // FIX: Safely parse both old (double-nested) and new (flat) formation formats
+                    let loadedGrid = data.grid;
+                    if (loadedGrid && !Array.isArray(loadedGrid) && Array.isArray(loadedGrid.grid)) {
+                        loadedGrid = loadedGrid.grid;
+                    }
+                    placedHeroes = Array.isArray(loadedGrid) ? loadedGrid : [];
+                    
                     document.getElementById('loadModal').classList.add('hidden');
                     selectedPoolHero = null;
                     renderPool();
