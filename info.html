@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+    <!-- FIX: Whitelisted cdn.jsdelivr.net and www.gstatic.com in the CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com https://www.gstatic.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
     <title>MWR Guides & Information</title>
     
@@ -23,7 +24,6 @@
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
 
     <style>
-        /* Force Quill content to respect dark mode styling when viewing */
         .ql-editor { color: #d1d5db; font-family: inherit; font-size: 0.95rem; line-height: 1.6; }
         .ql-editor h1 { color: #60a5fa; font-weight: 900; font-size: 1.75rem; margin-bottom: 0.5rem; }
         .ql-editor h2 { color: #93c5fd; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem; }
@@ -31,8 +31,6 @@
         .ql-editor a { color: #60a5fa; text-decoration: underline; }
         .ql-editor ul, .ql-editor ol { padding-left: 1.5rem; margin-bottom: 1rem; }
         .ql-editor li { padding-bottom: 0.25rem; }
-        
-        /* Dark Mode Quill Editor Overrides */
         .ql-toolbar.ql-snow { background-color: #1f2937; border-color: #374151; border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
         .ql-container.ql-snow { border-color: #374151; border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; }
         .ql-snow .ql-stroke { stroke: #9ca3af; }
@@ -45,7 +43,6 @@
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-4">
             <div class="flex items-center gap-4">
-                <!-- FIX: Routed explicitly through app.toggleSidebar to ensure correct binding -->
                 <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
@@ -82,10 +79,7 @@
             <p class="text-gray-500 text-sm animate-pulse">Loading Library...</p>
         </div>
 
-        <!-- Article Grid -->
-        <div id="articleGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-grow opacity-0 transition-opacity duration-500">
-            <!-- Injected by JS -->
-        </div>
+        <div id="articleGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-grow opacity-0 transition-opacity duration-500"></div>
 
     </main>
 
@@ -97,20 +91,13 @@
     <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal('viewModal')"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] overflow-hidden flex flex-col fade-in">
-            
             <div id="viewModalBanner" class="h-48 sm:h-64 w-full bg-gray-900 relative flex-shrink-0 border-b border-gray-700 hidden">
                 <img id="viewModalImage" src="" class="w-full h-full object-cover opacity-60">
                 <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
             </div>
-
             <div class="p-6 sm:p-8 flex-grow overflow-y-auto hide-scrollbar relative">
-                <button onclick="app.closeModal('viewModal')" class="absolute top-4 right-4 bg-black/50 hover:bg-black text-gray-300 hover:text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 shadow-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-
+                <button onclick="app.closeModal('viewModal')" class="absolute top-4 right-4 bg-black/50 hover:bg-black text-gray-300 hover:text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 shadow-lg"><i class="fa-solid fa-xmark"></i></button>
                 <h2 id="viewModalTitle" class="text-2xl sm:text-4xl font-black text-white mb-6 pr-10 tracking-tight leading-tight"></h2>
-                
-                <!-- The ql-editor class ensures Quill's styles apply perfectly to the raw HTML -->
                 <div id="viewModalContent" class="ql-editor p-0 bg-transparent border-0"></div>
             </div>
         </div>
@@ -120,15 +107,12 @@
     <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal('editModal')"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-5xl h-[95vh] md:h-[90vh] flex flex-col fade-in">
-            
             <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900 rounded-t-xl shrink-0">
                 <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> <span id="editModalTitle">Edit Guide</span></h2>
                 <button onclick="app.closeModal('editModal')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-
             <form onsubmit="event.preventDefault(); app.saveArticle();" class="flex flex-col flex-grow p-4 sm:p-6 overflow-hidden gap-4">
                 <input type="hidden" id="articleId">
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0">
                     <div>
                         <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Title</label>
@@ -139,16 +123,13 @@
                         <input type="url" id="articleImage" placeholder="https://..." class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white transition-colors">
                     </div>
                 </div>
-
                 <div class="flex-grow flex flex-col min-h-[300px]">
                     <label class="text-xs text-gray-400 uppercase font-bold block mb-1 flex justify-between">
                         <span>Content Editor</span>
                         <span class="text-yellow-500 font-normal italic text-[10px]"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Avoid pasting raw images; use URLs if possible.</span>
                     </label>
-                    <!-- Quill Editor Container -->
                     <div id="quillEditorContainer" class="bg-gray-900 text-white flex-grow rounded-b-lg overflow-hidden border-t-0"></div>
                 </div>
-
                 <div class="flex justify-between items-center shrink-0 pt-4 border-t border-gray-700 mt-2">
                     <button type="button" id="btnDelete" onclick="app.deleteArticle()" class="text-red-400 hover:text-red-300 text-sm font-bold transition-colors hidden"><i class="fa-solid fa-trash mr-1"></i>Delete Guide</button>
                     <div class="flex gap-3 ml-auto">
@@ -167,33 +148,12 @@
             let articles = [];
             let isAdmin = false;
             let authToken = "";
-            let quillEditor;
+            let quillEditor = null;
 
-            // Utility to trigger Sidebar from globals securely
-            const toggleSidebar = () => {
-                if (window.AppMenu && window.AppMenu.toggleSidebar) {
-                    window.AppMenu.toggleSidebar();
-                }
-            };
+            const toggleSidebar = () => { if (window.AppMenu && window.AppMenu.toggleSidebar) window.AppMenu.toggleSidebar(); };
 
             const init = async () => {
-                // Initialize Quill Editor
-                quillEditor = new Quill('#quillEditorContainer', {
-                    theme: 'snow',
-                    placeholder: 'Write your comprehensive guide here...',
-                    modules: {
-                        toolbar: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'color': [] }, { 'background': [] }],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['link', 'image', 'video'],
-                            ['clean']
-                        ]
-                    }
-                });
-
-                // Check Admin Status
+                // FIX: Check Admin status and build the sidebar menu FIRST so it works regardless of external CDN failures.
                 if (window.location.hash === '#admin') {
                     const savedToken = sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
@@ -201,8 +161,6 @@
                         authToken = savedToken;
                         document.getElementById('siteTitleText').innerText = "Editor Mode";
                         document.getElementById('discordLink').classList.add('hidden');
-                        
-                        // Inject Add Button
                         document.getElementById('navControls').insertAdjacentHTML('afterbegin', `
                             <button onclick="app.openEditModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg transition-colors font-bold shadow-lg flex items-center gap-2">
                                 <i class="fa-solid fa-plus"></i><span class="hidden sm:inline">Add Guide</span>
@@ -213,7 +171,26 @@
 
                 if (window.AppMenu && window.AppMenu.build) window.AppMenu.build(isAdmin, 'blue');
 
-                // HYBRID FETCH: Instant Firebase Load with GAS Fallback
+                // FIX: Wrapped Quill in a try-catch so the page doesn't fatally crash if the browser blocks the CDN
+                try {
+                    quillEditor = new Quill('#quillEditorContainer', {
+                        theme: 'snow',
+                        placeholder: 'Write your comprehensive guide here...',
+                        modules: {
+                            toolbar: [
+                                [{ 'header': [1, 2, 3, false] }],
+                                ['bold', 'italic', 'underline', 'strike'],
+                                [{ 'color': [] }, { 'background': [] }],
+                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                ['link', 'image', 'video'],
+                                ['clean']
+                            ]
+                        }
+                    });
+                } catch(e) {
+                    console.warn("Text Editor CDN blocked by CSP. Editor disabled.", e);
+                }
+
                 const CACHE_KEY = 'mwr_info_data';
                 const cachedData = localStorage.getItem(CACHE_KEY);
                 
@@ -231,8 +208,6 @@
 
                 try {
                     let freshData = null;
-                    
-                    // 1. Try Firebase First
                     try {
                         if (db) {
                             const snapshot = await db.collection('information').get();
@@ -242,16 +217,14 @@
                             }
                         }
                     } catch (fbErr) { 
-                        console.warn("Firebase fetch failed or empty. Falling back to GAS.", fbErr); 
+                        console.warn("Firebase fetch failed. Falling back to GAS.", fbErr); 
                     }
 
-                    // 2. Fallback to Google Sheet if Firebase is empty or unreachable
                     if (!freshData || freshData.length === 0) {
                         console.log("Fetching Info from Google Apps Script (Fallback)...");
                         const res = await fetch(API_URL + "?view=info", { redirect: "follow" });
                         const gasData = await res.json();
                         
-                        // FIX: Explicitly verify array format to prevent render crashes
                         if (Array.isArray(gasData)) {
                             freshData = gasData;
                         } else if (gasData && Array.isArray(gasData.data)) {
@@ -261,7 +234,6 @@
                         }
                     }
                     
-                    // Assign robust array and set local cache
                     articles = Array.isArray(freshData) ? freshData : [];
                     localStorage.setItem(CACHE_KEY, JSON.stringify(articles));
                     
@@ -288,7 +260,6 @@
                 const filterSearch = document.getElementById('searchInput').value.toLowerCase();
                 grid.innerHTML = '';
 
-                // Search Filter: Checks Title and Raw Content
                 const filtered = articles.filter(art => {
                     const searchMatchTitle = (art.title || "").toLowerCase().includes(filterSearch);
                     const rawContent = stripHtml(art.content || "").toLowerCase();
@@ -302,14 +273,11 @@
                 }
 
                 grid.innerHTML = filtered.map(art => {
-                    // Extract a clean 120-character snippet for the card preview
                     const snippet = stripHtml(art.content || "").substring(0, 120) + "...";
                     
                     let adminControls = '';
                     if (isAdmin) {
-                        adminControls = `
-                            <button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="absolute top-3 right-3 bg-yellow-600/90 hover:bg-yellow-500 text-white w-8 h-8 rounded shadow-lg z-20 flex items-center justify-center backdrop-blur-sm transition-colors"><i class="fa-solid fa-pen text-xs"></i></button>
-                        `;
+                        adminControls = `<button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="absolute top-3 right-3 bg-yellow-600/90 hover:bg-yellow-500 text-white w-8 h-8 rounded shadow-lg z-20 flex items-center justify-center backdrop-blur-sm transition-colors"><i class="fa-solid fa-pen text-xs"></i></button>`;
                     }
 
                     const bannerHtml = art.image 
@@ -351,7 +319,7 @@
             };
 
             const openEditModal = (id = null) => {
-                if (!isAdmin) return;
+                if (!isAdmin || !quillEditor) return;
                 
                 const modal = document.getElementById('editModal');
                 const btnDelete = document.getElementById('btnDelete');
@@ -380,7 +348,7 @@
             const closeModal = (modalId) => document.getElementById(modalId).classList.add('hidden');
 
             const saveArticle = async () => {
-                if (!isAdmin) return;
+                if (!isAdmin || !quillEditor) return;
                 const btn = document.getElementById('btnSave');
                 btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`; 
                 btn.disabled = true;
@@ -392,7 +360,6 @@
                     content: quillEditor.root.innerHTML
                 };
 
-                // Optimistic Local Save
                 const existingIndex = articles.findIndex(a => a.id == formData.id);
                 if (existingIndex >= 0) articles[existingIndex] = formData;
                 else articles.unshift(formData);
@@ -401,26 +368,18 @@
                 closeModal('editModal');
 
                 try {
-                    const res = await fetch(API_URL, { 
-                        method: "POST", 
-                        body: JSON.stringify({ action: "save_info", data: formData, token: authToken }), 
-                        redirect: "follow" 
-                    });
+                    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "save_info", data: formData, token: authToken }), redirect: "follow" });
                     const data = await res.json();
-                    
                     if(data.error) throw new Error(data.error);
-                    
                     if(formData.id.startsWith("temp_") && data.id) {
                         const idx = articles.findIndex(a => a.id === formData.id);
                         if(idx !== -1) articles[idx].id = data.id;
                     }
                     localStorage.setItem('mwr_info_data', JSON.stringify(articles));
                 } catch(e) { 
-                    alert("Failed to save! Please check your connection."); 
-                    window.location.reload(); 
+                    alert("Failed to save! Please check your connection."); window.location.reload(); 
                 } finally {
-                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Post`; 
-                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Post`; btn.disabled = false;
                 }
             };
 
@@ -430,26 +389,16 @@
                 if (!id || !confirm("Are you sure you want to permanently delete this guide?")) return;
 
                 articles = articles.filter(a => a.id != id);
-                render();
-                closeModal('editModal');
+                render(); closeModal('editModal');
 
                 try {
-                    await fetch(API_URL, { 
-                        method: "POST", 
-                        body: JSON.stringify({ action: "delete_info", id: id, token: authToken }), 
-                        redirect: "follow" 
-                    });
+                    await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "delete_info", id: id, token: authToken }), redirect: "follow" });
                     localStorage.setItem('mwr_info_data', JSON.stringify(articles));
-                } catch(e) { 
-                    alert("Failed to delete."); 
-                    window.location.reload(); 
-                }
+                } catch(e) { alert("Failed to delete."); window.location.reload(); }
             };
 
-            // FIX: Export toggleSidebar to the DOM namespace
             return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle, toggleSidebar };
         })();
-
         window.onload = app.init;
     </script>
 </body>
