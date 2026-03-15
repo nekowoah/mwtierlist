@@ -234,17 +234,15 @@
                         freshData = await res.json();
                     }
                     
-                    if (JSON.stringify(articles) !== JSON.stringify(freshData)) {
-                        articles = freshData;
-                        localStorage.setItem(CACHE_KEY, JSON.stringify(articles));
-                        document.getElementById('loading').classList.add('hidden');
-                        document.getElementById('articleGrid').classList.remove('opacity-0');
-                        render();
-                    } else if (!cachedData) {
-                        document.getElementById('loading').classList.add('hidden');
-                        document.getElementById('articleGrid').classList.remove('opacity-0');
-                    }
+                    // FIX: Unconditionally update and render to prevent empty screens
+                    articles = freshData;
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(articles));
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('articleGrid').classList.remove('opacity-0');
+                    render();
+                    
                 } catch(e) { 
+                    console.error("Error loading guides:", e);
                     if (!cachedData) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; 
                 }
             };
