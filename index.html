@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- FIX: Added www.gstatic.com to script-src and firestore.googleapis.com to connect-src for Firebase -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
     <!-- PRIMARY SEO META TAGS -->
@@ -15,7 +14,7 @@
     <meta name="robots" content="index, follow">
     <meta name="language" content="English">
 
-    <!-- OPEN GRAPH / FACEBOOK / DISCORD (For nice link previews) -->
+    <!-- OPEN GRAPH / FACEBOOK / DISCORD -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://nekowoah.github.io/mwtierlist/">
     <meta property="og:title" content="Mini Warriors Reborn | Tierlist">
@@ -31,7 +30,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- HYBRID MIGRATION: Firebase SDKs loaded BEFORE globals -->
+    <!-- Firebase SDKs loaded BEFORE globals -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -147,9 +146,11 @@
     </footer>
 
     <!-- Hero Detail Modal -->
-    <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <!-- FIX: Modified wrapper to span full width but maintain top/bottom gap -->
+    <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center py-2 px-0 sm:p-4">
         <div class="absolute inset-0 bg-black/90 transition-opacity" onclick="app.closeModal('viewModal')"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-[95vw] md:w-[90vw] max-w-lg md:max-w-4xl lg:max-w-5xl h-[90vh] md:h-[650px] overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
+        <!-- FIX: w-full and h-full strictly fit the container margins -->
+        <div class="relative bg-gray-800 border-y sm:border border-gray-600 sm:rounded-xl shadow-2xl w-full h-full max-w-none sm:max-w-lg md:max-w-4xl lg:max-w-5xl md:h-[650px] overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
             
             <div class="relative h-56 sm:h-64 md:h-full md:w-5/12 bg-gray-900 transition-colors duration-300 flex-shrink-0">
                 <img id="modalImage" src="" class="w-full h-full object-cover opacity-80">
@@ -191,10 +192,11 @@
                     </div>
 
                     <div id="modalSkillsContent" class="hidden absolute inset-0 flex-col gap-4 overflow-hidden">
-                        <div class="flex bg-gray-900 rounded-full p-1 mx-auto w-max border border-gray-700 shadow-inner flex-shrink-0">
-                            <button id="subtab-skill" onclick="app.switchSkillTab('skill')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white shadow-md transition-colors">Skill</button>
-                            <button id="subtab-sacrament" onclick="app.switchSkillTab('sacrament')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
-                            <button id="subtab-awakening" onclick="app.switchSkillTab('awakening')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Awakening</button>
+                        <!-- FIX: Converted button container to w-full to span entire width -->
+                        <div class="flex w-full bg-gray-900 rounded-lg sm:rounded-full p-1 border border-gray-700 shadow-inner flex-shrink-0">
+                            <button id="subtab-skill" onclick="app.switchSkillTab('skill')" class="flex-1 py-2 rounded-md sm:rounded-full text-xs sm:text-sm font-bold bg-gray-700 text-white shadow-md transition-colors text-center">Skill</button>
+                            <button id="subtab-sacrament" onclick="app.switchSkillTab('sacrament')" class="flex-1 py-2 rounded-md sm:rounded-full text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors text-center">Sacrament</button>
+                            <button id="subtab-awakening" onclick="app.switchSkillTab('awakening')" class="flex-1 py-2 rounded-md sm:rounded-full text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors text-center">Awakening</button>
                         </div>
                         
                         <div class="relative flex-grow overflow-hidden bg-gray-900/50 rounded-lg border border-gray-700">
@@ -215,9 +217,9 @@
     </div>
 
     <!-- Edit Hero Modal (Admin Only) -->
-    <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center py-2 px-0 sm:p-4">
         <div class="absolute inset-0 bg-black/90 transition-opacity" onclick="app.closeModal('editModal')"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-5xl h-[95vh] md:h-[90vh] flex flex-col fade-in">
+        <div class="relative bg-gray-800 border-y sm:border border-gray-600 sm:rounded-xl shadow-2xl w-full h-full max-w-none sm:max-w-5xl md:h-[90vh] flex flex-col fade-in">
             <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900 rounded-t-xl shrink-0">
                 <h2 class="text-xl font-bold text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> <span id="editModalTitle">Edit Hero</span></h2>
                 <button onclick="app.closeModal('editModal')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -287,7 +289,6 @@
                     <textarea id="editNotes" rows="3" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></textarea>
                 </div>
 
-                <!-- Skills Section Toggle -->
                 <div class="border-t border-gray-700 pt-4 mt-2">
                     <button type="button" onclick="document.getElementById('skillsEditContainer').classList.toggle('hidden')" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded font-bold w-full flex justify-between items-center transition-colors">
                         <span><i class="fa-solid fa-cogs mr-2"></i> Expand/Collapse Skills Data</span>
@@ -371,7 +372,6 @@
             
             let isAdmin = false;
 
-            // FIX: Removed local Firebase config. Now relying entirely on window.MWR_GLOBALS.db established in globals.js
             const db = window.MWR_GLOBALS ? window.MWR_GLOBALS.db : null;
             
             const toggleSidebar = () => {
@@ -402,7 +402,6 @@
                         document.getElementById('adminIconBadge').className = "w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] transition-all";
                         document.getElementById('discordLink').classList.add('hidden');
                         
-                        // Inject Add Hero Button
                         document.getElementById('navControls').insertAdjacentHTML('afterbegin', `
                             <button onclick="app.openEditModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg transition-colors font-bold shadow-lg flex items-center gap-2 mr-2">
                                 <i class="fa-solid fa-plus"></i><span class="hidden sm:inline">Add Hero</span>
@@ -424,7 +423,6 @@
                     if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) menu.classList.add('hidden');
                 });
 
-                // STALE-WHILE-REVALIDATE CACHE (Instant initial load)
                 const CACHE_KEY = 'mwr_tierlist_data_v6';
                 const cachedHeroes = localStorage.getItem(CACHE_KEY);
                 if (cachedHeroes) {
@@ -436,11 +434,9 @@
                     } catch(e) { console.warn("Cache parse error", e); }
                 }
 
-                // HYBRID FETCH: Silently pull fresh data from Firebase (Sub-100ms)
                 try {
                     let freshData = [];
                     
-                    // 1. Try Firebase First
                     try {
                         if (db) {
                             const snapshot = await db.collection('tierlist').get();
@@ -452,14 +448,12 @@
                         console.warn("Firebase fetch failed or not configured. Falling back to GAS.", fbErr);
                     }
 
-                    // 2. Graceful Fallback to GAS API if Firebase fails or is empty
                     if (freshData.length === 0) {
                         console.log("Fetching from Google Apps Script (Fallback)...");
                         const res = await fetch(API_URL);
                         freshData = await res.json();
                     }
                     
-                    // 3. Compare and Render
                     if (JSON.stringify(heroes) !== JSON.stringify(freshData)) {
                         heroes = freshData;
                         localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
@@ -468,7 +462,6 @@
                         render();
                     }
                     
-                    // Fetch logs from GAS 
                     fetch(API_URL + "?view=logs").then(r => r.json()).then(data => { if (Array.isArray(data)) cachedLogs = data; });
                 } catch(e) { 
                     if (!cachedHeroes) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; 
@@ -589,13 +582,13 @@
                                 if (h.heroType === 'Limited') topBorderClass = 'border-t-limited';
                                 if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') topBorderClass = 'border-t-basic';
 
-                                heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded overflow-hidden ${topBorderClass} group transition-all`;
-                                
-                                // FIX: Restored ability to trigger the Edit Modal
+                                // FIX: Removed overflow-hidden so that elements inside can stick out of the boundary securely
+                                heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded ${topBorderClass} group transition-all`;
                                 heroEl.onclick = () => { isAdmin ? app.openEditModal(h) : app.openModal(h); };
                                 
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
-                                const classIconHtml = `<div class="absolute top-0.5 left-0.5 z-20 w-5 h-5 bg-[#111827]/80 rounded-full p-0.5 border border-[#4b5563]/50 shadow-sm"><img src="${classIconUrl}" class="w-full h-full object-contain opacity-80 group-hover:opacity-100"></div>`;
+                                // FIX: Increased icon size and moved it to -top-1.5 and -left-1.5 so it pops out of the corner
+                                const classIconHtml = `<div class="absolute -top-1.5 -left-1.5 z-20 w-6 h-6 sm:w-7 sm:h-7 bg-gray-800 rounded-full p-1 border border-gray-600 shadow-md flex justify-center items-center"><img src="${classIconUrl}" class="w-full h-full object-contain"></div>`;
 
                                 let dotHtml = '';
                                 if (h.lastUpdate && Math.ceil(Math.abs(new Date() - new Date(h.lastUpdate)) / (36e5)) < 72) {
@@ -614,8 +607,8 @@
 
                                 heroEl.innerHTML = `
                                     ${classIconHtml}${dotHtml}${subRankHtml}
-                                    <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
-                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent pt-3 pb-0.5 px-1 flex flex-col justify-end">
+                                    <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover rounded opacity-80 group-hover:opacity-100 transition-opacity">
+                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent pt-3 pb-0.5 px-1 flex flex-col justify-end rounded-b">
                                         <div class="text-[9px] sm:text-[10px] text-center text-white leading-none font-bold break-words drop-shadow-md pb-0.5 flex justify-center items-center gap-0.5">${h.name}${awakenHtml}</div>
                                     </div>
                                     <div class="tooltip"><div class="font-bold flex justify-center items-center">${h.name}${awakenHtml}</div><div class="text-xs text-gray-300">${tooltipMsg}</div></div>
@@ -813,7 +806,6 @@
                 modal.classList.remove('hidden');
             };
 
-            // FIX: Added id parameter to gracefully close either the View or Edit modal
             const closeModal = (id = 'viewModal') => document.getElementById(id).classList.add('hidden');
 
             const saveHero = async () => {
@@ -930,12 +922,13 @@
                     const content = document.getElementById(`content-${t}`);
                     if(!btn || !content) return;
 
+                    // FIX: Buttons now fully span the width and strictly center text
                     if (t === tab) {
-                        btn.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white shadow-md transition-colors";
+                        btn.className = "flex-1 py-2 sm:py-1.5 rounded-md sm:rounded-full text-xs sm:text-sm font-bold bg-gray-700 text-white shadow-md transition-colors text-center";
                         content.classList.remove('hidden');
                         content.classList.add(t === 'skill' ? 'block' : 'flex');
                     } else {
-                        btn.className = "px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors";
+                        btn.className = "flex-1 py-2 sm:py-1.5 rounded-md sm:rounded-full text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors text-center";
                         content.classList.add('hidden');
                         content.classList.remove('block', 'flex');
                     }
@@ -999,7 +992,6 @@
                 }
             };
 
-            // FIX: Exported openEditModal, saveHero, deleteHero to fix the Admin Editor hooks
             return { init, setMode, render, openModal, closeModal, openEditModal, saveHero, deleteHero, switchModalTab, switchSkillTab, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, exitAdmin };
         })();
 
