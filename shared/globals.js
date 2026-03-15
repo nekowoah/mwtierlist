@@ -48,7 +48,7 @@ window.AppMenu = (() => {
     const PUBLIC_PAGES = [
         { name: "Tierlist", url: "index.html", icon: "fa-list" },
         { name: "Information", url: "info.html", icon: "fa-circle-info" },
-        { name: "Formations", url: "formations.html", icon: "fa-chess-board" }
+        { name: "Formations", url: "formation.html", icon: "fa-chess-board" }
     ];
 
     const ADMIN_PAGES = [
