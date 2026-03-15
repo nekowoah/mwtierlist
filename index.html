@@ -484,8 +484,7 @@
                                 if (sub === '-') subColor = 'text-red-400';
                                 const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-[#111827]/80 border border-[#4b5563]/50 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
                                 
-                                // FIX: Updated to hollow SVG flame on tierlist cards
-                                const awakenHtml = (h.hasAwaken === 'Yes') ? '<img src="https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/fire-hollow.svg" class="w-2.5 h-2.5 ml-1 drop-shadow-md">' : '';
+                                const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
                                 const tooltipMsg = isAdmin ? "Go to Admin to Edit" : "Click to View Info";
 
                                 heroEl.innerHTML = `
@@ -511,8 +510,7 @@
             const openModal = (h) => {
                 document.getElementById('modalImage').src = h.image || 'https://placehold.co/400/5A5F66/FFFFFF?text=No+Image';
                 
-                // FIX: Updated to hollow SVG flame next to Hero Name in the modal
-                const awakenFlame = (h.hasAwaken === 'Yes') ? '<img src="https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/fire-hollow.svg" class="w-4 h-4 ml-2" title="Awakened">' : '';
+                const awakenFlame = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-2" title="Awakened"></i>' : '';
                 document.getElementById('modalName').innerHTML = h.name + awakenFlame;
                 
                 document.getElementById('modalClass').innerText = h.heroClass;
@@ -525,7 +523,7 @@
 
                 const awakenContainer = document.getElementById('modalAwakenContainer');
                 if (h.hasAwaken === 'Yes') {
-                    awakenContainer.innerHTML = '<span class="text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-500/30 flex items-center gap-1"><img src="https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/fire-hollow.svg" class="w-2.5 h-2.5">Awakened</span>';
+                    awakenContainer.innerHTML = '<span class="text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-500/30 flex items-center gap-1"><i class="fa-solid fa-fire-flame-curved text-[10px]"></i>Awakened</span>';
                 } else {
                     awakenContainer.innerHTML = '';
                 }
