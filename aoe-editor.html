@@ -27,6 +27,7 @@
         .aoe-cell:hover:not(.center-cell) { background-color: rgba(255, 255, 255, 0.05); cursor: pointer; }
         .center-cell { background-color: rgba(31, 41, 55, 1); cursor: default; }
 
+        /* FIX: Removed mix-blend-mode to guarantee color visibility */
         .aoe-layer {
             position: absolute;
             top: -2px; bottom: -2px; left: -2px; right: -2px;
@@ -207,14 +208,12 @@
                 const container = document.getElementById('aoeGridContainer');
                 let html = '<div class="flex flex-col gap-1 items-center w-max mx-auto">';
                 
-                // Top Row: Col Checkboxes
                 html += '<div class="flex gap-1 items-end pl-[2rem] sm:pl-[2.5rem]">';
                 for(let c = -2; c <= 2; c++) {
                     html += `<div class="w-10 sm:w-12 h-6 flex justify-center items-end pb-1"><input type="checkbox" id="col_${c}" onchange="app.updateGridVisuals()" class="w-4 h-4 accent-indigo-500 cursor-pointer" title="Affects Entire Column"></div>`;
                 }
                 html += '</div>';
 
-                // Grid Rows + Row Checkboxes
                 for(let y = -2; y <= 2; y++) {
                     let rowHtml = `<div class="flex gap-1 items-center">`;
                     rowHtml += `<div class="w-6 sm:w-8 h-10 sm:h-12 flex justify-end items-center pr-1 sm:pr-2"><input type="checkbox" id="row_${y}" onchange="app.updateGridVisuals()" class="w-4 h-4 accent-indigo-500 cursor-pointer" title="Affects Entire Row"></div>`;
@@ -245,7 +244,6 @@
                     </div>
                 `;
 
-                // Reset Checkboxes
                 for(let i=-2; i<=2; i++) {
                     document.getElementById(`row_${i}`).checked = false;
                     document.getElementById(`col_${i}`).checked = false;
@@ -287,10 +285,8 @@
                     if (x >= -2 && x <= 2 && y >= -2 && y <= 2) activeSet.add(`${x},${y}`);
                 };
 
-                // Add grid points
                 gridState.forEach(p => addAoe(p.x, p.y));
                 
-                // Add infinite rows/cols visually to the 5x5 preview
                 for(let i=-2; i<=2; i++) {
                     if (document.getElementById(`row_${i}`).checked) {
                         for(let x=-2; x<=2; x++) addAoe(x, i);
@@ -304,10 +300,8 @@
                     for(let x=-2; x<=2; x++) { for(let y=-2; y<=2; y++) addAoe(x, y); }
                 }
 
-                // Clear old shapes
                 document.querySelectorAll('.aoe-layer').forEach(el => el.remove());
                 
-                // Draw Unified Border Outline
                 document.querySelectorAll('.aoe-cell, .center-cell').forEach(cell => {
                     const x = parseInt(cell.dataset.relx);
                     const y = parseInt(cell.dataset.rely);
