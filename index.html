@@ -144,7 +144,6 @@
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal()"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-[95vw] md:w-[90vw] max-w-lg md:max-w-4xl lg:max-w-5xl h-[90vh] md:h-[650px] overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
             
-            <!-- Image Panel -->
             <div class="relative h-56 sm:h-64 md:h-full md:w-5/12 bg-gray-900 transition-colors duration-300 flex-shrink-0">
                 <img id="modalImage" src="" class="w-full h-full object-cover opacity-80">
                 <div class="absolute bottom-4 left-4 right-4">
@@ -157,26 +156,20 @@
                 </div>
             </div>
             
-            <!-- Content Panel -->
             <div class="p-4 sm:p-6 md:w-7/12 flex flex-col flex-grow overflow-hidden">
-                <!-- Ranks -->
                 <div class="grid grid-cols-3 gap-2 text-center flex-shrink-0">
                     <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Early</span><span id="modalEarly" class="text-xl font-black text-white"></span></div>
                     <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600 relative overflow-hidden"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Late</span><span id="modalLate" class="text-xl font-black text-white"></span></div>
                     <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Sacrament</span><span id="modalSacr" class="text-xl font-black text-white"></span></div>
                 </div>
 
-                <!-- TABS (Overview / Skills / History) -->
                 <div class="flex border-b border-gray-700 mt-3 flex-shrink-0">
                     <button id="tabOverviewBtn" onclick="app.switchModalTab('overview')" class="px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors">Overview</button>
                     <button id="tabSkillsBtn" onclick="app.switchModalTab('skills')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">Skills & Info</button>
                     <button id="tabHistoryBtn" onclick="app.switchModalTab('history')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">History</button>
                 </div>
 
-                <!-- SCROLLABLE CONTENT WRAPPER -->
                 <div class="relative flex-grow mt-4 overflow-hidden">
-                    
-                    <!-- OVERVIEW CONTENT -->
                     <div id="modalOverviewContent" class="absolute inset-0 flex-col gap-5 overflow-y-auto pr-2 hide-scrollbar">
                         <div>
                             <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3>
@@ -190,28 +183,21 @@
                         </div>
                     </div>
 
-                    <!-- SKILLS & INFO CONTENT -->
                     <div id="modalSkillsContent" class="hidden absolute inset-0 flex-col gap-4 overflow-hidden">
-                        <!-- Sub-tab Bar -->
                         <div class="flex bg-gray-900 rounded-full p-1 mx-auto w-max border border-gray-700 shadow-inner flex-shrink-0">
                             <button id="subtab-skill" onclick="app.switchSkillTab('skill')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white shadow-md transition-colors">Skill</button>
                             <button id="subtab-sacrament" onclick="app.switchSkillTab('sacrament')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Sacrament</button>
                             <button id="subtab-awakening" onclick="app.switchSkillTab('awakening')" class="px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors">Awakening</button>
                         </div>
                         
-                        <!-- Scrollable Sub-Containers -->
-                        <div class="relative flex-grow overflow-hidden">
-                            <div id="content-skill" class="absolute inset-0 overflow-y-auto pr-2 hide-scrollbar bg-gray-900/50 rounded-lg p-4 border border-gray-700 text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></div>
-                            <div id="content-sacrament" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar"></div>
-                            <div id="content-awakening" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar"></div>
+                        <div class="relative flex-grow overflow-hidden bg-gray-900/50 rounded-lg border border-gray-700">
+                            <div id="content-skill" class="absolute inset-0 overflow-y-auto pr-2 hide-scrollbar p-4"></div>
+                            <div id="content-sacrament" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar p-4"></div>
+                            <div id="content-awakening" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar p-4"></div>
                         </div>
                     </div>
 
-                    <!-- HISTORY CONTENT -->
-                    <div id="modalHistoryContent" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar">
-                        <!-- Injected via JS -->
-                    </div>
-                    
+                    <div id="modalHistoryContent" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar"></div>
                 </div>
             </div>
             
@@ -401,8 +387,8 @@
                     if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) menu.classList.add('hidden');
                 });
 
-                // STALE-WHILE-REVALIDATE CACHING (Instant Load)
-                const cachedHeroes = localStorage.getItem('mwr_tierlist_data');
+                // CACHE V5 (Busts old LocalStorage Cache that was missing the skill names)
+                const cachedHeroes = localStorage.getItem('mwr_tierlist_data_v5');
                 if (cachedHeroes) {
                     try {
                         heroes = JSON.parse(cachedHeroes);
@@ -412,15 +398,13 @@
                     } catch(e) { console.warn("Cache parse error", e); }
                 }
 
-                // Fetching new data from backend silently
                 try {
                     const res = await fetch(API_URL);
                     const freshData = await res.json();
                     
-                    // Only re-render if the database actually changed
                     if (JSON.stringify(heroes) !== JSON.stringify(freshData)) {
                         heroes = freshData;
-                        localStorage.setItem('mwr_tierlist_data', JSON.stringify(heroes));
+                        localStorage.setItem('mwr_tierlist_data_v5', JSON.stringify(heroes));
                         document.getElementById('loading').classList.add('hidden'); 
                         document.getElementById('tierListContainer').classList.remove('opacity-0'); 
                         render();
@@ -612,13 +596,21 @@
                 document.getElementById('modalRole').innerText = h.role || "No specific role defined.";
                 document.getElementById('modalNotes').innerText = h.notes || "No analysis available.";
 
-                // ---> SKILLS DATA POPULATION <---
-                let skillTitleHtml = h.skillName ? `<h4 class="text-sm font-bold text-blue-400 mb-2 border-b border-gray-700/50 pb-1">${h.skillName}</h4>` : '';
-                document.getElementById('content-skill').innerHTML = skillTitleHtml + (h.skill || "No skill data available.");
+                // ---> SKILLS DATA POPULATION (SEPARATED TITLES) <---
                 
-                // FIX: Implemented Absolute Center Positioning for hollow numbers inside icons
-                let sacrTitleHtml = h.sacramentName ? `<h4 class="text-sm font-bold text-yellow-400 mb-3 border-b border-gray-700/50 pb-1">${h.sacramentName}</h4>` : '';
-                let sacrHtml = sacrTitleHtml;
+                // SKILL TAB
+                let skillHtml = '';
+                if (h.skillName) {
+                    skillHtml += `<div class="mb-3"><h4 class="text-base font-black text-blue-400 mb-1">${h.skillName}</h4><div class="h-px bg-gray-700/50 w-full"></div></div>`;
+                }
+                skillHtml += `<div class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">${h.skill || "No skill data available."}</div>`;
+                document.getElementById('content-skill').innerHTML = skillHtml;
+                
+                // SACRAMENT TAB
+                let sacrHtml = '';
+                if (h.sacramentName) {
+                    sacrHtml += `<div class="flex-shrink-0 mb-2"><h4 class="text-base font-black text-yellow-400 mb-1">${h.sacramentName}</h4><div class="h-px bg-gray-700/50 w-full"></div></div>`;
+                }
                 let hasSacr = false;
                 const sacrs = [h.s1, h.s2, h.s3, h.s4, h.s5];
                 sacrs.forEach((text, index) => {
@@ -636,8 +628,11 @@
                 });
                 document.getElementById('content-sacrament').innerHTML = hasSacr ? sacrHtml : '<div class="text-center text-gray-500 py-6 italic">No sacrament data available.</div>';
 
-                let awakenTitleHtml = h.awakenName ? `<h4 class="text-sm font-bold text-red-400 mb-3 border-b border-gray-700/50 pb-1">${h.awakenName}</h4>` : '';
-                let awakenHtml = awakenTitleHtml;
+                // AWAKENING TAB
+                let awakenHtml = '';
+                if (h.awakenName) {
+                    awakenHtml += `<div class="flex-shrink-0 mb-2"><h4 class="text-base font-black text-red-400 mb-1">${h.awakenName}</h4><div class="h-px bg-gray-700/50 w-full"></div></div>`;
+                }
                 let hasAwaken = false;
                 if (h.hasAwaken === 'Yes') {
                     const awakens = [h.aw1, h.aw2, h.aw3];
@@ -647,8 +642,8 @@
                             awakenHtml += `
                             <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
                                 <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-0.5">
-                                    <img src="https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/fire-hollow.svg" class="w-6 h-6 sm:w-8 sm:h-8 object-contain">
-                                    <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[2px] sm:mt-[3px] text-[10px] sm:text-[12px] font-black text-red-500">${index + 1}</span>
+                                    <i class="fa-solid fa-fire text-2xl sm:text-3xl text-transparent" style="-webkit-text-stroke: 2px #ef4444;"></i>
+                                    <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[3px] sm:mt-[4px] text-[10px] sm:text-[11px] font-black text-red-500">${index + 1}</span>
                                 </div>
                                 <div class="text-xs sm:text-sm text-gray-300 leading-relaxed pt-1 whitespace-pre-wrap">${text}</div>
                             </div>`;
@@ -714,7 +709,6 @@
                     if (t === tab) {
                         btn.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-gray-700 text-white shadow-md transition-colors";
                         content.classList.remove('hidden');
-                        // Use block for skill text, flex for the others
                         content.classList.add(t === 'skill' ? 'block' : 'flex');
                     } else {
                         btn.className = "px-4 py-1.5 rounded-full text-xs font-bold text-gray-400 hover:text-white transition-colors";
