@@ -42,7 +42,7 @@
             top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
             pointer-events: none; 
-            z-index: 4; 
+            z-index: 15; 
         }
 
         .hide-scroll::-webkit-scrollbar { display: none; }
@@ -67,7 +67,8 @@
         </div>
     </nav>
 
-    <main class="flex-grow flex flex-col-reverse md:flex-row max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4 h-[calc(100vh-64px)] overflow-hidden">
+    <!-- FIX: Removed overflow-hidden from <main> to completely prevent clipping on dynamic overlapping elements -->
+    <main class="flex-grow flex flex-col-reverse md:flex-row max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4 h-[calc(100vh-64px)] overflow-visible">
         
         <div class="w-full md:w-[45%] lg:w-[40%] flex flex-col bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg h-[40vh] md:h-full transition-colors duration-300">
             <div class="p-2 sm:p-3 border-b border-gray-700 bg-gray-900/50 flex flex-col gap-2 flex-shrink-0">
@@ -75,7 +76,7 @@
                 <div class="flex flex-wrap gap-1 justify-center" id="classFilters"></div>
             </div>
             
-            <div id="heroPool" class="flex-grow overflow-y-auto hide-scroll p-3 grid grid-cols-5 sm:grid-cols-6 md:grid-cols-5 lg:grid-cols-6 gap-3 content-start">
+            <div id="heroPool" class="flex-grow overflow-y-auto hide-scroll p-3 grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-6 gap-3 content-start">
                 <div class="col-span-full text-center text-gray-500 py-10" id="poolLoading"><i class="fas fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i><br>Loading Heroes...</div>
             </div>
         </div>
@@ -83,13 +84,14 @@
         <div class="w-full md:w-[55%] lg:w-[60%] flex flex-col bg-gray-800 border border-gray-700 rounded-xl p-3 shadow-lg h-[60vh] md:h-full transition-colors duration-300">
             
             <div class="flex justify-between items-end mb-2 flex-shrink-0">
-                <p class="text-xs text-gray-400"><span class="hidden sm:inline">Drag and drop or</span> Tap Hero → Tap Grid | Double tap to remove</p>
+                <p class="text-xs text-gray-400"><span class="hidden sm:inline">Drag and Drop or</span> Tap Hero → Tap Grid | Double Click to remove</p>
                 <div class="text-xs font-bold text-gray-400 bg-gray-900 px-2 py-1 rounded border border-gray-700"><span id="heroCount" class="text-blue-400">0</span> / 30 Placed</div>
             </div>
 
             <div class="flex flex-col lg:flex-row flex-grow min-h-0 gap-3 w-full relative">
                 
-                <div class="flex-1 min-w-0 min-h-0 flex items-center justify-center py-1 overflow-visible z-10">
+                <!-- FIX: Increased z-index to 20 to ensure board (and auras) render ON TOP of the legend container if they bleed over the edge -->
+                <div class="flex-1 min-w-0 min-h-0 flex items-center justify-center py-1 overflow-visible z-20">
                     <div id="boardContainer" class="bg-gray-900 border border-gray-700 p-1.5 rounded-lg grid grid-cols-5 grid-rows-7 gap-[4px] relative h-full shadow-inner" style="aspect-ratio: 5/7; max-width: 100%; max-height: 100%;">
                         <div id="wholeFormationHighlight" class="absolute inset-0 bg-green-500/10 hidden pointer-events-none z-0 rounded-lg"></div>
                         <!-- JS Injected 35 Cells & Aura Layers -->
@@ -297,9 +299,11 @@
                         }
                     }
 
+                    // FIX: Precisely calculated mathematically perfect Aura based on Grid Size (Radius = 1 grid span = 100% width + Gap)
                     if(conf.radius && Number(conf.radius) > 0) {
-                        const sizeStr = `calc(${(Number(conf.radius) / 10)} * 200%)`;
-                        // Inject aura natively into CSS grid using absolute coordinates to prevent container clipping
+                        const radiusCells = Number(conf.radius) / 10;
+                        // Mathematical diameter: 2 * radius (each radius accounts for cell width + gap)
+                        const sizeStr = `calc(${radiusCells * 200}% + ${radiusCells * 8}px)`;
                         const auraHtml = `<div class="aura-circle" style="width: ${sizeStr}; height: ${sizeStr}; border-color: ${borderCol}; grid-column: ${ph.x + 1}; grid-row: ${ph.y + 1}; z-index: 15;"></div>`;
                         document.getElementById('boardContainer').insertAdjacentHTML('beforeend', auraHtml);
                     }
@@ -362,6 +366,7 @@
                         const isSelected = selectedGridCell && selectedGridCell.x === ph.x && selectedGridCell.y === ph.y;
                         const selectedClass = isSelected ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-800 scale-110' : '';
 
+                        // FIX: Resized hero in grid back to w-[85%] to prevent clipping edges
                         cell.innerHTML += `
                             <div draggable="true" ondragstart="app.dragStartGrid(event, ${ph.x}, ${ph.y})" ondragend="app.dragEnd()"
                                  ondblclick="app.handleCellDoubleClick(${ph.x}, ${ph.y})"
