@@ -285,7 +285,10 @@
                     if (x >= -2 && x <= 2 && y >= -2 && y <= 2) activeSet.add(`${x},${y}`);
                 };
 
-                gridState.forEach(p => addAoe(p.x, p.y));
+                // FIX: Add null safety to editor preview
+                gridState.forEach(p => {
+                    if (p) addAoe(p.x, p.y);
+                });
                 
                 for(let i=-2; i<=2; i++) {
                     if (document.getElementById(`row_${i}`).checked) {
