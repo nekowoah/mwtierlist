@@ -387,8 +387,8 @@
                     if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) menu.classList.add('hidden');
                 });
 
-                // CACHE V5 (Busts old LocalStorage Cache that was missing the skill names)
-                const cachedHeroes = localStorage.getItem('mwr_tierlist_data_v5');
+                // CACHE v6 (Busts old LocalStorage Cache that was missing the skill names)
+                const cachedHeroes = localStorage.getItem('mwr_tierlist_data_v6');
                 if (cachedHeroes) {
                     try {
                         heroes = JSON.parse(cachedHeroes);
@@ -404,7 +404,7 @@
                     
                     if (JSON.stringify(heroes) !== JSON.stringify(freshData)) {
                         heroes = freshData;
-                        localStorage.setItem('mwr_tierlist_data_v5', JSON.stringify(heroes));
+                        localStorage.setItem('mwr_tierlist_data_v6', JSON.stringify(heroes));
                         document.getElementById('loading').classList.add('hidden'); 
                         document.getElementById('tierListContainer').classList.remove('opacity-0'); 
                         render();
