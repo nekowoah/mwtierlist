@@ -187,8 +187,11 @@
                 const header = document.getElementById('headerControls');
                 if (currentView === 'dashboard') {
                     header.innerHTML = `
-                        <button onclick="window.admin.logout()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1.5 rounded-lg transition-colors text-sm font-bold flex items-center shadow-lg">
-                            <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+                        <button onclick="window.admin.clearCache()" class="bg-yellow-600 hover:bg-yellow-500 text-white px-3 sm:px-4 py-1.5 rounded-lg transition-colors text-xs sm:text-sm font-bold flex items-center shadow-lg" title="Force public site to sync with Google Sheets">
+                            <i class="fa-solid fa-arrows-rotate sm:mr-2"></i><span class="hidden sm:inline">Refresh Cache</span>
+                        </button>
+                        <button onclick="window.admin.logout()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 sm:px-4 py-1.5 rounded-lg transition-colors text-xs sm:text-sm font-bold flex items-center shadow-lg">
+                            <i class="fa-solid fa-right-from-bracket sm:mr-2"></i><span class="hidden sm:inline">Logout</span>
                         </button>
                     `;
                 } else if (currentView === 'gallery') {
@@ -201,7 +204,22 @@
                 }
             };
 
+            const buildHeaderControls = () => {
+                // ... (This function is updated in the block above)
+            };
+
             const logout = () => { sessionStorage.removeItem('mw_admin_token'); window.location.reload(); };
+
+            // NEW: Clear Cache Function
+            const clearCache = async () => {
+                if(!confirm("Clear the live site cache? This will force the public site to instantly pull the latest data directly from your Google Sheets.")) return;
+                try {
+                    await sendRequest({ action: "clear_cache" });
+                    alert("Cache cleared successfully! The public site will now reflect the latest Google Sheet data.");
+                } catch(e) {
+                    alert("Failed to clear cache: " + e.message);
+                }
+            };
 
             const login = async () => {
                 const user = document.getElementById('usernameInput').value.trim();
@@ -441,7 +459,8 @@
 
             const copyUrl = (url) => { navigator.clipboard.writeText(url).then(() => { alert("URL Copied to clipboard!"); }); };
 
-            window.admin = { init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, convertExistingToWebP, copyUrl, toggleImageSelection, selectAllNonWebp, convertSelected };
+            // FIX: Ensure clearCache is exported to window.admin
+            window.admin = { init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, convertExistingToWebP, copyUrl, toggleImageSelection, selectAllNonWebp, convertSelected, clearCache };
         })();
 
         window.onload = window.admin.init;
