@@ -204,10 +204,6 @@
                 }
             };
 
-            const buildHeaderControls = () => {
-                // ... (This function is updated in the block above)
-            };
-
             const logout = () => { sessionStorage.removeItem('mw_admin_token'); window.location.reload(); };
 
             // NEW: Clear Cache Function
@@ -459,7 +455,6 @@
 
             const copyUrl = (url) => { navigator.clipboard.writeText(url).then(() => { alert("URL Copied to clipboard!"); }); };
 
-            // FIX: Ensure clearCache is exported to window.admin
             window.admin = { init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, convertExistingToWebP, copyUrl, toggleImageSelection, selectAllNonWebp, convertSelected, clearCache };
         })();
 
