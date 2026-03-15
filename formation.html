@@ -75,7 +75,7 @@
                 <div class="flex flex-wrap gap-1 justify-center" id="classFilters"></div>
             </div>
             
-            <div id="heroPool" class="flex-grow overflow-y-auto hide-scroll p-3 grid grid-cols-6 sm:grid-cols-6 lg:grid-cols-6 gap-2 content-start">
+            <div id="heroPool" class="flex-grow overflow-y-auto hide-scroll p-3 grid grid-cols-5 sm:grid-cols-6 md:grid-cols-5 lg:grid-cols-6 gap-3 content-start">
                 <div class="col-span-full text-center text-gray-500 py-10" id="poolLoading"><i class="fas fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i><br>Loading Heroes...</div>
             </div>
         </div>
@@ -92,14 +92,14 @@
                 <div class="flex-1 min-w-0 min-h-0 flex items-center justify-center py-1 overflow-visible z-10">
                     <div id="boardContainer" class="bg-gray-900 border border-gray-700 p-1.5 rounded-lg grid grid-cols-5 grid-rows-7 gap-[4px] relative h-full shadow-inner" style="aspect-ratio: 5/7; max-width: 100%; max-height: 100%;">
                         <div id="wholeFormationHighlight" class="absolute inset-0 bg-green-500/10 hidden pointer-events-none z-0 rounded-lg"></div>
-                        <!-- JS Injected 35 Cells -->
+                        <!-- JS Injected 35 Cells & Aura Layers -->
                     </div>
                 </div>
 
                 <div class="flex-shrink-0 lg:w-48 bg-gray-900 border border-gray-700 rounded-lg p-2 min-h-[3rem] max-h-[5rem] lg:max-h-none lg:h-full overflow-y-auto hide-scroll flex flex-col z-10">
                     <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 lg:mb-2 lg:border-b lg:border-gray-700 lg:pb-1">Heroes on Board</h4>
                     <div id="legendContainer" class="flex flex-wrap lg:flex-col gap-x-3 gap-y-1 lg:gap-y-2">
-                        <span class="text-xs text-gray-600 italic">No heroes placed on board.</span>
+                        <span class="text-xs text-gray-600 italic">No active auras on board.</span>
                     </div>
                 </div>
             </div>
@@ -206,13 +206,13 @@
                     if(h.heroType === 'Limited') typeClass = 'type-limited';
                     if(h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeClass = 'type-basic';
 
-                    const isPlaced = placedHeroes.some(p => p.id === h.id);
+                    const isPlaced = placedHeroes.some(p => p && p.id === h.id);
                     const isSelected = selectedPoolHero === h.id ? 'selected' : '';
                     const stateClass = isPlaced ? 'opacity-30 grayscale pointer-events-none' : '';
                     
                     return `
                         <div onclick="app.selectFromPool('${h.id}')" draggable="${!isPlaced}" ondragstart="app.dragStartPool(event, '${h.id}')" ondragend="app.dragEnd()"
-                             class="hero-circle relative w-[42px] h-[42px] sm:w-12 sm:h-12 bg-[#4b5563] rounded-full border-2 ${typeClass} cursor-pointer mx-auto flex-shrink-0 ${isSelected} ${stateClass}" title="${h.name}">
+                             class="hero-circle relative w-full aspect-square bg-[#4b5563] rounded-full border-2 ${typeClass} cursor-pointer mx-auto flex-shrink-0 ${isSelected} ${stateClass}" title="${h.name}">
                             <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover rounded-full opacity-90 pointer-events-none">
                             ${h.hasAwaken === 'Yes' ? '<div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-gray-900 rounded-full flex items-center justify-center border border-gray-600 z-10"><i class="fa-solid fa-fire-flame-curved text-[8px] text-red-500"></i></div>' : ''}
                         </div>
@@ -231,7 +231,6 @@
                         cell.className = "grid-cell bg-gray-800 border border-gray-700 rounded relative flex items-center justify-center overflow-visible cursor-pointer z-10";
                         cell.dataset.x = x; cell.dataset.y = y;
                         cell.onclick = () => handleCellClick(x, y);
-                        cell.ondblclick = () => handleCellDoubleClick(x, y);
                         cell.ondragover = (e) => dragOver(e, cell);
                         cell.ondragleave = (e) => dragLeave(e, cell);
                         cell.ondrop = (e) => drop(e, x, y, cell);
@@ -244,11 +243,14 @@
                 document.querySelectorAll('.grid-cell').forEach(cell => {
                     cell.innerHTML = ''; cell.classList.remove('drag-over');
                 });
+                document.querySelectorAll('.aura-circle').forEach(el => el.remove());
 
                 const aoeMap = {}; 
                 let isWholeFormationActive = false;
+                let activeAoeHeroes = [];
                 
                 placedHeroes.forEach(ph => {
+                    if (!ph) return;
                     const conf = aoeDB[ph.id];
                     if(!conf) return;
 
@@ -272,12 +274,12 @@
                     
                     if(conf.fullRows) conf.fullRows.forEach(rOffset => { 
                         const offset = Number(rOffset);
-                        for(let i=0; i<5; i++) addAoe(i, ph.y + offset); 
+                        if (!isNaN(offset)) { for(let i=0; i<5; i++) addAoe(i, ph.y + offset); }
                     });
                     
                     if(conf.fullCols) conf.fullCols.forEach(cOffset => { 
                         const offset = Number(cOffset);
-                        for(let i=0; i<7; i++) addAoe(ph.x + offset, i); 
+                        if (!isNaN(offset)) { for(let i=0; i<7; i++) addAoe(ph.x + offset, i); }
                     });
                     
                     if(conf.wholeFormation) {
@@ -285,17 +287,33 @@
                     }
                     
                     if(conf.grid) {
-                        conf.grid.forEach(pt => {
-                            if (!pt) return;
-                            if (Array.isArray(pt)) addAoe(ph.x + Number(pt[1]), ph.y + Number(pt[0]));
-                            else addAoe(ph.x + Number(pt.x), ph.y + Number(pt.y));
-                        });
+                        let gridPts = typeof conf.grid === 'string' ? JSON.parse(conf.grid) : conf.grid;
+                        if (Array.isArray(gridPts)) {
+                            gridPts.forEach(pt => {
+                                if (!pt) return;
+                                if (Array.isArray(pt) && pt.length >= 2) addAoe(ph.x + Number(pt[1] || 0), ph.y + Number(pt[0] || 0));
+                                else if (typeof pt === 'object' && pt.x !== undefined && pt.y !== undefined) addAoe(ph.x + Number(pt.x), ph.y + Number(pt.y));
+                            });
+                        }
                     }
 
                     if(conf.radius && Number(conf.radius) > 0) {
                         const sizeStr = `calc(${(Number(conf.radius) / 10)} * 200%)`;
-                        const cell = document.querySelector(`.grid-cell[data-x="${ph.x}"][data-y="${ph.y}"]`);
-                        if (cell) cell.innerHTML += `<div class="aura-circle" style="width: ${sizeStr}; height: ${sizeStr}; border-color: ${borderCol};"></div>`;
+                        // Inject aura natively into CSS grid using absolute coordinates to prevent container clipping
+                        const auraHtml = `<div class="aura-circle" style="width: ${sizeStr}; height: ${sizeStr}; border-color: ${borderCol}; grid-column: ${ph.x + 1}; grid-row: ${ph.y + 1}; z-index: 15;"></div>`;
+                        document.getElementById('boardContainer').insertAdjacentHTML('beforeend', auraHtml);
+                    }
+                    
+                    const hasValidAoe = (conf.grid && conf.grid.length > 0) || 
+                                        (conf.fullRows && conf.fullRows.length > 0) || 
+                                        (conf.fullCols && conf.fullCols.length > 0) || 
+                                        conf.wholeFormation || 
+                                        (conf.radius && Number(conf.radius) > 0) ||
+                                        conf.wholeRow || conf.wholeCol;
+                    
+                    if (hasValidAoe) {
+                        const heroData = heroes.find(h => h.id === ph.id);
+                        if (heroData) activeAoeHeroes.push({ name: heroData.name, color: generateColor(ph.id, 1) });
                     }
                 });
 
@@ -330,9 +348,9 @@
                 });
 
                 document.getElementById('heroCount').innerText = placedHeroes.length;
-                let activeAoeHeroes = [];
 
                 placedHeroes.forEach(ph => {
+                    if (!ph) return;
                     const cell = document.querySelector(`.grid-cell[data-x="${ph.x}"][data-y="${ph.y}"]`);
                     const heroData = heroes.find(h => h.id === ph.id);
                     if(cell && heroData) {
@@ -346,14 +364,12 @@
 
                         cell.innerHTML += `
                             <div draggable="true" ondragstart="app.dragStartGrid(event, ${ph.x}, ${ph.y})" ondragend="app.dragEnd()"
-                                 class="relative w-[95%] aspect-square bg-[#4b5563] rounded-full border-[1.5px] sm:border-2 ${typeClass} z-20 shadow-md flex-shrink-0 flex items-center justify-center cursor-pointer transition-all ${selectedClass}" title="Drag to Move/Swap. Dbl-Click to Remove.">
+                                 ondblclick="app.handleCellDoubleClick(${ph.x}, ${ph.y})"
+                                 class="relative w-[85%] aspect-square bg-[#4b5563] rounded-full border-[1.5px] sm:border-2 ${typeClass} z-20 shadow-md flex-shrink-0 flex items-center justify-center cursor-pointer transition-all ${selectedClass}" title="Drag to Move/Swap. Dbl-Click to Remove.">
                                 <img src="${heroData.image}" class="w-full h-full object-cover rounded-full pointer-events-none">
                                 <div class="absolute -top-1 -right-1 bg-black/80 rounded-full w-5 h-5 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none"><i class="fa-solid fa-times text-[10px] text-red-400"></i></div>
                             </div>
                         `;
-                        
-                        // FIX: Push ALL placed heroes to the legend so users know their dedicated color
-                        activeAoeHeroes.push({ name: heroData.name, color: generateColor(ph.id, 1) });
                     }
                 });
 
@@ -373,7 +389,7 @@
             const handleCellClick = (x, y) => {
                 if(isDragging) return; 
 
-                const existingIndex = placedHeroes.findIndex(p => p.x === x && p.y === y);
+                const existingIndex = placedHeroes.findIndex(p => p && p.x === x && p.y === y);
                 
                 if(selectedPoolHero) {
                     if (existingIndex > -1) placedHeroes.splice(existingIndex, 1);
@@ -383,7 +399,7 @@
                     selectedPoolHero = null; 
                     renderPool(); updateGridVisuals();
                 } else if (selectedGridCell) {
-                    const sourceIndex = placedHeroes.findIndex(p => p.x === selectedGridCell.x && p.y === selectedGridCell.y);
+                    const sourceIndex = placedHeroes.findIndex(p => p && p.x === selectedGridCell.x && p.y === selectedGridCell.y);
                     if (sourceIndex === -1) { selectedGridCell = null; return; }
                     
                     if (selectedGridCell.x === x && selectedGridCell.y === y) {
@@ -410,7 +426,7 @@
             };
 
             const handleCellDoubleClick = (x, y) => {
-                const existingIndex = placedHeroes.findIndex(p => p.x === x && p.y === y);
+                const existingIndex = placedHeroes.findIndex(p => p && p.x === x && p.y === y);
                 if (existingIndex > -1) {
                     placedHeroes.splice(existingIndex, 1);
                     selectedGridCell = null;
@@ -418,7 +434,6 @@
                 }
             };
 
-            // FULL DRAG AND SWAP LOGIC RESTORED
             const dragStartPool = (e, id) => { isDragging = true; e.dataTransfer.setData("type", "pool"); e.dataTransfer.setData("heroId", id); };
             const dragStartGrid = (e, x, y) => { isDragging = true; e.dataTransfer.setData("type", "grid"); e.dataTransfer.setData("sourceX", x); e.dataTransfer.setData("sourceY", y); };
             const dragEnd = () => { isDragging = false; };
@@ -428,7 +443,7 @@
             const drop = (e, x, y, cell) => {
                 e.preventDefault(); cell.classList.remove('drag-over'); isDragging = false;
                 const type = e.dataTransfer.getData("type");
-                const targetIndex = placedHeroes.findIndex(p => p.x === x && p.y === y);
+                const targetIndex = placedHeroes.findIndex(p => p && p.x === x && p.y === y);
 
                 if (type === "pool") {
                     const id = e.dataTransfer.getData("heroId");
@@ -439,7 +454,7 @@
                 } else if (type === "grid") {
                     const sourceX = parseInt(e.dataTransfer.getData("sourceX"));
                     const sourceY = parseInt(e.dataTransfer.getData("sourceY"));
-                    const sourceIndex = placedHeroes.findIndex(p => p.x === sourceX && p.y === sourceY);
+                    const sourceIndex = placedHeroes.findIndex(p => p && p.x === sourceX && p.y === sourceY);
                     if (sourceIndex === -1) return;
 
                     if (targetIndex > -1) {
@@ -468,7 +483,7 @@
             const renderLegend = (active) => {
                 const container = document.getElementById('legendContainer');
                 if(active.length === 0) {
-                    container.innerHTML = '<span class="text-xs text-gray-600 italic">No heroes placed on board.</span>';
+                    container.innerHTML = '<span class="text-xs text-gray-600 italic">No active auras on board.</span>';
                     return;
                 }
                 
@@ -544,7 +559,7 @@
                     if (loadedGrid && !Array.isArray(loadedGrid) && Array.isArray(loadedGrid.grid)) {
                         loadedGrid = loadedGrid.grid;
                     }
-                    placedHeroes = Array.isArray(loadedGrid) ? loadedGrid : [];
+                    placedHeroes = (Array.isArray(loadedGrid) ? loadedGrid : []).filter(p => p !== null);
                     
                     document.getElementById('loadModal').classList.add('hidden');
                     selectedPoolHero = null; selectedGridCell = null;
@@ -558,8 +573,7 @@
 
             const loadFormation = (code) => { fetchFormation(code); };
 
-            // FIX: Export all drag and double-click methods properly
-            return { init, setFilter, renderPool, selectFromPool, dragStartPool, dragStartGrid, dragEnd, dragOver, dragLeave, drop, handleCellDoubleClick, saveFormation, copyCode, openLoadModal, fetchFormation };
+            return { init, setFilter, renderPool, selectFromPool, dragStartPool, dragStartGrid, dragEnd, dragOver, dragLeave, drop, handleCellDoubleClick, handleCellClick, saveFormation, copyCode, openLoadModal, fetchFormation };
         })();
 
         window.onload = app.init;
