@@ -146,11 +146,9 @@
     </footer>
 
     <!-- Hero Detail Modal -->
-    <!-- FIX: Modified wrapper to span full width but maintain top/bottom gap -->
-    <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center py-2 px-0 sm:p-4">
+    <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="absolute inset-0 bg-black/90 transition-opacity" onclick="app.closeModal('viewModal')"></div>
-        <!-- FIX: w-full and h-full strictly fit the container margins -->
-        <div class="relative bg-gray-800 border-y sm:border border-gray-600 sm:rounded-xl shadow-2xl w-full h-full max-w-none sm:max-w-lg md:max-w-4xl lg:max-w-5xl md:h-[650px] overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
+        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-[92vw] sm:w-[90vw] max-w-lg md:max-w-4xl lg:max-w-5xl h-[82vh] md:h-[650px] overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
             
             <div class="relative h-56 sm:h-64 md:h-full md:w-5/12 bg-gray-900 transition-colors duration-300 flex-shrink-0">
                 <img id="modalImage" src="" class="w-full h-full object-cover opacity-80">
@@ -217,9 +215,9 @@
     </div>
 
     <!-- Edit Hero Modal (Admin Only) -->
-    <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center py-2 px-0 sm:p-4">
+    <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="absolute inset-0 bg-black/90 transition-opacity" onclick="app.closeModal('editModal')"></div>
-        <div class="relative bg-gray-800 border-y sm:border border-gray-600 sm:rounded-xl shadow-2xl w-full h-full max-w-none sm:max-w-5xl md:h-[90vh] flex flex-col fade-in">
+        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-[92vw] sm:w-[90vw] max-w-lg md:max-w-5xl h-[82vh] md:h-[90vh] flex flex-col fade-in">
             <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900 rounded-t-xl shrink-0">
                 <h2 class="text-xl font-bold text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> <span id="editModalTitle">Edit Hero</span></h2>
                 <button onclick="app.closeModal('editModal')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -603,7 +601,6 @@
                                 }
                                 
                                 const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
-                                const tooltipMsg = isAdmin ? "Click to Edit Hero" : "Click to View Info";
 
                                 heroEl.innerHTML = `
                                     ${classIconHtml}${dotHtml}${subRankHtml}
@@ -611,7 +608,6 @@
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent pt-3 pb-0.5 px-1 flex flex-col justify-end rounded-b">
                                         <div class="text-[9px] sm:text-[10px] text-center text-white leading-none font-bold break-words drop-shadow-md pb-0.5 flex justify-center items-center gap-0.5">${h.name}${awakenHtml}</div>
                                     </div>
-                                    <div class="tooltip"><div class="font-bold flex justify-center items-center">${h.name}${awakenHtml}</div><div class="text-xs text-gray-300">${tooltipMsg}</div></div>
                                 `;
                                 groupContainer.appendChild(heroEl);
                             });
