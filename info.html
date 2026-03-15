@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- FIX: Whitelisted cdn.jsdelivr.net and www.gstatic.com in the CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com https://www.gstatic.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
     <title>MWR Guides & Information</title>
@@ -62,15 +61,23 @@
 
     <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow flex flex-col">
         
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div>
-                <h1 class="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tight">Guides & Knowledge</h1>
+                <h1 class="text-3xl sm:text-4xl font-black text-white mb-1 tracking-tight">Guides & Knowledge</h1>
                 <p class="text-gray-400 text-sm">Strategies, patch notes, and comprehensive game mechanics.</p>
             </div>
-            <div class="relative w-full md:w-80 group">
-                <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search titles or content..." 
-                    class="w-full bg-gray-800 border border-gray-600 rounded-full px-4 py-2.5 pl-10 text-white focus:border-blue-500 outline-none transition-colors shadow-inner">
-                <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
+            
+            <!-- Layout Toggles and Search -->
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <div class="flex bg-gray-800 rounded-lg p-1 shrink-0 h-[42px] border border-gray-700">
+                    <button onclick="app.setView('grid')" id="view-grid" class="px-4 rounded-md text-white bg-gray-600 shadow-md transition-colors" title="Grid View"><i class="fa-solid fa-border-all"></i></button>
+                    <button onclick="app.setView('list')" id="view-list" class="px-4 rounded-md text-gray-400 hover:text-white transition-colors" title="List View"><i class="fa-solid fa-list"></i></button>
+                </div>
+                <div class="relative w-full sm:w-64 group h-[42px]">
+                    <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search titles or content..." 
+                        class="w-full h-full bg-gray-800 border border-gray-600 rounded-lg px-4 pl-10 text-white focus:border-blue-500 outline-none transition-colors shadow-inner">
+                    <i class="fa-solid fa-search absolute left-3.5 top-3.5 text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
+                </div>
             </div>
         </div>
 
@@ -79,7 +86,9 @@
             <p class="text-gray-500 text-sm animate-pulse">Loading Library...</p>
         </div>
 
-        <div id="articleGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-grow opacity-0 transition-opacity duration-500"></div>
+        <!-- Dynamic Containers -->
+        <div id="articleGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 flex-grow opacity-0 transition-opacity duration-500"></div>
+        <div id="articleList" class="hidden flex-col gap-2 flex-grow opacity-0 transition-opacity duration-500"></div>
 
     </main>
 
@@ -91,13 +100,14 @@
     <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal('viewModal')"></div>
         <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] overflow-hidden flex flex-col fade-in">
-            <div id="viewModalBanner" class="h-48 sm:h-64 w-full bg-gray-900 relative flex-shrink-0 border-b border-gray-700 hidden">
+            <div id="viewModalBanner" class="h-40 sm:h-56 w-full bg-gray-900 relative flex-shrink-0 border-b border-gray-700 hidden">
                 <img id="viewModalImage" src="" class="w-full h-full object-cover opacity-60">
                 <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
             </div>
             <div class="p-6 sm:p-8 flex-grow overflow-y-auto hide-scrollbar relative">
                 <button onclick="app.closeModal('viewModal')" class="absolute top-4 right-4 bg-black/50 hover:bg-black text-gray-300 hover:text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 shadow-lg"><i class="fa-solid fa-xmark"></i></button>
-                <h2 id="viewModalTitle" class="text-2xl sm:text-4xl font-black text-white mb-6 pr-10 tracking-tight leading-tight"></h2>
+                <h2 id="viewModalTitle" class="text-2xl sm:text-4xl font-black text-white mb-2 pr-10 tracking-tight leading-tight"></h2>
+                <div id="viewModalDate" class="text-xs text-blue-400 font-bold mb-6 tracking-wide"></div>
                 <div id="viewModalContent" class="ql-editor p-0 bg-transparent border-0"></div>
             </div>
         </div>
@@ -149,13 +159,34 @@
             let isAdmin = false;
             let authToken = "";
             let quillEditor = null;
+            let currentView = 'grid'; // Controls Grid/List display
 
             const toggleSidebar = () => { if (window.AppMenu && window.AppMenu.toggleSidebar) window.AppMenu.toggleSidebar(); };
 
+            const setView = (view) => {
+                currentView = view;
+                const gridBtn = document.getElementById('view-grid');
+                const listBtn = document.getElementById('view-list');
+                const gridContainer = document.getElementById('articleGrid');
+                const listContainer = document.getElementById('articleList');
+
+                if (view === 'grid') {
+                    gridBtn.className = "px-4 rounded-md text-white bg-gray-600 shadow-md transition-colors";
+                    listBtn.className = "px-4 rounded-md text-gray-400 hover:text-white transition-colors";
+                    gridContainer.classList.remove('hidden'); listContainer.classList.add('hidden');
+                    setTimeout(() => gridContainer.classList.remove('opacity-0'), 10);
+                } else {
+                    listBtn.className = "px-4 rounded-md text-white bg-gray-600 shadow-md transition-colors";
+                    gridBtn.className = "px-4 rounded-md text-gray-400 hover:text-white transition-colors";
+                    listContainer.classList.remove('hidden'); gridContainer.classList.add('hidden');
+                    setTimeout(() => listContainer.classList.remove('opacity-0'), 10);
+                }
+                render();
+            };
+
             const init = async () => {
-                // FIX: Check Admin status and build the sidebar menu FIRST so it works regardless of external CDN failures.
                 if (window.location.hash === '#admin') {
-                    const savedToken = sessionStorage.getItem('mw_admin_token');
+                    const savedToken = localStorage.getItem('mw_admin_pass') || sessionStorage.getItem('mw_admin_pass');
                     if (savedToken) {
                         isAdmin = true;
                         authToken = savedToken;
@@ -171,7 +202,6 @@
 
                 if (window.AppMenu && window.AppMenu.build) window.AppMenu.build(isAdmin, 'blue');
 
-                // FIX: Wrapped Quill in a try-catch so the page doesn't fatally crash if the browser blocks the CDN
                 try {
                     quillEditor = new Quill('#quillEditorContainer', {
                         theme: 'snow',
@@ -187,9 +217,7 @@
                             ]
                         }
                     });
-                } catch(e) {
-                    console.warn("Text Editor CDN blocked by CSP. Editor disabled.", e);
-                }
+                } catch(e) { console.warn("Text Editor CDN blocked by CSP. Editor disabled.", e); }
 
                 const CACHE_KEY = 'mwr_info_data';
                 const cachedData = localStorage.getItem(CACHE_KEY);
@@ -200,7 +228,7 @@
                         if (Array.isArray(parsedCache)) {
                             articles = parsedCache;
                             document.getElementById('loading').classList.add('hidden');
-                            document.getElementById('articleGrid').classList.remove('opacity-0');
+                            document.getElementById(currentView === 'grid' ? 'articleGrid' : 'articleList').classList.remove('opacity-0');
                             render();
                         }
                     } catch(e) { console.warn("Cache parse error"); }
@@ -216,33 +244,24 @@
                                 snapshot.forEach(doc => freshData.push(doc.data()));
                             }
                         }
-                    } catch (fbErr) { 
-                        console.warn("Firebase fetch failed. Falling back to GAS.", fbErr); 
-                    }
+                    } catch (fbErr) { console.warn("Firebase fetch failed. Falling back to GAS.", fbErr); }
 
                     if (!freshData || freshData.length === 0) {
-                        console.log("Fetching Info from Google Apps Script (Fallback)...");
                         const res = await fetch(API_URL + "?view=info", { redirect: "follow" });
                         const gasData = await res.json();
-                        
-                        if (Array.isArray(gasData)) {
-                            freshData = gasData;
-                        } else if (gasData && Array.isArray(gasData.data)) {
-                            freshData = gasData.data;
-                        } else {
-                            throw new Error("Invalid format received from Google Apps Script.");
-                        }
+                        if (Array.isArray(gasData)) freshData = gasData;
+                        else if (gasData && Array.isArray(gasData.data)) freshData = gasData.data;
+                        else throw new Error("Invalid format received from Google Apps Script.");
                     }
                     
                     articles = Array.isArray(freshData) ? freshData : [];
                     localStorage.setItem(CACHE_KEY, JSON.stringify(articles));
                     
                     document.getElementById('loading').classList.add('hidden');
-                    document.getElementById('articleGrid').classList.remove('opacity-0');
+                    document.getElementById(currentView === 'grid' ? 'articleGrid' : 'articleList').classList.remove('opacity-0');
                     render();
                     
                 } catch(e) { 
-                    console.error("Error loading guides:", e);
                     if (!cachedData || articles.length === 0) {
                         document.getElementById('loading').innerHTML = `<p class="text-red-400 font-bold mb-2">Failed to load guides.</p><p class="text-xs text-gray-500">${e.message}</p>`; 
                     }
@@ -250,16 +269,26 @@
             };
 
             const stripHtml = (html) => {
-                let tmp = document.createElement("DIV");
-                tmp.innerHTML = html;
+                let tmp = document.createElement("DIV"); tmp.innerHTML = html;
                 return tmp.textContent || tmp.innerText || "";
+            };
+
+            const formatDate = (isoString) => {
+                if (!isoString) return "";
+                try {
+                    const d = new Date(isoString);
+                    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                } catch(e) { return ""; }
             };
 
             const render = () => {
                 const grid = document.getElementById('articleGrid');
+                const list = document.getElementById('articleList');
                 const filterSearch = document.getElementById('searchInput').value.toLowerCase();
-                grid.innerHTML = '';
+                
+                grid.innerHTML = ''; list.innerHTML = '';
 
+                // Search Filter
                 const filtered = articles.filter(art => {
                     const searchMatchTitle = (art.title || "").toLowerCase().includes(filterSearch);
                     const rawContent = stripHtml(art.content || "").toLowerCase();
@@ -268,32 +297,53 @@
                 });
 
                 if (filtered.length === 0) {
-                    grid.innerHTML = `<div class="col-span-full text-center text-gray-500 py-10">No guides match your search.</div>`;
+                    const emptyMsg = `<div class="col-span-full text-center text-gray-500 py-10 w-full">No guides match your search.</div>`;
+                    grid.innerHTML = emptyMsg; list.innerHTML = emptyMsg;
                     return;
                 }
 
+                // GRID VIEW RENDERING
                 grid.innerHTML = filtered.map(art => {
-                    const snippet = stripHtml(art.content || "").substring(0, 120) + "...";
-                    
                     let adminControls = '';
                     if (isAdmin) {
-                        adminControls = `<button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="absolute top-3 right-3 bg-yellow-600/90 hover:bg-yellow-500 text-white w-8 h-8 rounded shadow-lg z-20 flex items-center justify-center backdrop-blur-sm transition-colors"><i class="fa-solid fa-pen text-xs"></i></button>`;
+                        adminControls = `<button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="absolute top-2 right-2 bg-yellow-600/90 hover:bg-yellow-500 text-white w-7 h-7 rounded shadow-lg z-20 flex items-center justify-center backdrop-blur-sm transition-colors"><i class="fa-solid fa-pen text-[10px]"></i></button>`;
                     }
 
                     const bannerHtml = art.image 
-                        ? `<div class="h-40 bg-gray-900 relative overflow-hidden shrink-0"><img src="${art.image}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"></div>`
-                        : `<div class="h-2 bg-blue-600 shrink-0"></div>`;
+                        ? `<div class="h-24 sm:h-28 bg-gray-900 relative overflow-hidden shrink-0"><img src="${art.image}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"></div>`
+                        : `<div class="h-1 bg-blue-600 shrink-0"></div>`;
+                    
+                    const dateStr = formatDate(art.lastUpdate);
 
                     return `
-                    <div onclick="app.viewArticle('${art.id}')" class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all cursor-pointer group flex flex-col h-[320px] relative">
+                    <div onclick="app.viewArticle('${art.id}')" class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all cursor-pointer group flex flex-col h-[160px] sm:h-[180px] relative">
                         ${adminControls}
                         ${bannerHtml}
-                        <div class="p-5 flex-grow flex flex-col overflow-hidden">
-                            <h3 class="text-lg font-bold text-white mb-2 line-clamp-2 leading-snug group-hover:text-blue-400 transition-colors">${art.title}</h3>
-                            <p class="text-sm text-gray-400 line-clamp-4 flex-grow leading-relaxed">${snippet}</p>
-                            <div class="text-blue-500 font-bold text-xs uppercase tracking-wide mt-4 shrink-0 flex items-center gap-1 group-hover:text-blue-400">
-                                Read Full Guide <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
-                            </div>
+                        <div class="p-3 flex-grow flex flex-col relative">
+                            <h3 class="text-sm font-bold text-white mb-1 line-clamp-3 leading-snug group-hover:text-blue-400 transition-colors">${art.title}</h3>
+                            <div class="absolute bottom-2 right-3 text-[9px] sm:text-[10px] text-gray-500 font-bold bg-gray-900/80 px-2 py-0.5 rounded border border-gray-700/50">${dateStr}</div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+
+                // LIST VIEW RENDERING (Forum Style)
+                list.innerHTML = filtered.map(art => {
+                    let adminControls = '';
+                    if (isAdmin) {
+                        adminControls = `<button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="bg-yellow-600/90 hover:bg-yellow-500 text-white w-7 h-7 rounded shadow-md z-20 flex items-center justify-center transition-colors shrink-0 ml-3"><i class="fa-solid fa-pen text-[10px]"></i></button>`;
+                    }
+                    const dateStr = formatDate(art.lastUpdate);
+
+                    return `
+                    <div onclick="app.viewArticle('${art.id}')" class="bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4 hover:bg-gray-750 hover:border-blue-500 transition-colors cursor-pointer group flex justify-between items-center relative shadow-sm">
+                        <div class="flex items-center gap-3 overflow-hidden pr-4">
+                            <i class="fa-regular fa-file-lines text-blue-400 text-lg sm:text-xl group-hover:text-blue-300 shrink-0"></i>
+                            <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-blue-400 transition-colors truncate">${art.title}</h3>
+                        </div>
+                        <div class="flex items-center shrink-0">
+                            <div class="text-[10px] sm:text-xs text-gray-400 font-bold whitespace-nowrap bg-gray-900/50 px-2 py-1 rounded border border-gray-700/50">${dateStr}</div>
+                            ${adminControls}
                         </div>
                     </div>
                     `;
@@ -305,22 +355,25 @@
                 if (!art) return;
 
                 document.getElementById('viewModalTitle').innerText = art.title;
+                
+                const dateEl = document.getElementById('viewModalDate');
+                const dateStr = formatDate(art.lastUpdate);
+                if (dateStr) { dateEl.innerText = "Updated: " + dateStr; dateEl.classList.remove('hidden'); }
+                else { dateEl.classList.add('hidden'); }
+
                 document.getElementById('viewModalContent').innerHTML = art.content || "<p class='italic text-gray-500'>This guide is empty.</p>";
                 
                 const banner = document.getElementById('viewModalBanner');
                 if (art.image) {
                     document.getElementById('viewModalImage').src = art.image;
                     banner.classList.remove('hidden');
-                } else {
-                    banner.classList.add('hidden');
-                }
+                } else { banner.classList.add('hidden'); }
 
                 document.getElementById('viewModal').classList.remove('hidden');
             };
 
             const openEditModal = (id = null) => {
                 if (!isAdmin || !quillEditor) return;
-                
                 const modal = document.getElementById('editModal');
                 const btnDelete = document.getElementById('btnDelete');
                 
@@ -341,7 +394,6 @@
                     quillEditor.root.innerHTML = "";
                     btnDelete.classList.add('hidden');
                 }
-                
                 modal.classList.remove('hidden');
             };
 
@@ -350,22 +402,21 @@
             const saveArticle = async () => {
                 if (!isAdmin || !quillEditor) return;
                 const btn = document.getElementById('btnSave');
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`; 
-                btn.disabled = true;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`; btn.disabled = true;
 
                 const formData = {
                     id: document.getElementById('articleId').value || "temp_" + Date.now(),
                     title: document.getElementById('articleTitle').value,
                     image: document.getElementById('articleImage').value,
-                    content: quillEditor.root.innerHTML
+                    content: quillEditor.root.innerHTML,
+                    lastUpdate: new Date().toISOString()
                 };
 
                 const existingIndex = articles.findIndex(a => a.id == formData.id);
                 if (existingIndex >= 0) articles[existingIndex] = formData;
                 else articles.unshift(formData);
                 
-                render();
-                closeModal('editModal');
+                render(); closeModal('editModal');
 
                 try {
                     const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "save_info", data: formData, token: authToken }), redirect: "follow" });
@@ -397,7 +448,7 @@
                 } catch(e) { alert("Failed to delete."); window.location.reload(); }
             };
 
-            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle, toggleSidebar };
+            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle, toggleSidebar, setView };
         })();
         window.onload = app.init;
     </script>
