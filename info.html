@@ -4,438 +4,423 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- FIX: Added unpkg.com to script-src to allow the Image Resize plugin to load -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
-        <!-- PRIMARY SEO META TAGS -->
-    <title>Legion's Mini Warriors Reborn Archive</title>
-    <meta name="title" content="Legion's Mini Warriors Reborn Archive">
-    <meta name="description" content="Legion Community's Mini Warriors Reborn (MWR) Tierlist and Info.">
-    <meta name="keywords" content="MWR, Mini Warriors Reborn, Mini Warriors, Mini Warriors Reborn tierlist, Mini Warriors tierlist, information, mini warriors info, Legion Community Hub">
-    <meta name="robots" content="index, follow">
-    <meta name="language" content="English">
-
-    <!-- OPEN GRAPH / FACEBOOK / DISCORD (For nice link previews) -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://nekowoah.github.io/mwtierlist/info.html">
-    <meta property="og:title" content="Mini Warriors Reborn | Information">
-    <meta property="og:description" content="Legion Community's Mini Warriors Reborn (MWR) info page.">
-    <meta property="og:image" content="https://i.imgur.com/CwjBwq4.png">
-
-    <!-- TWITTER -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://nekowoah.github.io/mwtierlist/info.html">
-    <meta property="twitter:title" content="Mini Warriors Reborn | Information">
-    <meta property="twitter:description" content="Legion Community's Mini Warriors Reborn (MWR) info page.">
-    <meta property="twitter:image" content="https://i.imgur.com/CwjBwq4.png">
+    <title>MWR Guides & Information</title>
     
-    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <script src="shared/globals.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared/styles.css">
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
 
-    <!-- Quill Rich Text Editor & Image Resizer Plugin -->
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-    <script src="https://unpkg.com/quill-image-resize@3.0.9/image-resize.min.js"></script>
-
     <style>
-        .ql-toolbar.ql-snow, .ql-container.ql-snow { border-color: rgba(var(--color-gray-700), 1) !important; font-family: inherit !important; }
-        .ql-snow .ql-stroke { stroke: rgba(var(--color-gray-300), 1) !important; }
-        .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: rgba(var(--color-gray-300), 1) !important; }
-        .ql-snow .ql-picker { color: rgba(var(--color-gray-300), 1) !important; }
-        .ql-snow .ql-picker-options { background-color: rgba(var(--color-gray-800), 1) !important; border-color: rgba(var(--color-gray-700), 1) !important; }
-        .ql-editor { color: rgba(var(--color-gray-200), 1) !important; min-height: 400px; font-size: 16px; }
+        /* Force Quill content to respect dark mode styling when viewing */
+        .ql-editor { color: #d1d5db; font-family: inherit; font-size: 0.95rem; line-height: 1.6; }
+        .ql-editor h1 { color: #60a5fa; font-weight: 900; font-size: 1.75rem; margin-bottom: 0.5rem; }
+        .ql-editor h2 { color: #93c5fd; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .ql-editor h3 { color: #bfdbfe; font-weight: 700; font-size: 1.25rem; margin-bottom: 0.5rem; }
+        .ql-editor a { color: #60a5fa; text-decoration: underline; }
+        .ql-editor ul, .ql-editor ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+        .ql-editor li { padding-bottom: 0.25rem; }
         
-        .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
-        .modal-fade-in { animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        /* FIX: Ensure Tailwind Prose respects Quill's alignment classes */
-        .prose .ql-align-center { text-align: center; }
-        .prose .ql-align-right { text-align: right; }
-        .prose .ql-align-justify { text-align: justify; }
-        .prose .ql-align-center img { margin-left: auto; margin-right: auto; display: block; }
-        .prose .ql-align-right img { margin-left: auto; margin-right: 0; display: block; }
+        /* Dark Mode Quill Editor Overrides */
+        .ql-toolbar.ql-snow { background-color: #1f2937; border-color: #374151; border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
+        .ql-container.ql-snow { border-color: #374151; border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem; }
+        .ql-snow .ql-stroke { stroke: #9ca3af; }
+        .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: #9ca3af; }
+        .ql-snow .ql-picker { color: #9ca3af; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
 
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-4">
-            <div class="flex items-center gap-4 sm:gap-6">
-                <button onclick="AppMenu.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none">
+            <div class="flex items-center gap-4">
+                <button onclick="window.AppMenu.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
-                <img src="https://i.imgur.com/1h28KPo.png" class="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">
-                <span class="font-bold text-lg sm:text-xl tracking-wide hidden sm:inline">MWR Information</span>
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-book-open text-blue-400 text-xl"></i>
+                    <span class="font-bold text-xl tracking-wide hidden sm:block" id="siteTitleText">MWR Information</span>
+                </div>
             </div>
-            <div class="flex gap-3 items-center justify-end" id="navControls">
-                <!-- Admin Add Button injected here dynamically -->
+            
+            <div class="flex items-center gap-4" id="navControls">
+                <a href="https://dsc.gg/legion-mw" id="discordLink" target="_blank" class="bg-[#5865F2] hover:bg-[#4752C4] text-white p-1.5 rounded-full transition-colors w-9 h-9 flex items-center justify-center shadow-lg" title="Join our Discord">
+                    <i class="fa-brands fa-discord text-base"></i>
+                </a>
             </div>
         </div>
     </nav>
 
-    <!-- Main Grid Content -->
-    <main class="max-w-7xl mx-auto px-4 py-8 sm:py-12 w-full flex-grow relative z-0">
+    <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow flex flex-col">
         
-        <div id="loading" class="text-center py-16">
-            <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500 mb-3"></i>
-            <p class="text-gray-400 text-sm animate-pulse">Loading Library...</p>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tight">Guides & Knowledge</h1>
+                <p class="text-gray-400 text-sm">Strategies, patch notes, and comprehensive game mechanics.</p>
+            </div>
+            <div class="relative w-full md:w-80 group">
+                <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search titles or content..." 
+                    class="w-full bg-gray-800 border border-gray-600 rounded-full px-4 py-2.5 pl-10 text-white focus:border-blue-500 outline-none transition-colors shadow-inner">
+                <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
+            </div>
         </div>
 
-        <div id="articlesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
-            <!-- Cards injected via JS -->
+        <div id="loading" class="text-center py-16 flex-grow">
+            <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500 mb-3"></i>
+            <p class="text-gray-500 text-sm animate-pulse">Loading Library...</p>
+        </div>
+
+        <!-- Article Grid -->
+        <div id="articleGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-grow opacity-0 transition-opacity duration-500">
+            <!-- Injected by JS -->
         </div>
 
     </main>
-    
-    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto transition-colors duration-300">
-        <p>MWR Tierlist! Built by the Legion Community</p>
+
+    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto">
+        <p>MWR Information Archive! Built by the Legion Community</p>
     </footer>
 
-    <!-- Public Read Modal -->
-    <div id="readModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeReadModal()"></div>
-        <div class="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden modal-fade-in flex flex-col">
+    <!-- Read Article Modal -->
+    <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal('viewModal')"></div>
+        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] overflow-hidden flex flex-col fade-in">
             
-            <!-- Header Image -->
-            <div id="readModalHeader" class="relative w-full h-48 sm:h-64 bg-gray-800 hidden flex-shrink-0">
-                <img id="readModalImage" src="" class="w-full h-full object-cover opacity-60">
+            <div id="viewModalBanner" class="h-48 sm:h-64 w-full bg-gray-900 relative flex-shrink-0 border-b border-gray-700 hidden">
+                <img id="viewModalImage" src="" class="w-full h-full object-cover opacity-60">
                 <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
             </div>
 
-            <!-- Content Area -->
-            <div class="p-6 sm:p-10 overflow-y-auto flex-grow relative">
-                <div class="flex justify-between items-start gap-4 mb-8">
-                    <h1 id="readModalTitle" class="text-3xl sm:text-4xl font-black text-white leading-tight"></h1>
-                    <div id="readModalAdminControls" class="flex-shrink-0"></div> <!-- Admin Edit Button -->
-                </div>
-                
-                <!-- The actual text body -->
-                <article id="readModalContent" class="prose prose-invert prose-blue prose-img:rounded-xl prose-a:text-blue-400 max-w-none w-full"></article>
-            </div>
+            <div class="p-6 sm:p-8 flex-grow overflow-y-auto hide-scrollbar relative">
+                <button onclick="app.closeModal('viewModal')" class="absolute top-4 right-4 bg-black/50 hover:bg-black text-gray-300 hover:text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 shadow-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
 
-            <button onclick="app.closeReadModal()" class="absolute top-4 right-4 text-white bg-black/50 hover:bg-black rounded-full w-10 h-10 flex items-center justify-center transition-colors z-20 shadow-lg">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
+                <h2 id="viewModalTitle" class="text-2xl sm:text-4xl font-black text-white mb-6 pr-10 tracking-tight leading-tight"></h2>
+                
+                <!-- The ql-editor class ensures Quill's styles apply perfectly to the raw HTML -->
+                <div id="viewModalContent" class="ql-editor p-0 bg-transparent border-0"></div>
+            </div>
         </div>
     </div>
 
     <!-- Admin Edit Modal -->
     <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
-        <div class="absolute inset-0 bg-black/95 backdrop-blur-md transition-opacity" onclick="app.closeEditModal()"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal('editModal')"></div>
+        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-5xl h-[95vh] md:h-[90vh] flex flex-col fade-in">
             
-            <div class="bg-gray-900 p-4 border-b border-gray-700 flex justify-between items-center">
-                <h3 class="font-bold text-gray-300 uppercase tracking-wider"><i class="fa-solid fa-pen-nib mr-2 text-blue-400"></i> <span id="editModalTitle">Edit Guide</span></h3>
-                <button onclick="app.closeEditModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-times text-xl"></i></button>
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900 rounded-t-xl shrink-0">
+                <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> <span id="editModalTitle">Edit Guide</span></h2>
+                <button onclick="app.closeModal('editModal')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
 
-            <div class="p-4 sm:p-6 overflow-y-auto flex-grow">
-                <input type="hidden" id="editArticleId">
+            <form onsubmit="event.preventDefault(); app.saveArticle();" class="flex flex-col flex-grow p-4 sm:p-6 overflow-hidden gap-4">
+                <input type="hidden" id="articleId">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0">
                     <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Guide Title</label>
-                        <input type="text" id="editTitleInput" class="bg-gray-900 border border-gray-600 rounded px-4 py-2.5 w-full focus:border-blue-500 outline-none text-white font-bold text-lg">
+                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Title</label>
+                        <input type="text" id="articleTitle" required class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white font-bold transition-colors">
                     </div>
                     <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Cover Image URL</label>
-                        <div class="flex gap-2">
-                            <input type="url" id="editImageInput" class="bg-gray-900 border border-gray-600 rounded px-4 py-2.5 w-full focus:border-blue-500 outline-none text-white" placeholder="Optional background image">
-                            <label class="bg-gray-700 hover:bg-gray-600 text-white rounded px-4 py-2.5 cursor-pointer border border-gray-600 transition-colors flex-shrink-0" title="Upload Image">
-                                <i class="fa-solid fa-upload"></i>
-                                <input type="file" id="coverUploadInput" accept="image/*" class="hidden" onchange="app.uploadCoverImage()">
-                            </label>
-                        </div>
+                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Banner Image URL (Optional)</label>
+                        <input type="url" id="articleImage" placeholder="https://..." class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white transition-colors">
                     </div>
                 </div>
 
-                <div class="border border-gray-700 rounded-lg overflow-hidden bg-gray-900 relative">
-                    <div id="quillEditor"></div>
+                <div class="flex-grow flex flex-col min-h-[300px]">
+                    <label class="text-xs text-gray-400 uppercase font-bold block mb-1 flex justify-between">
+                        <span>Content Editor</span>
+                        <span class="text-yellow-500 font-normal italic text-[10px]"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Avoid pasting raw images; use URLs if possible.</span>
+                    </label>
+                    <!-- Quill Editor Container -->
+                    <div id="quillEditorContainer" class="bg-gray-900 text-white flex-grow rounded-b-lg overflow-hidden border-t-0"></div>
                 </div>
-            </div>
 
-            <div class="bg-gray-900 p-4 border-t border-gray-700 flex justify-between items-center">
-                <button id="btnDelete" onclick="app.deleteArticle()" class="text-red-500 hover:text-red-400 font-bold text-sm hidden px-4 py-2">Delete Guide</button>
-                <div class="flex gap-3 ml-auto">
-                    <button onclick="app.closeEditModal()" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded transition-colors">Cancel</button>
-                    <button id="btnSave" onclick="app.saveArticle()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded shadow-lg transition-colors">Save & Publish</button>
+                <div class="flex justify-between items-center shrink-0 pt-4 border-t border-gray-700 mt-2">
+                    <button type="button" id="btnDelete" onclick="app.deleteArticle()" class="text-red-400 hover:text-red-300 text-sm font-bold transition-colors hidden"><i class="fa-solid fa-trash mr-1"></i>Delete Guide</button>
+                    <div class="flex gap-3 ml-auto">
+                        <button type="button" onclick="app.closeModal('editModal')" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-bold transition-colors shadow-lg">Cancel</button>
+                        <button type="submit" id="btnSave" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold transition-colors shadow-lg flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Save Post</button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
     <script>
         const app = (() => {
-            const API_URL = window.MWR_GLOBALS.API_URL;
+            const { API_URL, db } = window.MWR_GLOBALS;
+            
+            let articles = [];
             let isAdmin = false;
             let authToken = "";
-            let articles = [];
-            let quillInstance = null;
+            let quillEditor;
 
             const init = async () => {
+                // Initialize Quill Editor
+                quillEditor = new Quill('#quillEditorContainer', {
+                    theme: 'snow',
+                    placeholder: 'Write your comprehensive guide here...',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'image', 'video'],
+                            ['clean']
+                        ]
+                    }
+                });
+
+                // Check Admin Status
                 if (window.location.hash === '#admin') {
                     const savedToken = sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
                         isAdmin = true;
                         authToken = savedToken;
-                        document.getElementById('navControls').insertAdjacentHTML('afterbegin', `<button onclick="app.openEditModal()" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-full transition-colors w-10 h-10 flex items-center justify-center shadow-lg"><i class="fa-solid fa-plus"></i></button>`);
+                        document.getElementById('siteTitleText').innerText = "Editor Mode";
+                        document.getElementById('discordLink').classList.add('hidden');
+                        
+                        // Inject Add Button
+                        document.getElementById('navControls').insertAdjacentHTML('afterbegin', `
+                            <button onclick="app.openEditModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg transition-colors font-bold shadow-lg flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i><span class="hidden sm:inline">Add Guide</span>
+                            </button>
+                        `);
                     } else { window.location.href = 'admin.html'; return; }
                 }
 
-                window.AppMenu.build(isAdmin, 'blue');
-                loadData();
-            };
+                if (window.AppMenu && window.AppMenu.build) window.AppMenu.build(isAdmin, 'blue');
 
-            const loadData = async () => {
-                const cached = localStorage.getItem('mwr_articles_data');
-                if (cached) {
+                // HYBRID FETCH: Instant Firebase Load with GAS Fallback
+                const CACHE_KEY = 'mwr_info_data';
+                const cachedData = localStorage.getItem(CACHE_KEY);
+                
+                if (cachedData) {
                     try {
-                        articles = JSON.parse(cached);
-                        renderGrid();
-                    } catch(e) {}
+                        articles = JSON.parse(cachedData);
+                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById('articleGrid').classList.remove('opacity-0');
+                        render();
+                    } catch(e) { console.warn("Cache parse error"); }
                 }
 
                 try {
-                    const res = await fetch(API_URL + "?view=info");
-                    const data = await res.json();
+                    let freshData = [];
                     
-                    if (data.error) throw new Error(data.error);
+                    try {
+                        if (db) {
+                            const snapshot = await db.collection('information').get();
+                            if (!snapshot.empty) snapshot.forEach(doc => freshData.push(doc.data()));
+                        }
+                    } catch (fbErr) { console.warn("Firebase fetch failed. Falling back to GAS.", fbErr); }
 
-                    articles = data;
-                    localStorage.setItem('mwr_articles_data', JSON.stringify(articles));
-                    renderGrid();
+                    if (freshData.length === 0) {
+                        console.log("Fetching Info from Google Apps Script (Fallback)...");
+                        const res = await fetch(API_URL + "?view=info");
+                        freshData = await res.json();
+                    }
                     
-                } catch(e) {
-                    console.error(e);
-                    if(!cached) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load library.</p>`;
+                    if (JSON.stringify(articles) !== JSON.stringify(freshData)) {
+                        articles = freshData;
+                        localStorage.setItem(CACHE_KEY, JSON.stringify(articles));
+                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById('articleGrid').classList.remove('opacity-0');
+                        render();
+                    } else if (!cachedData) {
+                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById('articleGrid').classList.remove('opacity-0');
+                    }
+                } catch(e) { 
+                    if (!cachedData) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; 
                 }
             };
 
-            const renderGrid = () => {
-                document.getElementById('loading').classList.add('hidden');
-                const grid = document.getElementById('articlesGrid');
-                grid.classList.remove('hidden');
+            const stripHtml = (html) => {
+                let tmp = document.createElement("DIV");
+                tmp.innerHTML = html;
+                return tmp.textContent || tmp.innerText || "";
+            };
 
-                if (articles.length === 0) {
-                    grid.innerHTML = `<div class="col-span-full text-center text-gray-500 py-10">No guides published yet.</div>`;
+            const render = () => {
+                const grid = document.getElementById('articleGrid');
+                const filterSearch = document.getElementById('searchInput').value.toLowerCase();
+                grid.innerHTML = '';
+
+                // Search Filter: Checks Title and Raw Content
+                const filtered = articles.filter(art => {
+                    const searchMatchTitle = (art.title || "").toLowerCase().includes(filterSearch);
+                    const rawContent = stripHtml(art.content || "").toLowerCase();
+                    const searchMatchContent = rawContent.includes(filterSearch);
+                    return searchMatchTitle || searchMatchContent;
+                });
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = `<div class="col-span-full text-center text-gray-500 py-10">No guides match your search.</div>`;
                     return;
                 }
 
-                grid.innerHTML = articles.map(art => {
-                    const imageHtml = art.image 
-                        ? `<img src="${art.image}" class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-500">` 
-                        : `<div class="w-full h-full flex items-center justify-center bg-gray-800 text-gray-600"><i class="fa-solid fa-book-open text-4xl"></i></div>`;
+                grid.innerHTML = filtered.map(art => {
+                    // Extract a clean 120-character snippet for the card preview
+                    const snippet = stripHtml(art.content || "").substring(0, 120) + "...";
                     
+                    let adminControls = '';
+                    if (isAdmin) {
+                        adminControls = `
+                            <button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="absolute top-3 right-3 bg-yellow-600/90 hover:bg-yellow-500 text-white w-8 h-8 rounded shadow-lg z-20 flex items-center justify-center backdrop-blur-sm transition-colors"><i class="fa-solid fa-pen text-xs"></i></button>
+                        `;
+                    }
+
+                    const bannerHtml = art.image 
+                        ? `<div class="h-40 bg-gray-900 relative overflow-hidden shrink-0"><img src="${art.image}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"></div>`
+                        : `<div class="h-2 bg-blue-600 shrink-0"></div>`;
+
                     return `
-                    <div onclick="app.openReadModal('${art.id}')" class="card-hover bg-gray-800 rounded-xl overflow-hidden border border-gray-700 cursor-pointer group flex flex-col h-56 transition-colors duration-300">
-                        <div class="h-32 bg-gray-900 relative overflow-hidden flex-shrink-0 border-b border-gray-700">
-                            ${imageHtml}
-                        </div>
-                        <div class="p-4 flex-grow flex flex-col justify-center bg-gray-800">
-                            <h3 class="text-lg font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2">${art.title || 'Untitled Guide'}</h3>
+                    <div onclick="app.viewArticle('${art.id}')" class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all cursor-pointer group flex flex-col h-[320px] relative">
+                        ${adminControls}
+                        ${bannerHtml}
+                        <div class="p-5 flex-grow flex flex-col overflow-hidden">
+                            <h3 class="text-lg font-bold text-white mb-2 line-clamp-2 leading-snug group-hover:text-blue-400 transition-colors">${art.title}</h3>
+                            <p class="text-sm text-gray-400 line-clamp-4 flex-grow leading-relaxed">${snippet}</p>
+                            <div class="text-blue-500 font-bold text-xs uppercase tracking-wide mt-4 shrink-0 flex items-center gap-1 group-hover:text-blue-400">
+                                Read Full Guide <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                            </div>
                         </div>
                     </div>
-                `}).join('');
+                    `;
+                }).join('');
             };
 
-            const openReadModal = (id) => {
+            const viewArticle = (id) => {
                 const art = articles.find(a => a.id === id);
-                if(!art) return;
+                if (!art) return;
 
-                document.getElementById('readModalTitle').innerText = art.title || 'Untitled Guide';
-                document.getElementById('readModalContent').innerHTML = art.content || '';
+                document.getElementById('viewModalTitle').innerText = art.title;
+                document.getElementById('viewModalContent').innerHTML = art.content || "<p class='italic text-gray-500'>This guide is empty.</p>";
                 
-                const headerBox = document.getElementById('readModalHeader');
-                if(art.image) {
-                    document.getElementById('readModalImage').src = art.image;
-                    headerBox.classList.remove('hidden');
+                const banner = document.getElementById('viewModalBanner');
+                if (art.image) {
+                    document.getElementById('viewModalImage').src = art.image;
+                    banner.classList.remove('hidden');
                 } else {
-                    headerBox.classList.add('hidden');
+                    banner.classList.add('hidden');
                 }
 
-                const adminControls = document.getElementById('readModalAdminControls');
-                if(isAdmin) {
-                    adminControls.innerHTML = `<button onclick="app.openEditModal('${art.id}')" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-md"><i class="fa-solid fa-pen mr-2"></i>Edit Guide</button>`;
-                } else {
-                    adminControls.innerHTML = '';
-                }
-
-                document.getElementById('readModal').classList.remove('hidden');
-            };
-
-            const closeReadModal = () => document.getElementById('readModal').classList.add('hidden');
-
-            const initQuill = () => {
-                if (quillInstance) return;
-                
-                // Register the ImageResize module if the script loaded properly
-                if (window.ImageResize) {
-                    Quill.register('modules/imageResize', window.ImageResize.default || window.ImageResize);
-                }
-
-                quillInstance = new Quill('#quillEditor', {
-                    theme: 'snow',
-                    modules: {
-                        imageResize: { 
-                            displaySize: true // Enables the drag-to-resize handles
-                        },
-                        toolbar: {
-                            container: [
-                                [{ 'header': [1, 2, 3, false] }],
-                                ['bold', 'italic', 'underline', 'strike'],
-                                [{ 'color': [] }, { 'background': [] }],
-                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                                [{ 'align': [] }], // FIX: Added Text & Image Alignment dropdown
-                                ['link', 'image', 'video'],
-                                ['clean']
-                            ],
-                            handlers: {
-                                image: function() {
-                                    const input = document.createElement('input');
-                                    input.setAttribute('type', 'file'); input.setAttribute('accept', 'image/*'); input.click();
-                                    input.onchange = async () => {
-                                        const file = input.files[0]; if (!file) return;
-                                        const btn = document.getElementById('btnSave');
-                                        const oldText = btn.innerText;
-                                        btn.innerText = "Uploading..."; btn.disabled = true;
-                                        const reader = new FileReader(); reader.readAsDataURL(file);
-                                        reader.onload = async () => {
-                                            try {
-                                                const res = await fetch(API_URL, {
-                                                    method: "POST",
-                                                    body: JSON.stringify({ action: "upload_image", token: authToken, fileData: reader.result.split(',')[1], fileName: "info_img_" + Date.now() + ".webp" }),
-                                                    redirect: "follow"
-                                                });
-                                                const data = await res.json();
-                                                if(data.error) throw new Error(data.error);
-                                                const range = quillInstance.getSelection(true);
-                                                quillInstance.insertEmbed(range.index, 'image', data.url);
-                                            } catch(e) { alert("Upload failed"); } 
-                                            finally { btn.innerText = oldText; btn.disabled = false; }
-                                        };
-                                    };
-                                }
-                            }
-                        }
-                    }
-                });
+                document.getElementById('viewModal').classList.remove('hidden');
             };
 
             const openEditModal = (id = null) => {
-                closeReadModal();
-                initQuill();
+                if (!isAdmin) return;
+                
+                const modal = document.getElementById('editModal');
+                const btnDelete = document.getElementById('btnDelete');
                 
                 if (id) {
                     const art = articles.find(a => a.id === id);
+                    if (!art) return;
                     document.getElementById('editModalTitle').innerText = "Edit Guide";
-                    document.getElementById('editArticleId').value = art.id;
-                    document.getElementById('editTitleInput').value = art.title || '';
-                    document.getElementById('editImageInput').value = art.image || '';
-                    document.getElementById('btnDelete').classList.remove('hidden');
-                    quillInstance.clipboard.dangerouslyPasteHTML(art.content || '');
+                    document.getElementById('articleId').value = art.id;
+                    document.getElementById('articleTitle').value = art.title;
+                    document.getElementById('articleImage').value = art.image || "";
+                    quillEditor.root.innerHTML = art.content || "";
+                    btnDelete.classList.remove('hidden');
                 } else {
                     document.getElementById('editModalTitle').innerText = "Create New Guide";
-                    document.getElementById('editArticleId').value = "";
-                    document.getElementById('editTitleInput').value = "";
-                    document.getElementById('editImageInput').value = "";
-                    document.getElementById('btnDelete').classList.add('hidden');
-                    quillInstance.root.innerHTML = '';
+                    document.getElementById('articleId').value = "";
+                    document.getElementById('articleTitle').value = "";
+                    document.getElementById('articleImage').value = "";
+                    quillEditor.root.innerHTML = "";
+                    btnDelete.classList.add('hidden');
                 }
-
-                document.getElementById('editModal').classList.remove('hidden');
-            };
-
-            const closeEditModal = () => document.getElementById('editModal').classList.add('hidden');
-
-            const uploadCoverImage = async () => {
-                const input = document.getElementById('coverUploadInput');
-                const file = input.files[0]; if(!file) return;
                 
-                const reader = new FileReader(); reader.readAsDataURL(file);
-                reader.onload = async () => {
-                    try {
-                        const res = await fetch(API_URL, {
-                            method: "POST",
-                            body: JSON.stringify({ action: "upload_image", token: authToken, fileData: reader.result.split(',')[1], fileName: "cover_" + Date.now() + ".webp" }),
-                            redirect: "follow"
-                        });
-                        const data = await res.json();
-                        if(data.error) throw new Error(data.error);
-                        document.getElementById('editImageInput').value = data.url;
-                    } catch(e) { alert("Upload failed"); }
-                };
+                modal.classList.remove('hidden');
             };
+
+            const closeModal = (modalId) => document.getElementById(modalId).classList.add('hidden');
 
             const saveArticle = async () => {
+                if (!isAdmin) return;
                 const btn = document.getElementById('btnSave');
-                btn.innerText = "Saving..."; btn.disabled = true;
-                
-                const htmlContent = quillInstance.root.innerHTML;
-                if (htmlContent.includes('data:image/')) {
-                    alert("WARNING: Direct image copy-pasting detected. Please use the image upload icon.");
-                    btn.innerText = "Save & Publish"; btn.disabled = false; return;
-                }
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`; 
+                btn.disabled = true;
 
-                const payload = {
-                    id: document.getElementById('editArticleId').value,
-                    title: document.getElementById('editTitleInput').value,
-                    image: document.getElementById('editImageInput').value,
-                    content: htmlContent
+                const formData = {
+                    id: document.getElementById('articleId').value || "temp_" + Date.now(),
+                    title: document.getElementById('articleTitle').value,
+                    image: document.getElementById('articleImage').value,
+                    content: quillEditor.root.innerHTML
                 };
+
+                // Optimistic Local Save
+                const existingIndex = articles.findIndex(a => a.id == formData.id);
+                if (existingIndex >= 0) articles[existingIndex] = formData;
+                else articles.unshift(formData);
+                
+                render();
+                closeModal('editModal');
 
                 try {
                     const res = await fetch(API_URL, { 
                         method: "POST", 
-                        body: JSON.stringify({ action: "save_info", token: authToken, data: payload }),
+                        body: JSON.stringify({ action: "save_info", data: formData, token: authToken }), 
                         redirect: "follow" 
                     });
                     const data = await res.json();
-                    if(data.error) throw new Error(data.error);
-
-                    // Update local state instantly
-                    if (payload.id && !payload.id.startsWith("temp_")) {
-                        const idx = articles.findIndex(a => a.id === payload.id);
-                        if(idx > -1) articles[idx] = { ...payload, id: data.id };
-                    } else {
-                        articles.push({ ...payload, id: data.id });
-                    }
                     
-                    localStorage.setItem('mwr_articles_data', JSON.stringify(articles));
-                    renderGrid();
-                    closeEditModal();
+                    if(data.error) throw new Error(data.error);
+                    
+                    if(formData.id.startsWith("temp_") && data.id) {
+                        const idx = articles.findIndex(a => a.id === formData.id);
+                        if(idx !== -1) articles[idx].id = data.id;
+                    }
+                    localStorage.setItem('mwr_info_data', JSON.stringify(articles));
                 } catch(e) { 
-                    alert("Failed to save: " + e.message); 
-                } finally { 
-                    btn.innerText = "Save & Publish"; btn.disabled = false; 
+                    alert("Failed to save! Please check your connection."); 
+                    window.location.reload(); 
+                } finally {
+                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Post`; 
+                    btn.disabled = false;
                 }
             };
 
             const deleteArticle = async () => {
-                if(!confirm("Permanently delete this guide?")) return;
-                const id = document.getElementById('editArticleId').value;
-                
+                if (!isAdmin) return;
+                const id = document.getElementById('articleId').value;
+                if (!id || !confirm("Are you sure you want to permanently delete this guide?")) return;
+
+                articles = articles.filter(a => a.id != id);
+                render();
+                closeModal('editModal');
+
                 try {
                     await fetch(API_URL, { 
                         method: "POST", 
-                        body: JSON.stringify({ action: "delete_info", token: authToken, id: id }),
+                        body: JSON.stringify({ action: "delete_info", id: id, token: authToken }), 
                         redirect: "follow" 
                     });
-                    
-                    articles = articles.filter(a => a.id !== id);
-                    localStorage.setItem('mwr_articles_data', JSON.stringify(articles));
-                    renderGrid();
-                    closeEditModal();
-                } catch(e) { alert("Failed to delete."); }
+                    localStorage.setItem('mwr_info_data', JSON.stringify(articles));
+                } catch(e) { 
+                    alert("Failed to delete."); 
+                    window.location.reload(); 
+                }
             };
 
-            return { init, openReadModal, closeReadModal, openEditModal, closeEditModal, saveArticle, deleteArticle, uploadCoverImage };
+            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle };
         })();
-        
+
         window.onload = app.init;
     </script>
 </body>
