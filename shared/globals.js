@@ -87,8 +87,8 @@ window.AppMenu = (() => {
         }).join('');
 
         const sidebarHTML = `
-            <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden transition-opacity" onclick="AppMenu.toggleSidebar()"></div>
-            <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-700 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
+            <div id="sidebarOverlay" class="fixed inset-0 bg-black/80 z-50 hidden transition-opacity" onclick="AppMenu.toggleSidebar()"></div>
+            <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gray-900 border-r border-gray-700 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col will-change-transform">
                 <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800">
                     <div class="flex items-center gap-3">
                         <img src="https://i.imgur.com/1h28KPo.png" class="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)]">
