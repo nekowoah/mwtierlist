@@ -21,6 +21,12 @@
                 class="w-full bg-gray-900 border border-gray-600 rounded px-4 py-3 mb-4 text-white focus:border-indigo-500 outline-none transition-colors">
             <input type="password" id="passwordInput" placeholder="Enter Password" 
                 class="w-full bg-gray-900 border border-gray-600 rounded px-4 py-3 mb-4 text-white focus:border-indigo-500 outline-none transition-colors">
+            
+            <div class="flex items-center justify-start mb-4 px-1">
+                <input type="checkbox" id="rememberMe" class="mr-2 cursor-pointer w-4 h-4 accent-indigo-600 rounded bg-gray-900 border-gray-600">
+                <label for="rememberMe" class="text-sm font-bold text-gray-400 cursor-pointer hover:text-white transition-colors">Remember Me</label>
+            </div>
+
             <button onclick="window.admin.login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded transition-colors shadow-lg">
                 Login to Dashboard
             </button>
@@ -148,7 +154,10 @@
             let currentView = 'dashboard';
 
             const init = () => {
-                const savedToken = sessionStorage.getItem('mw_admin_token');
+                const savedUser = localStorage.getItem('mw_admin_user');
+                if(savedUser) document.getElementById('usernameInput').value = savedUser;
+
+                const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
                 if(savedToken) {
                     authToken = savedToken;
                     sendRequest({ action: "list_images" })
@@ -160,6 +169,7 @@
                         .catch(err => {
                             console.warn("Session expired");
                             sessionStorage.removeItem('mw_admin_token');
+                            localStorage.removeItem('mw_admin_token');
                             authToken = "";
                         });
                 }
@@ -204,7 +214,11 @@
                 }
             };
 
-            const logout = () => { sessionStorage.removeItem('mw_admin_token'); window.location.reload(); };
+            const logout = () => { 
+                sessionStorage.removeItem('mw_admin_token'); 
+                localStorage.removeItem('mw_admin_token');
+                window.location.reload(); 
+            };
 
             // NEW: Clear Cache Function
             const clearCache = async () => {
@@ -220,6 +234,7 @@
             const login = async () => {
                 const user = document.getElementById('usernameInput').value.trim();
                 const pass = document.getElementById('passwordInput').value.trim();
+                const remember = document.getElementById('rememberMe').checked;
                 const err = document.getElementById('loginError');
                 const btn = document.querySelector('#loginScreen button');
                 
@@ -233,7 +248,16 @@
                     if (data.error) throw new Error(data.error);
 
                     authToken = data.token;
-                    sessionStorage.setItem('mw_admin_token', authToken);
+                    
+                    if (remember) {
+                        localStorage.setItem('mw_admin_token', authToken);
+                        localStorage.setItem('mw_admin_user', user);
+                    } else {
+                        sessionStorage.setItem('mw_admin_token', authToken);
+                        localStorage.removeItem('mw_admin_token');
+                        localStorage.removeItem('mw_admin_user');
+                    }
+                    
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('appContainer').classList.remove('hidden');
                     switchView('dashboard');
