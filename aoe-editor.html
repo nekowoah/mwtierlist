@@ -33,6 +33,18 @@
             pointer-events: none;
             z-index: 5;
         }
+        
+        /* FIX: Render live Aura preview in the editor */
+        .aura-circle { 
+            position: absolute; 
+            border: 2px solid; 
+            background: transparent; 
+            border-radius: 50%; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            pointer-events: none; 
+            z-index: 5; 
+        }
 
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
@@ -97,7 +109,8 @@
                         <div class="flex items-center justify-between border-t border-gray-700 pt-3">
                             <span class="text-sm font-bold text-gray-300">Circular Aura Radius:</span>
                             <div class="flex items-center gap-2">
-                                <input type="number" id="auraRadius" min="0" max="100" step="1" value="0" class="w-16 bg-gray-900 border border-gray-600 rounded px-2 py-1 text-white text-center font-bold outline-none focus:border-yellow-500">
+                                <!-- FIX: Added live oninput trigger so you can test aura size in real time -->
+                                <input type="number" id="auraRadius" oninput="app.updateGridVisuals()" min="0" max="100" step="1" value="0" class="w-16 bg-gray-900 border border-gray-600 rounded px-2 py-1 text-white text-center font-bold outline-none focus:border-yellow-500">
                                 <span class="text-xs text-gray-500 italic hidden sm:inline">(10 = 1 Grid Space)</span>
                             </div>
                         </div>
@@ -125,7 +138,7 @@
             let authToken = "";
 
             const init = async () => {
-                const savedToken = sessionStorage.getItem('mw_admin_token');
+                const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
                 if (window.location.hash === '#admin' && savedToken) {
                     authToken = savedToken;
                 } else {
@@ -251,7 +264,6 @@
                 const existing = aoeDB[id];
                 if (existing) {
                     gridState = [];
-                    // FIX: Unbreakable Grid Parser - handles both arrays [x,y] and objects {x,y}
                     if (existing.grid) {
                         existing.grid.forEach(pt => {
                             if (!pt) return;
@@ -310,7 +322,7 @@
                     for(let x=-2; x<=2; x++) { for(let y=-2; y<=2; y++) addAoe(x, y); }
                 }
 
-                document.querySelectorAll('.aoe-layer').forEach(el => el.remove());
+                document.querySelectorAll('.aoe-layer, .aura-circle').forEach(el => el.remove());
                 
                 document.querySelectorAll('.aoe-cell, .center-cell').forEach(cell => {
                     const x = parseInt(cell.dataset.relx);
@@ -341,6 +353,18 @@
                         cell.innerHTML += `<div class="aoe-layer ${borderClasses}" style="${borderStyle}"></div>`;
                     }
                 });
+
+                // FIX: Accurately compute and draw the mathematical aura in the editor
+                const radiusVal = Number(document.getElementById('auraRadius').value) || 0;
+                if (radiusVal > 0) {
+                    const radiusCells = radiusVal / 10;
+                    // Mathematical diameter: 2 * radius (each radius accounts for cell width + gap)
+                    const sizeStr = `calc(${radiusCells * 200}% + ${radiusCells * 8}px)`;
+                    const centerCell = document.getElementById('centerHeroCell');
+                    if (centerCell) {
+                        centerCell.insertAdjacentHTML('beforeend', `<div class="aura-circle" style="width: ${sizeStr}; height: ${sizeStr}; border-color: rgba(234, 179, 8, 0.9);"></div>`);
+                    }
+                }
             };
 
             const clearGrid = () => {
