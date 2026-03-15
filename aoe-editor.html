@@ -27,7 +27,6 @@
         .aoe-cell:hover:not(.center-cell) { background-color: rgba(255, 255, 255, 0.05); cursor: pointer; }
         .center-cell { background-color: rgba(31, 41, 55, 1); cursor: default; }
 
-        /* FIX: Removed mix-blend-mode to guarantee color visibility */
         .aoe-layer {
             position: absolute;
             top: -2px; bottom: -2px; left: -2px; right: -2px;
@@ -251,7 +250,16 @@
 
                 const existing = aoeDB[id];
                 if (existing) {
-                    gridState = [...existing.grid];
+                    gridState = [];
+                    // FIX: Unbreakable Grid Parser - handles both arrays [x,y] and objects {x,y}
+                    if (existing.grid) {
+                        existing.grid.forEach(pt => {
+                            if (!pt) return;
+                            if (Array.isArray(pt)) gridState.push({x: Number(pt[1]), y: Number(pt[0])});
+                            else gridState.push({x: Number(pt.x), y: Number(pt.y)});
+                        });
+                    }
+
                     document.getElementById('chkFormation').checked = existing.wholeFormation || false;
                     document.getElementById('auraRadius').value = existing.radius || 0;
                     
@@ -285,7 +293,6 @@
                     if (x >= -2 && x <= 2 && y >= -2 && y <= 2) activeSet.add(`${x},${y}`);
                 };
 
-                // FIX: Add null safety to editor preview
                 gridState.forEach(p => {
                     if (p) addAoe(p.x, p.y);
                 });
