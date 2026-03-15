@@ -45,7 +45,8 @@
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-4">
             <div class="flex items-center gap-4">
-                <button onclick="window.AppMenu.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none">
+                <!-- FIX: Routed explicitly through app.toggleSidebar to ensure correct binding -->
+                <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
                 <div class="flex items-center gap-3">
@@ -168,6 +169,13 @@
             let authToken = "";
             let quillEditor;
 
+            // Utility to trigger Sidebar from globals securely
+            const toggleSidebar = () => {
+                if (window.AppMenu && window.AppMenu.toggleSidebar) {
+                    window.AppMenu.toggleSidebar();
+                }
+            };
+
             const init = async () => {
                 // Initialize Quill Editor
                 quillEditor = new Quill('#quillEditorContainer', {
@@ -211,39 +219,61 @@
                 
                 if (cachedData) {
                     try {
-                        articles = JSON.parse(cachedData);
-                        document.getElementById('loading').classList.add('hidden');
-                        document.getElementById('articleGrid').classList.remove('opacity-0');
-                        render();
+                        const parsedCache = JSON.parse(cachedData);
+                        if (Array.isArray(parsedCache)) {
+                            articles = parsedCache;
+                            document.getElementById('loading').classList.add('hidden');
+                            document.getElementById('articleGrid').classList.remove('opacity-0');
+                            render();
+                        }
                     } catch(e) { console.warn("Cache parse error"); }
                 }
 
                 try {
-                    let freshData = [];
+                    let freshData = null;
                     
+                    // 1. Try Firebase First
                     try {
                         if (db) {
                             const snapshot = await db.collection('information').get();
-                            if (!snapshot.empty) snapshot.forEach(doc => freshData.push(doc.data()));
+                            if (!snapshot.empty) {
+                                freshData = [];
+                                snapshot.forEach(doc => freshData.push(doc.data()));
+                            }
                         }
-                    } catch (fbErr) { console.warn("Firebase fetch failed. Falling back to GAS.", fbErr); }
+                    } catch (fbErr) { 
+                        console.warn("Firebase fetch failed or empty. Falling back to GAS.", fbErr); 
+                    }
 
-                    if (freshData.length === 0) {
+                    // 2. Fallback to Google Sheet if Firebase is empty or unreachable
+                    if (!freshData || freshData.length === 0) {
                         console.log("Fetching Info from Google Apps Script (Fallback)...");
-                        const res = await fetch(API_URL + "?view=info");
-                        freshData = await res.json();
+                        const res = await fetch(API_URL + "?view=info", { redirect: "follow" });
+                        const gasData = await res.json();
+                        
+                        // FIX: Explicitly verify array format to prevent render crashes
+                        if (Array.isArray(gasData)) {
+                            freshData = gasData;
+                        } else if (gasData && Array.isArray(gasData.data)) {
+                            freshData = gasData.data;
+                        } else {
+                            throw new Error("Invalid format received from Google Apps Script.");
+                        }
                     }
                     
-                    // FIX: Unconditionally update and render to prevent empty screens
-                    articles = freshData;
+                    // Assign robust array and set local cache
+                    articles = Array.isArray(freshData) ? freshData : [];
                     localStorage.setItem(CACHE_KEY, JSON.stringify(articles));
+                    
                     document.getElementById('loading').classList.add('hidden');
                     document.getElementById('articleGrid').classList.remove('opacity-0');
                     render();
                     
                 } catch(e) { 
                     console.error("Error loading guides:", e);
-                    if (!cachedData) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; 
+                    if (!cachedData || articles.length === 0) {
+                        document.getElementById('loading').innerHTML = `<p class="text-red-400 font-bold mb-2">Failed to load guides.</p><p class="text-xs text-gray-500">${e.message}</p>`; 
+                    }
                 }
             };
 
@@ -416,7 +446,8 @@
                 }
             };
 
-            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle };
+            // FIX: Export toggleSidebar to the DOM namespace
+            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle, toggleSidebar };
         })();
 
         window.onload = app.init;
