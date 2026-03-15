@@ -3,244 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MWR | AOE & Aura Editor</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+
+    <title>MWR | AOE Footprint Editor</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="shared/globals.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared/styles.css">
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
 
     <style>
-        .grid-cell { width: 3rem; height: 3rem; border: 1px solid #4b5563; background-color: #1f2937; cursor: pointer; transition: all 0.2s; }
-        .grid-cell:hover { background-color: #374151; }
-        .grid-cell.active { background-color: rgba(34, 197, 94, 0.4); border-color: #22c55e; }
-        .grid-cell.center-cell { background-color: rgba(59, 130, 246, 0.3); border-color: #3b82f6; position: relative; }
-        .grid-cell.center-cell::after { content: '★'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #60a5fa; font-size: 1rem; }
+        .hero-circle { transition: transform 0.2s, box-shadow 0.2s; }
+        .hero-circle:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .hero-circle.selected { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.8); }
+
+        .type-vip { border-color: #fbbf24; }
+        .type-limited { border-color: #c90dde; }
+        .type-basic { border-color: #22c55e; }
+        .type-normal { border-color: #6b7280; }
         
-        .checkbox-cell { width: 3rem; height: 2rem; display: flex; align-items: center; justify-content: center; }
-        .checkbox-row { width: 2rem; height: 3rem; display: flex; align-items: center; justify-content: center; }
+        .aoe-cell, .center-cell { transition: all 0.15s ease-in-out; }
+        .aoe-cell:hover:not(.center-cell) { background-color: rgba(255, 255, 255, 0.05); cursor: pointer; }
+        .center-cell { background-color: rgba(31, 41, 55, 1); cursor: default; }
+
+        .aoe-layer {
+            position: absolute;
+            top: -2px; bottom: -2px; left: -2px; right: -2px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col">
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
 
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-4">
             <div class="flex items-center gap-4">
-                <button onclick="window.AppMenu.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none"><i class="fa-solid fa-bars text-xl"></i></button>
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-pen-ruler text-yellow-400 text-xl"></i>
-                    <span class="font-bold text-xl tracking-wide hidden sm:block">AOE & Aura Configurator</span>
+                <button onclick="AppMenu.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none"><i class="fa-solid fa-bars text-xl"></i></button>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-chess-board text-yellow-400 text-xl"></i>
+                    <span class="font-bold text-lg tracking-wide hidden sm:inline">AOE Mapping Editor</span>
                 </div>
             </div>
-            <a href="index.html#admin" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1.5 rounded text-sm font-bold shadow-lg transition-colors">Back to Admin</a>
+            <a href="admin.html" class="text-sm font-bold text-gray-400 hover:text-white transition-colors bg-gray-900 px-4 py-2 rounded-lg border border-gray-700"><i class="fa-solid fa-arrow-left mr-2"></i>Dashboard</a>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow flex flex-col items-center">
+    <div id="loading" class="text-center py-20 flex-grow flex flex-col items-center justify-center">
+        <i class="fas fa-circle-notch fa-spin text-4xl text-yellow-400 mb-4"></i>
+        <p class="text-gray-400 font-bold animate-pulse">Loading Hero Database & Geometries...</p>
+    </div>
+
+    <main id="workspace" class="flex-grow flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 gap-6 hidden">
         
-        <div class="w-full max-w-md bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-2xl mb-8 fade-in">
-            <h2 class="text-xl font-bold text-white mb-4 border-b border-gray-700 pb-2">1. Select Hero</h2>
-            <select id="heroSelect" class="w-full bg-gray-900 border border-gray-600 rounded px-4 py-3 text-white focus:border-yellow-500 outline-none font-bold" onchange="app.loadHeroAoe()">
-                <option value="">-- Choose a Hero --</option>
-            </select>
+        <div class="w-full md:w-[40%] flex flex-col bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg h-[80vh]">
+            <div class="p-4 border-b border-gray-700 bg-gray-900/50">
+                <input type="text" id="searchInput" onkeyup="app.filterHeroes()" placeholder="Search heroes..." class="w-full bg-gray-900 text-white rounded-lg px-4 py-2 border border-gray-600 text-sm outline-none focus:border-yellow-500 transition-colors mb-3">
+                <div class="flex flex-wrap gap-2 justify-center" id="classFilters"></div>
+            </div>
+            <div id="heroPool" class="flex-grow overflow-y-auto hide-scroll p-4 grid grid-cols-5 sm:grid-cols-6 md:grid-cols-5 lg:grid-cols-6 gap-3 content-start"></div>
         </div>
 
-        <div id="editorPanel" class="w-full max-w-md bg-gray-800 p-6 sm:p-8 rounded-xl border border-gray-700 shadow-2xl fade-in opacity-50 pointer-events-none transition-opacity">
-            <h2 class="text-xl font-bold text-white mb-2 border-b border-gray-700 pb-2">2. Map AOE & Aura</h2>
-            <p class="text-xs text-gray-400 mb-6 leading-relaxed">Click grid squares to highlight specific zones. Check the boxes on the top or left to affect <span class="text-yellow-400 font-bold">infinite rows/columns</span> across the battlefield. Enter a radius for Circular Auras.</p>
-
-            <div class="flex flex-col items-center justify-center gap-1 mb-8 overflow-x-auto">
-                <!-- Top Checkboxes (Columns) -->
-                <div class="flex gap-1 pl-[2rem]">
-                    <div class="checkbox-cell"><input type="checkbox" id="col-2" class="w-4 h-4 accent-yellow-500 cursor-pointer"></div>
-                    <div class="checkbox-cell"><input type="checkbox" id="col-1" class="w-4 h-4 accent-yellow-500 cursor-pointer"></div>
-                    <div class="checkbox-cell"><input type="checkbox" id="col-0" class="w-4 h-4 accent-yellow-500 cursor-pointer"></div>
-                    <div class="checkbox-cell"><input type="checkbox" id="col-1_pos" class="w-4 h-4 accent-yellow-500 cursor-pointer"></div>
-                    <div class="checkbox-cell"><input type="checkbox" id="col-2_pos" class="w-4 h-4 accent-yellow-500 cursor-pointer"></div>
-                </div>
-
-                <!-- Grid Rows + Side Checkboxes -->
-                <div class="flex flex-col gap-1" id="aoeGridContainer">
-                    <!-- Injected by JS -->
-                </div>
+        <div class="w-full md:w-[60%] flex flex-col items-center justify-center bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-lg h-[80vh] relative overflow-hidden">
+            
+            <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-800/90 backdrop-blur-sm z-10 rounded-xl">
+                <i class="fa-solid fa-hand-pointer text-5xl text-gray-600 mb-4"></i>
+                <p class="text-gray-400 font-bold">Select a hero from the pool to edit their AOE.</p>
             </div>
 
-            <!-- Global Settings & Radius -->
-            <div class="bg-gray-900/50 p-4 rounded-lg border border-gray-700 mb-6 flex flex-col gap-4">
-                <label class="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" id="wholeFormation" class="w-5 h-5 accent-yellow-500 cursor-pointer">
-                    <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Affects Whole Formation</span>
-                </label>
+            <div class="w-full max-w-md flex flex-col items-center h-full min-h-0">
                 
-                <div class="flex items-center gap-3 border-t border-gray-700 pt-4">
-                    <span class="text-sm font-bold text-gray-300">Circular Aura Radius:</span>
-                    <input type="number" id="auraRadius" min="0" max="50" step="1" value="0" class="w-20 bg-gray-900 border border-gray-600 rounded px-2 py-1 text-white text-center font-bold outline-none focus:border-yellow-500">
-                    <span class="text-xs text-gray-500 italic">(10 = 1 Grid Space)</span>
+                <div class="mb-3 sm:mb-4 text-center w-full flex-shrink-0">
+                    <h2 id="editorTitle" class="text-2xl font-black text-white drop-shadow-md">Editing: <span class="text-yellow-400">Hero Name</span></h2>
+                    <p class="text-xs text-gray-400 mt-1">Click cells or check boxes to define the buff footprint</p>
+                </div>
+
+                <div id="aoeGridContainer" class="w-full flex-grow min-h-0 flex items-center justify-center py-2 overflow-x-auto hide-scroll">
+                    <!-- JS Injected Top/Left Checkboxes + 25 Cells -->
+                </div>
+
+                <div class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 sm:p-4 mt-4 mb-4 flex-shrink-0">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-3">Global Overrides & Aura</h3>
+                    <div class="flex flex-col gap-4">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="chkFormation" onchange="app.updateGridVisuals()" class="w-5 h-5 accent-yellow-500 bg-gray-800 border-gray-600 rounded">
+                            <span class="text-sm font-bold text-gray-300 group-hover:text-white transition-colors">Affects Entire Formation</span>
+                        </label>
+                        
+                        <div class="flex items-center justify-between border-t border-gray-700 pt-3">
+                            <span class="text-sm font-bold text-gray-300">Circular Aura Radius:</span>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="auraRadius" min="0" max="100" step="1" value="0" class="w-16 bg-gray-900 border border-gray-600 rounded px-2 py-1 text-white text-center font-bold outline-none focus:border-yellow-500">
+                                <span class="text-xs text-gray-500 italic hidden sm:inline">(10 = 1 Grid Space)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full flex justify-between gap-4 flex-shrink-0">
+                    <button onclick="app.clearGrid()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2.5 sm:py-3 rounded-lg transition-colors border border-gray-600 shadow-md">Clear</button>
+                    <button id="btnSave" onclick="app.saveData()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 sm:py-3 rounded-lg transition-colors shadow-[0_0_15px_rgba(79,70,229,0.4)]">Save AOE</button>
                 </div>
             </div>
-
-            <button onclick="app.saveAoe()" id="btnSave" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg transition-colors flex justify-center items-center gap-2">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Save Configuration
-            </button>
         </div>
 
     </main>
 
     <script>
         const app = (() => {
-            const { API_URL } = window.MWR_GLOBALS;
-            let authToken = "";
+            const { API_URL, CLASS_ICONS } = window.MWR_GLOBALS;
+            
             let heroes = [];
-            let aoeData = [];
+            let aoeDB = {}; 
+            let currentFilter = 'All';
+            let selectedHero = null;
+            let gridState = []; 
+            let authToken = "";
 
             const init = async () => {
                 const savedToken = sessionStorage.getItem('mw_admin_token');
-                if(!savedToken) { window.location.href = 'admin.html'; return; }
-                authToken = savedToken;
+                if (window.location.hash === '#admin' && savedToken) {
+                    authToken = savedToken;
+                } else {
+                    window.location.href = 'admin.html'; return;
+                }
 
-                if (window.AppMenu) window.AppMenu.build(true, 'yellow');
-                buildGrid();
+                window.AppMenu.build(true, 'yellow');
+                buildFilters();
 
                 try {
-                    const res = await fetch(API_URL + "?view=all");
-                    heroes = await res.json();
+                    const [heroRes, aoeRes] = await Promise.all([
+                        fetch(API_URL + "?view=all"),
+                        fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "get_aoe", token: authToken }) })
+                    ]);
+
+                    heroes = await heroRes.json();
                     
-                    const select = document.getElementById('heroSelect');
-                    heroes.sort((a,b) => a.name.localeCompare(b.name)).forEach(h => {
-                        const opt = document.createElement('option');
-                        opt.value = h.id; opt.innerText = h.name;
-                        select.appendChild(opt);
-                    });
+                    const aoeData = await aoeRes.json();
+                    if(!aoeData.error && Array.isArray(aoeData)) {
+                        aoeData.forEach(entry => { aoeDB[entry.heroId] = entry; });
+                    }
 
-                    const aoeRes = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "get_aoe" }) });
-                    aoeData = await (await aoeRes).json() || [];
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('workspace').classList.remove('hidden');
+                    
+                    renderHeroes();
+                    buildGrid();
+                } catch(e) {
+                    document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to initialize editor: ${e.message}</p>`;
+                }
+            };
 
-                } catch(e) { alert("Failed to load. " + e.message); }
+            const buildFilters = () => {
+                const container = document.getElementById('classFilters');
+                container.innerHTML = `<button onclick="app.setFilter('All')" class="px-3 py-1 rounded text-xs font-bold transition-all border border-gray-600 text-white bg-gray-700">All</button>` + 
+                Object.keys(CLASS_ICONS).map(cls => 
+                    `<button onclick="app.setFilter('${cls}')" class="px-2 py-1 rounded text-[10px] font-bold transition-all border border-gray-600 text-gray-400 hover:text-white" title="${cls}">
+                        <img src="${CLASS_ICONS[cls]}" class="w-4 h-4 object-contain inline">
+                    </button>`
+                ).join('');
+            };
+
+            const setFilter = (cls) => { currentFilter = cls; renderHeroes(); };
+            const filterHeroes = () => renderHeroes();
+
+            const renderHeroes = () => {
+                const search = document.getElementById('searchInput').value.toLowerCase();
+                const container = document.getElementById('heroPool');
+
+                const sorted = [...heroes].sort((a,b) => {
+                    const hasA = aoeDB[a.id] ? 1 : 0;
+                    const hasB = aoeDB[b.id] ? 1 : 0;
+                    if (hasA !== hasB) return hasB - hasA;
+                    return a.name.localeCompare(b.name);
+                });
+
+                container.innerHTML = sorted.map(h => {
+                    if (currentFilter !== 'All' && h.heroClass !== currentFilter) return '';
+                    if (search && !h.name.toLowerCase().includes(search)) return '';
+
+                    let typeClass = 'type-normal';
+                    if(h.heroType === 'VIP') typeClass = 'type-vip';
+                    if(h.heroType === 'Limited') typeClass = 'type-limited';
+                    if(h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeClass = 'type-basic';
+
+                    const isSelected = selectedHero && selectedHero.id === h.id ? 'selected' : '';
+                    const hasAoeIndicator = aoeDB[h.id] ? `<div class="absolute top-0 right-0 w-3 h-3 bg-green-500 border border-gray-900 rounded-full shadow-sm z-10" title="AOE Configured"></div>` : '';
+
+                    return `
+                        <div onclick="app.selectHero('${h.id}')" class="hero-circle relative w-full aspect-square bg-[#4b5563] rounded-full border-2 ${typeClass} cursor-pointer mx-auto flex-shrink-0 ${isSelected}">
+                            ${hasAoeIndicator}
+                            <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover rounded-full opacity-90">
+                        </div>
+                    `;
+                }).join('');
             };
 
             const buildGrid = () => {
                 const container = document.getElementById('aoeGridContainer');
-                let html = '';
-                for(let r = -2; r <= 2; r++) {
+                let html = '<div class="flex flex-col gap-1 items-center w-max mx-auto">';
+                
+                // Top Row: Col Checkboxes
+                html += '<div class="flex gap-1 items-end pl-[2rem] sm:pl-[2.5rem]">';
+                for(let c = -2; c <= 2; c++) {
+                    html += `<div class="w-10 sm:w-12 h-6 flex justify-center items-end pb-1"><input type="checkbox" id="col_${c}" onchange="app.updateGridVisuals()" class="w-4 h-4 accent-indigo-500 cursor-pointer" title="Affects Entire Column"></div>`;
+                }
+                html += '</div>';
+
+                // Grid Rows + Row Checkboxes
+                for(let y = -2; y <= 2; y++) {
                     let rowHtml = `<div class="flex gap-1 items-center">`;
-                    // Left Checkbox
-                    const rowId = r < 0 ? `row${r}` : `row-${r}_pos`; // Unique ID encoding
-                    rowHtml += `<div class="checkbox-row pr-2"><input type="checkbox" id="${rowId}" class="w-4 h-4 accent-yellow-500 cursor-pointer"></div>`;
+                    rowHtml += `<div class="w-6 sm:w-8 h-10 sm:h-12 flex justify-end items-center pr-1 sm:pr-2"><input type="checkbox" id="row_${y}" onchange="app.updateGridVisuals()" class="w-4 h-4 accent-indigo-500 cursor-pointer" title="Affects Entire Row"></div>`;
                     
-                    for(let c = -2; c <= 2; c++) {
-                        const isCenter = r===0 && c===0;
-                        rowHtml += `<div class="grid-cell ${isCenter?'center-cell':''}" id="cell_${r}_${c}" onclick="app.toggleCell(${r},${c})"></div>`;
+                    for(let x = -2; x <= 2; x++) {
+                        if(x === 0 && y === 0) {
+                            rowHtml += `<div class="center-cell flex items-center justify-center rounded-lg border border-gray-700 relative w-10 h-10 sm:w-12 sm:h-12" id="centerHeroCell" data-relx="0" data-rely="0"></div>`;
+                        } else {
+                            rowHtml += `<div class="aoe-cell bg-gray-800 border border-gray-700 rounded-lg relative w-10 h-10 sm:w-12 sm:h-12 overflow-visible" data-relx="${x}" data-rely="${y}" onclick="app.toggleCell(${x},${y})"></div>`;
+                        }
                     }
                     rowHtml += `</div>`;
                     html += rowHtml;
                 }
+                
+                html += '</div>';
                 container.innerHTML = html;
             };
 
-            const toggleCell = (r, c) => {
-                if(r===0 && c===0) return; // Center is always hero
-                document.getElementById(`cell_${r}_${c}`).classList.toggle('active');
-            };
-
-            const loadHeroAoe = () => {
-                const heroId = document.getElementById('heroSelect').value;
-                const panel = document.getElementById('editorPanel');
+            const selectHero = (id) => {
+                selectedHero = heroes.find(h => h.id === id);
+                document.getElementById('emptyState').classList.add('hidden');
+                document.getElementById('editorTitle').innerHTML = `Editing: <span class="text-yellow-400">${selectedHero.name}</span>`;
                 
-                if (!heroId) { panel.classList.add('opacity-50', 'pointer-events-none'); return; }
-                panel.classList.remove('opacity-50', 'pointer-events-none');
+                document.getElementById('centerHeroCell').innerHTML = `
+                    <div class="relative z-10 w-[85%] h-[85%] rounded-full border-[1.5px] border-gray-500 shadow-[0_0_10px_rgba(0,0,0,0.8)] bg-gray-800 overflow-hidden">
+                        <img src="${selectedHero.image}" class="w-full h-full object-cover pointer-events-none">
+                    </div>
+                `;
 
-                // Reset all inputs
-                document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
-                document.getElementById('auraRadius').value = "0";
-
-                const data = aoeData.find(a => a.heroId === heroId);
-                if (data) {
-                    if(data.grid) data.grid.forEach(coord => {
-                        const cell = document.getElementById(`cell_${coord[0]}_${coord[1]}`);
-                        if(cell) cell.classList.add('active');
-                    });
-                    
-                    if(data.fullRows) data.fullRows.forEach(r => {
-                        const id = r < 0 ? `row${r}` : `row-${r}_pos`;
-                        if(document.getElementById(id)) document.getElementById(id).checked = true;
-                    });
-                    
-                    if(data.fullCols) data.fullCols.forEach(c => {
-                        const id = c < 0 ? `col${c}` : `col-${c}_pos`;
-                        if(document.getElementById(id)) document.getElementById(id).checked = true;
-                    });
-
-                    document.getElementById('wholeFormation').checked = data.wholeFormation || false;
-                    document.getElementById('auraRadius').value = data.radius || 0;
+                // Reset Checkboxes
+                for(let i=-2; i<=2; i++) {
+                    document.getElementById(`row_${i}`).checked = false;
+                    document.getElementById(`col_${i}`).checked = false;
                 }
+
+                const existing = aoeDB[id];
+                if (existing) {
+                    gridState = [...existing.grid];
+                    document.getElementById('chkFormation').checked = existing.wholeFormation || false;
+                    document.getElementById('auraRadius').value = existing.radius || 0;
+                    
+                    (existing.fullRows || []).forEach(r => { let el = document.getElementById(`row_${r}`); if(el) el.checked = true; });
+                    (existing.fullCols || []).forEach(c => { let el = document.getElementById(`col_${c}`); if(el) el.checked = true; });
+                } else {
+                    gridState = [];
+                    document.getElementById('chkFormation').checked = false;
+                    document.getElementById('auraRadius').value = "0";
+                }
+
+                renderHeroes(); 
+                updateGridVisuals();
             };
 
-            const saveAoe = async () => {
-                const heroId = document.getElementById('heroSelect').value;
-                if(!heroId) return;
+            const toggleCell = (rx, ry) => {
+                if(!selectedHero) return;
+                
+                const index = gridState.findIndex(p => p.x === rx && p.y === ry);
+                if (index > -1) gridState.splice(index, 1);
+                else gridState.push({x: rx, y: ry});
+                
+                updateGridVisuals();
+            };
 
-                const btn = document.getElementById('btnSave');
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`; btn.disabled = true;
+            const updateGridVisuals = () => {
+                const activeSet = new Set();
+                const wholeFormation = document.getElementById('chkFormation').checked;
 
-                const grid = [];
-                for(let r = -2; r <= 2; r++) {
-                    for(let c = -2; c <= 2; c++) {
-                        if(r===0 && c===0) continue;
-                        if(document.getElementById(`cell_${r}_${c}`).classList.contains('active')) grid.push([r,c]);
+                const addAoe = (x, y) => {
+                    if (x >= -2 && x <= 2 && y >= -2 && y <= 2) activeSet.add(`${x},${y}`);
+                };
+
+                // Add grid points
+                gridState.forEach(p => addAoe(p.x, p.y));
+                
+                // Add infinite rows/cols visually to the 5x5 preview
+                for(let i=-2; i<=2; i++) {
+                    if (document.getElementById(`row_${i}`).checked) {
+                        for(let x=-2; x<=2; x++) addAoe(x, i);
+                    }
+                    if (document.getElementById(`col_${i}`).checked) {
+                        for(let y=-2; y<=2; y++) addAoe(i, y);
                     }
                 }
+                
+                if (wholeFormation) {
+                    for(let x=-2; x<=2; x++) { for(let y=-2; y<=2; y++) addAoe(x, y); }
+                }
+
+                // Clear old shapes
+                document.querySelectorAll('.aoe-layer').forEach(el => el.remove());
+                
+                // Draw Unified Border Outline
+                document.querySelectorAll('.aoe-cell, .center-cell').forEach(cell => {
+                    const x = parseInt(cell.dataset.relx);
+                    const y = parseInt(cell.dataset.rely);
+                    
+                    if (activeSet.has(`${x},${y}`)) {
+                        const hasTop = activeSet.has(`${x},${y-1}`);
+                        const hasBottom = activeSet.has(`${x},${y+1}`);
+                        const hasLeft = activeSet.has(`${x-1},${y}`);
+                        const hasRight = activeSet.has(`${x+1},${y}`);
+
+                        const fillCol = "rgba(99, 102, 241, 0.35)"; 
+                        const borderCol = "rgba(99, 102, 241, 0.9)";
+                        
+                        let borderClasses = "";
+                        let borderStyle = `background-color: ${fillCol}; border-color: ${borderCol};`;
+
+                        if (!hasTop) { borderClasses += " border-t-[2px]"; borderStyle += ` border-top-style: dashed;`; }
+                        if (!hasBottom) { borderClasses += " border-b-[2px]"; borderStyle += ` border-bottom-style: dashed;`; }
+                        if (!hasLeft) { borderClasses += " border-l-[2px]"; borderStyle += ` border-left-style: dashed;`; }
+                        if (!hasRight) { borderClasses += " border-r-[2px]"; borderStyle += ` border-right-style: dashed;`; }
+
+                        if (!hasTop && !hasLeft) borderClasses += " rounded-tl-[8px]";
+                        if (!hasTop && !hasRight) borderClasses += " rounded-tr-[8px]";
+                        if (!hasBottom && !hasLeft) borderClasses += " rounded-bl-[8px]";
+                        if (!hasBottom && !hasRight) borderClasses += " rounded-br-[8px]";
+
+                        cell.innerHTML += `<div class="aoe-layer ${borderClasses}" style="${borderStyle}"></div>`;
+                    }
+                });
+            };
+
+            const clearGrid = () => {
+                if(!selectedHero) return;
+                gridState = [];
+                document.getElementById('chkFormation').checked = false;
+                document.getElementById('auraRadius').value = "0";
+                for(let i=-2; i<=2; i++) {
+                    document.getElementById(`row_${i}`).checked = false;
+                    document.getElementById(`col_${i}`).checked = false;
+                }
+                updateGridVisuals();
+            };
+
+            const saveData = async () => {
+                if(!selectedHero) return;
+                const btn = document.getElementById('btnSave');
+                const ogText = btn.innerHTML;
+                btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Saving...`;
+                btn.disabled = true;
 
                 const fullRows = [];
-                for(let r = -2; r <= 2; r++) {
-                    const id = r < 0 ? `row${r}` : `row-${r}_pos`;
-                    if(document.getElementById(id).checked) fullRows.push(r);
-                }
-
+                for(let r = -2; r <= 2; r++) { if(document.getElementById(`row_${r}`).checked) fullRows.push(r); }
                 const fullCols = [];
-                for(let c = -2; c <= 2; c++) {
-                    const id = c < 0 ? `col${c}` : `col-${c}_pos`;
-                    if(document.getElementById(id).checked) fullCols.push(c);
-                }
+                for(let c = -2; c <= 2; c++) { if(document.getElementById(`col_${c}`).checked) fullCols.push(c); }
 
                 const payload = {
-                    action: "save_aoe",
-                    token: authToken,
-                    data: {
-                        heroId: heroId,
-                        grid: grid,
-                        fullRows: fullRows,
-                        fullCols: fullCols,
-                        wholeFormation: document.getElementById('wholeFormation').checked,
-                        radius: Number(document.getElementById('auraRadius').value) || 0
-                    }
+                    heroId: selectedHero.id,
+                    grid: gridState,
+                    fullRows: fullRows,
+                    fullCols: fullCols,
+                    wholeFormation: document.getElementById('chkFormation').checked,
+                    radius: Number(document.getElementById('auraRadius').value) || 0
                 };
 
                 try {
-                    await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+                    const res = await fetch(API_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "save_aoe", token: authToken, data: payload }),
+                        redirect: "follow"
+                    });
+                    const result = await res.json();
                     
-                    // Update local state
-                    const existingIdx = aoeData.findIndex(a => a.heroId === heroId);
-                    if(existingIdx >= 0) aoeData[existingIdx] = payload.data;
-                    else aoeData.push(payload.data);
-
-                    btn.innerHTML = `<i class="fa-solid fa-check"></i> Saved!`;
-                    btn.classList.replace('bg-green-600', 'bg-blue-600');
-                    setTimeout(() => {
-                        btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Configuration`;
-                        btn.classList.replace('bg-blue-600', 'bg-green-600');
-                        btn.disabled = false;
+                    if(result.error) throw new Error(result.error);
+                    
+                    aoeDB[selectedHero.id] = payload;
+                    renderHeroes(); 
+                    
+                    btn.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Saved!`;
+                    btn.classList.add('bg-green-600'); btn.classList.remove('bg-indigo-600');
+                    setTimeout(() => { 
+                        btn.innerHTML = ogText; 
+                        btn.classList.remove('bg-green-600'); btn.classList.add('bg-indigo-600');
+                        btn.disabled = false; 
                     }, 2000);
+
                 } catch(e) {
-                    alert("Save failed: " + e.message);
-                    btn.innerText = "Save Configuration"; btn.disabled = false;
+                    alert("Failed to save AOE footprint: " + e.message);
+                    btn.innerHTML = ogText; btn.disabled = false;
                 }
             };
 
-            return { init, toggleCell, loadHeroAoe, saveAoe };
+            return { init, setFilter, filterHeroes, selectHero, clearGrid, saveData, updateGridVisuals, toggleCell };
         })();
+
         window.onload = app.init;
     </script>
 </body>
