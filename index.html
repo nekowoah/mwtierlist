@@ -30,11 +30,12 @@
     <meta property="twitter:image" content="https://i.imgur.com/CwjBwq4.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="shared/globals.js"></script>
-    
-    <!-- HYBRID MIGRATION: Firebase SDKs -->
+
+    <!-- HYBRID MIGRATION: Firebase SDKs loaded BEFORE globals -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script src="shared/globals.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared/styles.css">
@@ -101,7 +102,8 @@
                         <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-gray-500 rounded-sm"></span> Normal</div>
                         <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-red-500 rounded-full shadow-sm"></span> Updated</div>
                         <div class="flex items-center gap-1.5"><i class="fa-solid fa-fire-flame-curved text-red-500 text-[10px] sm:text-[11px]"></i> Awakened</div>
-                        <div class="flex items-center gap-1.5 col-span-2"><span class="text-green-400 font-bold">+</span><span class="text-red-400 font-bold">-</span> Sub-rank</div>
+                        <!-- FIX: Subrank legend updated to colored FA Icons -->
+                        <div class="flex items-center gap-1.5 col-span-2"><i class="fa-solid fa-plus text-green-400 text-[10px]"></i><i class="fa-solid fa-minus text-red-400 text-[10px]"></i> Sub-rank</div>
                     </div>
                 </div>
             </div>
@@ -246,18 +248,8 @@
             
             let isAdmin = false;
 
-            // HYBRID CONFIGURATION: Initialize Firebase
-            const firebaseConfig = {
-                // TODO: Replace these with your actual Firebase Project Configuration Keys
-                apiKey: "AIzaSyDXucaPMYRlmagL3LEIq70cH2k8_i5xnJc",
-                authDomain: "mwr-tierlist-site.firebaseapp.com",
-                projectId: "mwr-tierlist-site"
-            };
-            
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            const db = firebase.firestore();
+            // FIX: Removed local Firebase config. Now relying entirely on window.MWR_GLOBALS.db established in globals.js
+            const db = window.MWR_GLOBALS ? window.MWR_GLOBALS.db : null;
             
             const toggleSidebar = () => {
                 if (window.AppMenu && window.AppMenu.toggleSidebar) {
@@ -280,7 +272,7 @@
                 }
 
                 if (window.location.hash === '#admin') {
-                    const savedToken = sessionStorage.getItem('mw_admin_token');
+                    const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
                         isAdmin = true;
                         document.getElementById('siteTitleText').innerText = "Editor Mode";
@@ -320,7 +312,7 @@
                     
                     // 1. Try Firebase First
                     try {
-                        if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                        if (db) {
                             const snapshot = await db.collection('tierlist').get();
                             if (!snapshot.empty) {
                                 snapshot.forEach(doc => freshData.push(doc.data()));
@@ -479,10 +471,12 @@
                                 }
 
                                 const { sub } = parseRank(h[currentMode]);
-                                let subColor = 'text-white'; 
-                                if (sub === '+') subColor = 'text-green-400';
-                                if (sub === '-') subColor = 'text-red-400';
-                                const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-[#111827]/80 border border-[#4b5563]/50 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
+                                let subRankHtml = '';
+                                // FIX: Updated Subranks to strictly use FontAwesome Plus/Minus icons with specific colors
+                                if (sub) {
+                                    const iconHtml = sub === '+' ? '<i class="fa-solid fa-plus text-[10px] text-green-400"></i>' : '<i class="fa-solid fa-minus text-[10px] text-red-400"></i>';
+                                    subRankHtml = `<div class="absolute bottom-4 right-1 z-20 bg-[#111827]/80 border border-[#4b5563]/50 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${iconHtml}</div>`;
+                                }
                                 
                                 const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
                                 const tooltipMsg = isAdmin ? "Go to Admin to Edit" : "Click to View Info";
