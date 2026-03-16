@@ -31,7 +31,8 @@ window.TierlistEditor = (() => {
                             <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Image URL</label>
                             <div class="flex gap-2">
                                 <input type="text" id="editImage" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                                <button type="button" onclick="TierlistEditor.searchImage()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 rounded border border-gray-600 transition-colors shadow-sm" title="Search Internal Database"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                <!-- FIX: Changed to trigger the new Gallery Modal -->
+                                <button type="button" onclick="TierlistEditor.openImageGallery()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
                                 <label class="bg-gray-700 hover:bg-gray-600 text-white px-3 flex items-center justify-center rounded border border-gray-600 transition-colors shadow-sm cursor-pointer" title="Upload to GitHub (Auto WebP)">
                                     <i class="fa-solid fa-upload"></i>
                                     <input type="file" accept="image/*" class="hidden" onchange="TierlistEditor.uploadImage(event)">
@@ -229,27 +230,76 @@ window.TierlistEditor = (() => {
         if(modal) modal.classList.add('hidden');
     };
 
-    const searchImage = async () => {
-        const name = document.getElementById('editName').value;
-        const imgInput = document.getElementById('editImage');
-        if(!name) { alert("Please enter a Hero Name first!"); return; }
-        
-        const oldVal = imgInput.value;
-        imgInput.value = "Searching database...";
-        
-        try {
-            const token = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
-            const res = await fetch(window.MWR_GLOBALS.API_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ action: "find_image", name: name, token: token }), 
-                redirect: "follow" 
-            });
-            const data = await res.json();
-            if (data.url) imgInput.value = data.url;
-            else { alert("Image not found in database."); imgInput.value = oldVal; }
-        } catch(e) {
-            alert("Error searching for image."); imgInput.value = oldVal;
+    // NEW: Interactive Image Gallery Logic
+    let galleryCache = [];
+
+    const openImageGallery = async () => {
+        if (!document.getElementById('imageGalleryModal')) {
+            const modalHtml = `
+            <div id="imageGalleryModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+                <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2 shrink-0">
+                        <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> Select Image</h3>
+                        <button onclick="document.getElementById('imageGalleryModal').classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    </div>
+                    <div class="mb-4 shrink-0">
+                        <input type="text" id="gallerySearchInput" onkeyup="TierlistEditor.filterGallery()" placeholder="Search images..." class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white outline-none focus:border-indigo-500">
+                    </div>
+                    <div id="galleryGrid" class="flex-grow overflow-y-auto hide-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 content-start">
+                        <div class="col-span-full text-center text-gray-500 py-10"><i class="fas fa-circle-notch fa-spin text-2xl text-indigo-500 mb-2"></i><br>Loading Library...</div>
+                    </div>
+                </div>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
+        
+        document.getElementById('imageGalleryModal').classList.remove('hidden');
+        const grid = document.getElementById('galleryGrid');
+        
+        if (galleryCache.length === 0) {
+            try {
+                const token = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
+                const res = await fetch(window.MWR_GLOBALS.API_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify({ action: "list_images", token: token }), 
+                    redirect: "follow" 
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                galleryCache = data;
+                renderGallery();
+            } catch(e) {
+                grid.innerHTML = `<div class="col-span-full text-red-400 text-center py-10">Failed to load images.</div>`;
+            }
+        } else {
+            renderGallery();
+        }
+    };
+
+    const renderGallery = () => {
+        const grid = document.getElementById('galleryGrid');
+        const search = document.getElementById('gallerySearchInput').value.toLowerCase();
+        
+        const filtered = galleryCache.filter(img => img.name.toLowerCase().includes(search));
+        
+        if (filtered.length === 0) {
+            grid.innerHTML = `<div class="col-span-full text-gray-500 text-center py-10">No images found.</div>`;
+            return;
+        }
+        
+        grid.innerHTML = filtered.map(img => `
+            <div onclick="TierlistEditor.selectImage('${img.download_url}')" class="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 hover:border-indigo-500 cursor-pointer aspect-square flex flex-col transition-colors group relative p-2">
+                <img src="${img.download_url}" class="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
+                <div class="absolute bottom-0 left-0 right-0 bg-black/80 text-[10px] text-gray-300 truncate px-1 py-0.5 text-center">${img.name}</div>
+            </div>
+        `).join('');
+    };
+
+    const filterGallery = () => renderGallery();
+
+    const selectImage = (url) => {
+        document.getElementById('editImage').value = url;
+        document.getElementById('imageGalleryModal').classList.add('hidden');
     };
 
     const uploadImage = async (event) => {
@@ -396,5 +446,5 @@ window.TierlistEditor = (() => {
         }
     };
 
-    return { open, close, save, delete: deleteHero, searchImage, uploadImage };
+    return { open, close, save, delete: deleteHero, openImageGallery, filterGallery, selectImage, uploadImage };
 })();
