@@ -31,7 +31,6 @@ window.TierlistEditor = (() => {
                             <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Image URL</label>
                             <div class="flex gap-2">
                                 <input type="text" id="editImage" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                                <!-- FIX: Properly hooked up to the Universal Image Picker, no local upload logic needed! -->
                                 <button type="button" onclick="ImagePicker.open((url) => document.getElementById('editImage').value = url, document.getElementById('editName').value)" class="bg-gray-700 hover:bg-gray-600 text-white px-4 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
                             </div>
                         </div>
@@ -260,7 +259,6 @@ window.TierlistEditor = (() => {
             lastUpdate: new Date().toISOString()
         };
 
-        // Optimistic Local Update
         let heroes = appRef.getHeroes();
         const existingIndex = heroes.findIndex(h => h.id == formData.id);
         if (existingIndex >= 0) heroes[existingIndex] = formData;
