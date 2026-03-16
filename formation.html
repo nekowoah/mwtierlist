@@ -27,14 +27,13 @@
         .grid-cell:hover { background-color: rgba(255, 255, 255, 0.05); }
         .grid-cell.drag-over { background-color: rgba(99, 102, 241, 0.3); border-color: #6366f1; }
         
-        /* FIX: Removed mix-blend-mode */
         .aoe-layer { 
             position: absolute; 
             top: -2px; bottom: -2px; left: -2px; right: -2px; 
             pointer-events: none; 
             z-index: 5; 
         }
-
+        
         .aura-circle { 
             position: absolute; 
             border: 2px solid; 
@@ -43,9 +42,9 @@
             top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
             pointer-events: none; 
-            z-index: 4; 
+            z-index: 15; 
         }
-        
+
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -68,42 +67,46 @@
         </div>
     </nav>
 
-    <!-- FIX: Changed from overflow-hidden to overflow-visible -->
-    <main class="flex-grow flex flex-col-reverse md:flex-row max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4 h-[calc(100vh-64px)] overflow-visible">
+    <!-- FIX: Applied strict height percentages and native landscape orientation queries -->
+    <main class="flex-grow flex flex-col-reverse landscape:flex-row md:flex-row max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4 h-[calc(100vh-64px)] overflow-visible">
         
-        <div class="w-full md:w-[45%] lg:w-[40%] flex flex-col bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg h-[40vh] md:h-full transition-colors duration-300">
+        <!-- Hero Catalog Panel (Clips ABOVE escaping auras) -->
+        <div class="w-full landscape:w-[40%] md:w-[45%] lg:w-[40%] flex flex-col bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg h-[40%] landscape:h-full md:h-full transition-colors duration-300 z-30 relative">
             <div class="p-2 sm:p-3 border-b border-gray-700 bg-gray-900/50 flex flex-col gap-2 flex-shrink-0">
                 <input type="text" id="searchInput" onkeyup="app.renderPool()" placeholder="Search heroes..." class="w-full bg-gray-900 text-white rounded px-3 py-1.5 border border-gray-600 text-sm outline-none focus:border-blue-500 transition-colors">
                 <div class="flex flex-wrap gap-1 justify-center" id="classFilters"></div>
             </div>
             
-            <div id="heroPool" class="flex-grow overflow-y-auto hide-scroll p-2 grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 gap-1.5 content-start">
+            <!-- FIX: Optimized grid for 6 items per row on all mobile sizes -->
+            <div id="heroPool" class="flex-grow overflow-y-auto hide-scroll p-2 sm:p-3 grid grid-cols-6 sm:grid-cols-8 lg:grid-cols-6 gap-2 sm:gap-3 content-start">
                 <div class="col-span-full text-center text-gray-500 py-10" id="poolLoading"><i class="fas fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i><br>Loading Heroes...</div>
             </div>
         </div>
 
-        <div class="w-full md:w-[55%] lg:w-[60%] flex flex-col bg-gray-800 border border-gray-700 rounded-xl p-3 shadow-lg h-[60vh] md:h-full transition-colors duration-300">
+        <!-- Formation Board Area (Clips BELOW Catalog & Legend) -->
+        <div class="w-full landscape:w-[60%] md:w-[55%] lg:w-[60%] flex flex-col bg-gray-800 border border-gray-700 rounded-xl p-3 shadow-lg h-[60%] landscape:h-full md:h-full transition-colors duration-300 z-10 relative">
             
             <div class="flex justify-between items-end mb-2 flex-shrink-0">
-                <p class="text-xs text-gray-400"><span class="hidden sm:inline">Drag & Drop or</span> Tap Hero → Tap Cell</p>
+                <p class="text-xs text-gray-400"><span class="hidden sm:inline">Drag and Drop or</span> Tap Hero → Tap Grid | Double Click to remove</p>
                 <div class="text-xs font-bold text-gray-400 bg-gray-900 px-2 py-1 rounded border border-gray-700"><span id="heroCount" class="text-blue-400">0</span> / 30 Placed</div>
             </div>
 
-            <div class="flex flex-col lg:flex-row flex-grow min-h-0 gap-3 w-full relative">
+            <!-- Landscape forces side-by-side layout for Grid & Legend -->
+            <div class="flex flex-col landscape:flex-row lg:flex-row flex-grow min-h-0 gap-3 w-full relative">
                 
-                <!-- FIX: Changed to overflow-visible and increased z-index to 20 -->
-                <div class="flex-1 min-w-0 min-h-0 flex items-center justify-center py-1 overflow-visible z-20">
+                <!-- Board Wrapper (z-10 guarantees children slip under the z-30 panels) -->
+                <div class="flex-1 min-w-0 min-h-0 flex items-center justify-center py-1 overflow-visible z-10 relative">
                     <div id="boardContainer" class="bg-gray-900 border border-gray-700 p-1.5 rounded-lg grid grid-cols-5 grid-rows-7 gap-[4px] relative h-full shadow-inner" style="aspect-ratio: 5/7; max-width: 100%; max-height: 100%;">
-                        
                         <div id="wholeFormationHighlight" class="absolute inset-0 bg-green-500/10 hidden pointer-events-none z-0 rounded-lg"></div>
-
+                        <!-- JS Injected 35 Cells & Layers -->
                     </div>
                 </div>
 
-                <div class="flex-shrink-0 lg:w-48 bg-gray-900 border border-gray-700 rounded-lg p-2 min-h-[3rem] max-h-[5rem] lg:max-h-none lg:h-full overflow-y-auto hide-scroll flex flex-col z-10">
-                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 lg:mb-2 lg:border-b lg:border-gray-700 lg:pb-1">Active AOE Auras</h4>
-                    <div id="legendContainer" class="flex flex-wrap lg:flex-col gap-x-3 gap-y-1 lg:gap-y-2">
-                        <span class="text-xs text-gray-600 italic">Place buffing heroes to see footprints</span>
+                <!-- Legend Panel (Clips ABOVE escaping auras and dynamically snaps to right side in Landscape) -->
+                <div class="flex-shrink-0 landscape:w-32 lg:w-48 bg-gray-900 border border-gray-700 rounded-lg p-2 min-h-[3.5rem] max-h-[5rem] landscape:max-h-none lg:max-h-none landscape:h-full lg:h-full overflow-y-auto hide-scroll flex flex-col z-30 relative">
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 landscape:mb-2 lg:mb-2 landscape:border-b lg:border-b border-gray-700 landscape:pb-1 lg:pb-1">Heroes on Board</h4>
+                    <div id="legendContainer" class="flex flex-wrap landscape:flex-col lg:flex-col gap-x-3 gap-y-1 landscape:gap-y-2 lg:gap-y-2">
+                        <span class="text-xs text-gray-600 italic">No active auras on board.</span>
                     </div>
                 </div>
             </div>
@@ -156,7 +159,7 @@
             let isDragging = false;
 
             const init = async () => {
-                if (window.AppMenu) window.AppMenu.build(false, 'blue');
+                window.AppMenu.build(false, 'blue');
                 buildFilters();
                 buildGrid();
 
@@ -210,14 +213,14 @@
                     if(h.heroType === 'Limited') typeClass = 'type-limited';
                     if(h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeClass = 'type-basic';
 
-                    const isPlaced = placedHeroes.some(p => p.id === h.id);
+                    const isPlaced = placedHeroes.some(p => p && p.id === h.id);
                     const isSelected = selectedPoolHero === h.id ? 'selected' : '';
                     const stateClass = isPlaced ? 'opacity-30 grayscale pointer-events-none' : '';
                     
                     return `
                         <div onclick="app.selectFromPool('${h.id}')" draggable="${!isPlaced}" ondragstart="app.dragStartPool(event, '${h.id}')" ondragend="app.dragEnd()"
-                             class="hero-circle relative w-full aspect-square bg-[#4b5563] rounded-full border-[1.5px] ${typeClass} cursor-pointer mx-auto flex-shrink-0 ${isSelected} ${stateClass}" title="${h.name}">
-                            <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover rounded-full pointer-events-none">
+                             class="hero-circle relative w-full aspect-square bg-[#4b5563] rounded-full border-2 ${typeClass} cursor-pointer mx-auto flex-shrink-0 ${isSelected} ${stateClass}" title="${h.name}">
+                            <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover rounded-full opacity-90 pointer-events-none">
                             ${h.hasAwaken === 'Yes' ? '<div class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-gray-900 rounded-full flex items-center justify-center border border-gray-600 z-10"><i class="fa-solid fa-fire-flame-curved text-[8px] text-red-500"></i></div>' : ''}
                         </div>
                     `;
@@ -227,13 +230,13 @@
             const buildGrid = () => {
                 const grid = document.getElementById('boardContainer');
                 
-                // Add the whole formation highlight layer first so it's always at the bottom
                 grid.innerHTML = '<div id="wholeFormationHighlight" class="absolute inset-0 bg-green-500/10 hidden pointer-events-none z-0 rounded-lg"></div>';
                 
                 for(let y = 0; y < 7; y++) {
                     for(let x = 0; x < 5; x++) {
                         const cell = document.createElement('div');
-                        cell.className = "grid-cell bg-gray-800 border border-gray-700 rounded relative flex items-center justify-center overflow-visible cursor-pointer z-10";
+                        // FIX: Removed z-index from the individual cells so they don't break stacking context
+                        cell.className = "grid-cell bg-gray-800 border border-gray-700 rounded relative flex items-center justify-center overflow-visible cursor-pointer";
                         cell.dataset.x = x; cell.dataset.y = y;
                         cell.onclick = () => handleCellClick(x, y);
                         cell.ondragover = (e) => dragOver(e, cell);
@@ -248,15 +251,19 @@
                 document.querySelectorAll('.grid-cell').forEach(cell => {
                     cell.innerHTML = ''; cell.classList.remove('drag-over');
                 });
+                document.querySelectorAll('.aura-circle').forEach(el => el.remove());
 
                 const aoeMap = {}; 
                 let isWholeFormationActive = false;
+                let activeAoeHeroes = [];
                 
+                // 1. INJECT AURAS
                 placedHeroes.forEach(ph => {
+                    if (!ph) return;
                     const conf = aoeDB[ph.id];
                     if(!conf) return;
 
-                    const fillCol = generateColor(ph.id, 0.15); 
+                    const fillCol = generateColor(ph.id, 0.25); 
                     const borderCol = generateColor(ph.id, 0.9); 
                     
                     if (conf.wholeFormation) isWholeFormationActive = true;
@@ -271,33 +278,57 @@
                         }
                     };
 
-                    // FIX: Explicitly enforce Number() math so it never evaluates as a string concatenation 
+                    if(conf.wholeRow) { for(let i=0; i<5; i++) addAoe(i, ph.y); }
+                    if(conf.wholeCol) { for(let i=0; i<7; i++) addAoe(ph.x, i); }
+                    
                     if(conf.fullRows) conf.fullRows.forEach(rOffset => { 
                         const offset = Number(rOffset);
-                        for(let i=0; i<5; i++) addAoe(i, ph.y + offset); 
+                        if (!isNaN(offset)) { for(let i=0; i<5; i++) addAoe(i, ph.y + offset); }
                     });
                     
                     if(conf.fullCols) conf.fullCols.forEach(cOffset => { 
                         const offset = Number(cOffset);
-                        for(let i=0; i<7; i++) addAoe(ph.x + offset, i); 
+                        if (!isNaN(offset)) { for(let i=0; i<7; i++) addAoe(ph.x + offset, i); }
                     });
                     
-                    if(conf.wholeFormation) { for(let cx=0; cx<5; cx++) { for(let cy=0; cy<7; cy++) addAoe(cx, cy); } }
+                    if(conf.wholeFormation) {
+                        for(let cx=0; cx<5; cx++) { for(let cy=0; cy<7; cy++) addAoe(cx, cy); }
+                    }
                     
-                    if(conf.grid) conf.grid.forEach(pt => {
-                        if (Array.isArray(pt)) addAoe(ph.x + Number(pt[1]), ph.y + Number(pt[0])); // Old array fallback
-                        else addAoe(ph.x + Number(pt.x), ph.y + Number(pt.y));
-                    });
+                    if(conf.grid) {
+                        let gridPts = typeof conf.grid === 'string' ? JSON.parse(conf.grid) : conf.grid;
+                        if (Array.isArray(gridPts)) {
+                            gridPts.forEach(pt => {
+                                if (!pt) return;
+                                if (Array.isArray(pt) && pt.length >= 2) addAoe(ph.x + Number(pt[1] || 0), ph.y + Number(pt[0] || 0));
+                                else if (typeof pt === 'object' && pt.x !== undefined && pt.y !== undefined) addAoe(ph.x + Number(pt.x), ph.y + Number(pt.y));
+                            });
+                        }
+                    }
 
-                    // FIX: Re-mapped the accurate radius calculation for auras
+                    // FIX: Append Aura accurately INSIDE the specific cell, using Z-15 so it pops out of grid freely
                     if(conf.radius && Number(conf.radius) > 0) {
                         const radiusCells = Number(conf.radius) / 10;
                         const sizeStr = `calc(${radiusCells * 200}% + ${radiusCells * 8}px)`;
-                        const cell = document.querySelector(`.grid-cell[data-x="${ph.x}"][data-y="${ph.y}"]`);
-                        if (cell) cell.innerHTML += `<div class="aura-circle" style="width: ${sizeStr}; height: ${sizeStr}; border-color: ${borderCol};"></div>`;
+                        const auraHtml = `<div class="aura-circle" style="width: ${sizeStr}; height: ${sizeStr}; border-color: ${borderCol}; z-index: 15;"></div>`;
+                        const targetCell = document.querySelector(`.grid-cell[data-x="${ph.x}"][data-y="${ph.y}"]`);
+                        if (targetCell) targetCell.innerHTML += auraHtml;
+                    }
+                    
+                    const hasValidAoe = (conf.grid && conf.grid.length > 0) || 
+                                        (conf.fullRows && conf.fullRows.length > 0) || 
+                                        (conf.fullCols && conf.fullCols.length > 0) || 
+                                        conf.wholeFormation || 
+                                        (conf.radius && Number(conf.radius) > 0) ||
+                                        conf.wholeRow || conf.wholeCol;
+                    
+                    if (hasValidAoe) {
+                        const heroData = heroes.find(h => h.id === ph.id);
+                        if (heroData) activeAoeHeroes.push({ name: heroData.name, color: generateColor(ph.id, 1) });
                     }
                 });
 
+                // 2. INJECT AOE FOOTPRINTS
                 Object.keys(aoeMap).forEach(key => {
                     const [xStr, yStr] = key.split(',');
                     const x = parseInt(xStr); const y = parseInt(yStr);
@@ -329,9 +360,10 @@
                 });
 
                 document.getElementById('heroCount').innerText = placedHeroes.length;
-                let activeAoeHeroes = [];
 
+                // 3. INJECT HEROES ON TOP
                 placedHeroes.forEach(ph => {
+                    if (!ph) return;
                     const cell = document.querySelector(`.grid-cell[data-x="${ph.x}"][data-y="${ph.y}"]`);
                     const heroData = heroes.find(h => h.id === ph.id);
                     if(cell && heroData) {
@@ -345,13 +377,12 @@
 
                         cell.innerHTML += `
                             <div draggable="true" ondragstart="app.dragStartGrid(event, ${ph.x}, ${ph.y})" ondragend="app.dragEnd()"
-                                 class="relative w-[85%] aspect-square bg-[#4b5563] rounded-full border-[1.5px] sm:border-2 ${typeClass} z-20 shadow-md flex-shrink-0 flex items-center justify-center cursor-pointer transition-all ${selectedClass}" title="Drag to move, Tap to select/remove">
+                                 ondblclick="app.handleCellDoubleClick(${ph.x}, ${ph.y})"
+                                 class="relative w-[85%] aspect-square bg-[#4b5563] rounded-full border-[1.5px] sm:border-2 ${typeClass} z-20 shadow-md flex-shrink-0 flex items-center justify-center cursor-pointer transition-all ${selectedClass}" title="Drag to Move/Swap. Dbl-Click to Remove.">
                                 <img src="${heroData.image}" class="w-full h-full object-cover rounded-full pointer-events-none">
-                                <div class="absolute -top-1 -right-1 bg-black/80 rounded-full w-4 h-4 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none"><i class="fa-solid fa-times text-[8px] text-red-400"></i></div>
+                                <div class="absolute -top-1 -right-1 bg-black/80 rounded-full w-5 h-5 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none"><i class="fa-solid fa-times text-[10px] text-red-400"></i></div>
                             </div>
                         `;
-                        
-                        if(aoeDB[ph.id]) activeAoeHeroes.push({ name: heroData.name, color: generateColor(ph.id, 1) });
                     }
                 });
 
@@ -371,21 +402,21 @@
             const handleCellClick = (x, y) => {
                 if(isDragging) return; 
 
-                const existingIndex = placedHeroes.findIndex(p => p.x === x && p.y === y);
-
-                if (selectedPoolHero) {
+                const existingIndex = placedHeroes.findIndex(p => p && p.x === x && p.y === y);
+                
+                if(selectedPoolHero) {
                     if (existingIndex > -1) placedHeroes.splice(existingIndex, 1);
                     else if (placedHeroes.length >= 30) return alert("Maximum of 30 heroes allowed on the grid.");
                     
                     placedHeroes.push({ id: selectedPoolHero, x: x, y: y });
-                    selectedPoolHero = null;
+                    selectedPoolHero = null; 
                     renderPool(); updateGridVisuals();
                 } else if (selectedGridCell) {
-                    const sourceIndex = placedHeroes.findIndex(p => p.x === selectedGridCell.x && p.y === selectedGridCell.y);
+                    const sourceIndex = placedHeroes.findIndex(p => p && p.x === selectedGridCell.x && p.y === selectedGridCell.y);
                     if (sourceIndex === -1) { selectedGridCell = null; return; }
                     
                     if (selectedGridCell.x === x && selectedGridCell.y === y) {
-                        placedHeroes.splice(sourceIndex, 1); // Click same = remove
+                        selectedGridCell = null; // Un-select on second click
                     } else {
                         if (existingIndex > -1) {
                             placedHeroes[existingIndex].x = placedHeroes[sourceIndex].x;
@@ -396,8 +427,8 @@
                             placedHeroes[sourceIndex].x = x;
                             placedHeroes[sourceIndex].y = y;
                         }
+                        selectedGridCell = null;
                     }
-                    selectedGridCell = null;
                     renderPool(); updateGridVisuals();
                 } else {
                     if (existingIndex > -1) {
@@ -407,33 +438,48 @@
                 }
             };
 
+            const handleCellDoubleClick = (x, y) => {
+                const existingIndex = placedHeroes.findIndex(p => p && p.x === x && p.y === y);
+                if (existingIndex > -1) {
+                    placedHeroes.splice(existingIndex, 1);
+                    selectedGridCell = null;
+                    renderPool(); updateGridVisuals();
+                }
+            };
+
             const dragStartPool = (e, id) => { isDragging = true; e.dataTransfer.setData("type", "pool"); e.dataTransfer.setData("heroId", id); };
             const dragStartGrid = (e, x, y) => { isDragging = true; e.dataTransfer.setData("type", "grid"); e.dataTransfer.setData("sourceX", x); e.dataTransfer.setData("sourceY", y); };
             const dragEnd = () => { isDragging = false; };
             const dragOver = (e, cell) => { e.preventDefault(); cell.classList.add('drag-over'); };
             const dragLeave = (e, cell) => { cell.classList.remove('drag-over'); };
+            
             const drop = (e, x, y, cell) => {
                 e.preventDefault(); cell.classList.remove('drag-over'); isDragging = false;
                 const type = e.dataTransfer.getData("type");
-                const targetIndex = placedHeroes.findIndex(p => p.x === x && p.y === y);
+                const targetIndex = placedHeroes.findIndex(p => p && p.x === x && p.y === y);
 
                 if (type === "pool") {
                     const id = e.dataTransfer.getData("heroId");
                     if (!id) return;
                     if (targetIndex > -1) placedHeroes.splice(targetIndex, 1);
-                    else if (placedHeroes.length >= 30) return;
+                    else if (placedHeroes.length >= 30) return alert("Maximum of 30 heroes allowed.");
                     placedHeroes.push({ id, x, y });
                 } else if (type === "grid") {
                     const sourceX = parseInt(e.dataTransfer.getData("sourceX"));
                     const sourceY = parseInt(e.dataTransfer.getData("sourceY"));
-                    const sourceIndex = placedHeroes.findIndex(p => p.x === sourceX && p.y === sourceY);
+                    const sourceIndex = placedHeroes.findIndex(p => p && p.x === sourceX && p.y === sourceY);
                     if (sourceIndex === -1) return;
 
                     if (targetIndex > -1) {
-                        placedHeroes[sourceIndex].x = x; placedHeroes[sourceIndex].y = y;
-                        placedHeroes[targetIndex].x = sourceX; placedHeroes[targetIndex].y = sourceY;
+                        // Swap
+                        placedHeroes[sourceIndex].x = x; 
+                        placedHeroes[sourceIndex].y = y;
+                        placedHeroes[targetIndex].x = sourceX; 
+                        placedHeroes[targetIndex].y = sourceY;
                     } else {
-                        placedHeroes[sourceIndex].x = x; placedHeroes[sourceIndex].y = y;
+                        // Move
+                        placedHeroes[sourceIndex].x = x; 
+                        placedHeroes[sourceIndex].y = y;
                     }
                 }
                 selectedPoolHero = null; selectedGridCell = null;
@@ -443,14 +489,20 @@
             const generateColor = (id, alpha) => {
                 let hash = 0;
                 for (let i = 0; i < id.length; i++) hash = id.charCodeAt(i) + ((hash << 5) - hash);
-                return `hsla(${Math.abs(hash) % 360}, 80%, 60%, ${alpha})`; 
+                const h = Math.abs(hash) % 360;
+                return `hsla(${h}, 80%, 60%, ${alpha})`; 
             };
 
             const renderLegend = (active) => {
                 const container = document.getElementById('legendContainer');
-                if(active.length === 0) { container.innerHTML = '<span class="text-xs text-gray-600 italic">No active auras on board.</span>'; return; }
+                if(active.length === 0) {
+                    container.innerHTML = '<span class="text-xs text-gray-600 italic">No active auras on board.</span>';
+                    return;
+                }
+                
                 const unique = []; const seen = new Set();
                 active.forEach(a => { if(!seen.has(a.name)) { seen.add(a.name); unique.push(a); } });
+
                 container.innerHTML = unique.map(a => `
                     <div class="flex items-center gap-1.5 bg-gray-800 border border-gray-700 px-2 py-0.5 rounded">
                         <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${a.color};"></div>
@@ -520,7 +572,7 @@
                     if (loadedGrid && !Array.isArray(loadedGrid) && Array.isArray(loadedGrid.grid)) {
                         loadedGrid = loadedGrid.grid;
                     }
-                    placedHeroes = Array.isArray(loadedGrid) ? loadedGrid : [];
+                    placedHeroes = (Array.isArray(loadedGrid) ? loadedGrid : []).filter(p => p !== null);
                     
                     document.getElementById('loadModal').classList.add('hidden');
                     selectedPoolHero = null; selectedGridCell = null;
@@ -532,10 +584,9 @@
                 }
             };
 
-            // Used by URL code loading
             const loadFormation = (code) => { fetchFormation(code); };
 
-            return { init, setFilter, renderPool, selectFromPool, dragStartPool, dragStartGrid, dragEnd, dragOver, dragLeave, drop, saveFormation, copyCode, openLoadModal, fetchFormation };
+            return { init, setFilter, renderPool, selectFromPool, dragStartPool, dragStartGrid, dragEnd, dragOver, dragLeave, drop, handleCellDoubleClick, handleCellClick, saveFormation, copyCode, openLoadModal, fetchFormation };
         })();
 
         window.onload = app.init;
