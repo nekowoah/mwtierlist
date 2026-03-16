@@ -31,7 +31,7 @@ window.TierlistEditor = (() => {
                             <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Image URL</label>
                             <div class="flex gap-2">
                                 <input type="text" id="editImage" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                                <!-- FIX: Hooked up to the new Universal Image Picker -->
+                                <!-- FIX: Properly hooked up to the Universal Image Picker, no local upload logic needed! -->
                                 <button type="button" onclick="ImagePicker.open((url) => document.getElementById('editImage').value = url, document.getElementById('editName').value)" class="bg-gray-700 hover:bg-gray-600 text-white px-4 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
                             </div>
                         </div>
@@ -262,16 +262,15 @@ window.TierlistEditor = (() => {
 
         // Optimistic Local Update
         let heroes = appRef.getHeroes();
-                };
-                reader.onerror = () => reject("File reading failed.");
-            });
+        const existingIndex = heroes.findIndex(h => h.id == formData.id);
+        if (existingIndex >= 0) heroes[existingIndex] = formData;
+        else heroes.unshift(formData);
+        
+        appRef.setHeroes(heroes);
+        appRef.render();
+        close();
 
-            // FIX: Use exact original filename instead of the Hero's name + timestamp
-            const originalName = file.name.replace(/\.[^/.]+$/, "");
-            let safeName = originalName.replace(/[^a-zA-Z0-9_\-]/g, "").toLowerCase();
-            if (!safeName) safeName = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase() || "hero";
-            const fileName = `${safeName}.webp`;
-
+        try {
             const token = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
             const res = await fetch(window.MWR_GLOBALS.API_URL, { 
                 method: "POST", 
@@ -320,6 +319,5 @@ window.TierlistEditor = (() => {
         }
     };
 
-    // FIX: Removed all the dead image gallery functions from the return block
     return { open, close, save, delete: deleteHero };
 })();
