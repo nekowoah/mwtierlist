@@ -256,9 +256,16 @@
             };
 
             const init = async () => {
+                if (!window.MWR_GLOBALS) {
+                    document.getElementById('loading').innerHTML = `<div class="bg-red-900/20 border border-red-500/50 rounded-xl p-6 max-w-md mx-auto mt-10"><i class="fa-solid fa-triangle-exclamation text-4xl text-red-500 mb-3"></i><h3 class="text-xl font-black text-white mb-2">Missing Shared Files</h3><p class="text-gray-300 text-sm">Cannot find shared/globals.js</p></div>`;
+                    return; 
+                }
+
                 if (window.location.hash === '#admin') {
                     const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
-                    if (savedToken) {
+                    const role = localStorage.getItem('mw_admin_role') || sessionStorage.getItem('mw_admin_role') || 'admin';
+                    
+                    if (savedToken && role === 'admin') {
                         isAdmin = true;
                         document.getElementById('siteTitleText').innerText = "Editor Mode";
                         document.getElementById('adminIconBadge').className = "w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] transition-all";
@@ -269,7 +276,13 @@
                                 <i class="fa-solid fa-plus"></i><span class="hidden sm:inline">Add Hero</span>
                             </button>
                         `);
-                    } else { window.location.href = 'admin.html'; return; }
+                    } else if (savedToken) {
+                        // FIX: Kick Editors out of the tierlist edit page automatically
+                        alert("Permission Denied: You must be a full Admin to edit the Tierlist.");
+                        window.location.href = 'admin.html'; return;
+                    } else { 
+                        window.location.href = 'admin.html'; return; 
+                    }
                 }
 
                 if (window.AppMenu && window.AppMenu.build) window.AppMenu.build(isAdmin, 'indigo');
@@ -483,26 +496,26 @@
                                 }
 
                                 const { sub } = parseRank(h[currentMode]);
-                                let subRankHtml = '';
-                                if (sub) {
-                                    const iconHtml = sub === '+' ? '<i class="fa-solid fa-plus text-[10px] text-green-400"></i>' : '<i class="fa-solid fa-minus text-[10px] text-red-400"></i>';
-                                    subRankHtml = `<div class="absolute bottom-4 right-1 z-20 bg-[#111827]/80 border border-[#4b5563]/50 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${iconHtml}</div>`;
-                                }
+                                let subColor = 'text-white';
+                                if (sub === '+') subColor = 'text-green-400';
+                                if (sub === '-') subColor = 'text-red-400';
                                 
+                                const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-black/70 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
+
                                 const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
+
+                                // FIX: Safely check if TierlistEditor exists before trying to open it to prevent ReferenceErrors
+                                heroEl.onclick = () => {
+                                    if (typeof isAdmin !== 'undefined' && isAdmin && typeof window.TierlistEditor !== 'undefined') {
+                                        window.TierlistEditor.open(h, app);
+                                    } else {
+                                        openModal(h);
+                                    }
+                                };
 
                                 heroEl.innerHTML = `
                                     ${classIconHtml}${dotHtml}${subRankHtml}
-                                    <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover rounded opacity-80 group-hover:opacity-100 transition-opacity">
-                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent pt-3 pb-0.5 px-1 flex flex-col justify-end rounded-b">
-                                        <div class="text-[9px] sm:text-[10px] text-center text-white leading-none font-bold break-words drop-shadow-md pb-0.5 flex justify-center items-center gap-0.5">${h.name}${awakenHtml}</div>
-                                    </div>
-                                `;
-                                groupContainer.appendChild(heroEl);
-                            });
-                            contentDiv.appendChild(groupContainer);
-                            hasPrevContent = true;
-                        }
+                                    <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
                     });
                     rowDiv.appendChild(labelDiv);
                     rowDiv.appendChild(contentDiv);
