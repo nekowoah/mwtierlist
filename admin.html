@@ -22,11 +22,14 @@
             <input type="password" id="passwordInput" placeholder="Enter Password" 
                 class="w-full bg-gray-900 border border-gray-600 rounded px-4 py-3 mb-4 text-white focus:border-indigo-500 outline-none transition-colors">
             
-            <!-- FIX: Added ID to button for spinner injection -->
-            <button id="loginBtn" onclick="window.admin.login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded transition-colors shadow-lg flex items-center justify-center">
+            <div class="flex items-center justify-start mb-4 px-1">
+                <input type="checkbox" id="rememberMe" class="mr-2 cursor-pointer w-4 h-4 accent-indigo-600 rounded bg-gray-900 border-gray-600">
+                <label for="rememberMe" class="text-sm font-bold text-gray-400 cursor-pointer hover:text-white transition-colors">Stay Logged In</label>
+            </div>
+
+            <button id="loginBtn" onclick="window.admin.login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded transition-colors shadow-lg">
                 Login to Dashboard
             </button>
-            
             <p id="loginError" class="text-red-400 mt-4 text-sm hidden"></p>
             <a href="index.html" class="block mt-6 text-sm text-gray-500 hover:text-white transition-colors">Return to Public Site</a>
         </div>
@@ -58,8 +61,8 @@
             <p class="text-gray-400 text-sm sm:text-base mb-12 text-center max-w-xl">Manage the tierlist database, edit public information articles, or optimize your GitHub media assets.</p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
-                <!-- Routing Card: Tierlist (Admin Only) -->
-                <a href="index.html#admin" id="card-tierlist" class="dash-card bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
+                <!-- Routing Card: Tierlist -->
+                <a href="index.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
                     <div class="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-table-list text-3xl text-indigo-400"></i>
                     </div>
@@ -67,8 +70,8 @@
                     <p class="text-xs text-gray-400">Add new heroes, adjust rankings, and update analysis notes directly on the tierlist page.</p>
                 </a>
 
-                <!-- Routing Card: Information (Admin & Editor) -->
-                <a href="info.html#admin" id="card-info" class="dash-card bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
+                <!-- Routing Card: Information -->
+                <a href="info.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
                     <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-book-open text-3xl text-blue-400"></i>
                     </div>
@@ -76,8 +79,8 @@
                     <p class="text-xs text-gray-400">Use the Rich Text Editor to update guides, announcements, and site rules.</p>
                 </a>
 
-                <!-- Routing Card: AOE Editor (Admin & Editor) -->
-                <a href="aoe-editor.html#admin" id="card-aoe" class="dash-card bg-gray-800 border border-gray-700 hover:border-yellow-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
+                <!-- Routing Card: AOE Editor -->
+                <a href="aoe-editor.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-yellow-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
                     <div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-chess-board text-3xl text-yellow-400"></i>
                     </div>
@@ -85,8 +88,8 @@
                     <p class="text-xs text-gray-400">Define the buff footprints and area of effects for the Formation Builder.</p>
                 </a>
 
-                <!-- Internal Card: Media Gallery (Admin Only) -->
-                <button onclick="window.admin.switchView('gallery')" id="card-gallery" class="dash-card bg-gray-800 border border-gray-700 hover:border-green-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer w-full transition-colors duration-300">
+                <!-- Internal Card: Media Gallery -->
+                <button onclick="window.admin.switchView('gallery')" class="dash-card bg-gray-800 border border-gray-700 hover:border-green-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer w-full transition-colors duration-300">
                     <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-images text-3xl text-green-400"></i>
                     </div>
@@ -151,28 +154,38 @@
             let currentView = 'dashboard';
 
             const init = () => {
-                const savedToken = sessionStorage.getItem('mw_admin_token');
+                const savedUser = localStorage.getItem('mw_admin_user');
+                if(savedUser) {
+                    document.getElementById('usernameInput').value = savedUser;
+                    document.getElementById('rememberMe').checked = true;
+                }
+
+                const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
                 if(savedToken) {
                     authToken = savedToken;
-                    // Only load gallery images in background if they are an admin
-                    const role = sessionStorage.getItem('mw_admin_role') || 'admin';
-                    if (role === 'admin') {
-                        sendRequest({ action: "list_images" })
-                            .then(() => {
-                                document.getElementById('loginScreen').classList.add('hidden');
-                                document.getElementById('appContainer').classList.remove('hidden');
-                                switchView('dashboard');
-                            })
-                            .catch(err => {
-                                console.warn("Session expired");
-                                sessionStorage.removeItem('mw_admin_token');
-                                authToken = "";
-                            });
-                    } else {
-                        document.getElementById('loginScreen').classList.add('hidden');
-                        document.getElementById('appContainer').classList.remove('hidden');
-                        switchView('dashboard');
+                    
+                    const btn = document.getElementById('loginBtn');
+                    if (btn) {
+                        btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Resuming Session...`;
+                        btn.disabled = true;
                     }
+
+                    sendRequest({ action: "list_images" })
+                        .then(() => {
+                            document.getElementById('loginScreen').classList.add('hidden');
+                            document.getElementById('appContainer').classList.remove('hidden');
+                            switchView('dashboard');
+                        })
+                        .catch(err => {
+                            console.warn("Session expired");
+                            sessionStorage.removeItem('mw_admin_token');
+                            localStorage.removeItem('mw_admin_token');
+                            authToken = "";
+                            if (btn) {
+                                btn.innerHTML = `Login to Dashboard`;
+                                btn.disabled = false;
+                            }
+                        });
                 }
                 // Inject Sidebar
                 window.AppMenu.build(false, 'indigo');
@@ -186,16 +199,6 @@
                 if (viewName === 'dashboard') {
                     document.getElementById('view-dashboard').classList.remove('hidden');
                     document.getElementById('topBarTitle').innerText = "Admin Dashboard";
-                    
-                    // FIX: Hide restricted cards if the user is an Editor
-                    const role = sessionStorage.getItem('mw_admin_role') || 'admin';
-                    if (role !== 'admin') {
-                        document.getElementById('card-tierlist').classList.add('hidden');
-                        document.getElementById('card-gallery').classList.add('hidden');
-                    } else {
-                        document.getElementById('card-tierlist').classList.remove('hidden');
-                        document.getElementById('card-gallery').classList.remove('hidden');
-                    }
                 } else if (viewName === 'gallery') {
                     document.getElementById('view-gallery').classList.remove('hidden');
                     document.getElementById('topBarTitle').innerText = "Media Gallery";
@@ -227,7 +230,7 @@
 
             const logout = () => { 
                 sessionStorage.removeItem('mw_admin_token'); 
-                sessionStorage.removeItem('mw_admin_role');
+                localStorage.removeItem('mw_admin_token');
                 window.location.reload(); 
             };
 
@@ -245,13 +248,13 @@
             const login = async () => {
                 const user = document.getElementById('usernameInput').value.trim();
                 const pass = document.getElementById('passwordInput').value.trim();
+                const remember = document.getElementById('rememberMe').checked;
                 const err = document.getElementById('loginError');
                 const btn = document.getElementById('loginBtn');
                 
                 if (!user || !pass) { err.innerText = "Please enter both Username and Password."; err.classList.remove('hidden'); return; }
 
-                // FIX: Added Spinner Injection
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Verifying...`; 
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Verifying...`; 
                 btn.disabled = true;
 
                 try {
@@ -260,9 +263,19 @@
                     if (data.error) throw new Error(data.error);
 
                     authToken = data.token;
-                    sessionStorage.setItem('mw_admin_token', authToken);
-                    // FIX: Save the role securely delivered by the server
-                    sessionStorage.setItem('mw_admin_role', data.role || 'admin'); 
+                    const role = data.role || 'admin';
+                    
+                    if (remember) {
+                        localStorage.setItem('mw_admin_token', authToken);
+                        localStorage.setItem('mw_admin_user', user);
+                        localStorage.setItem('mw_admin_role', role);
+                    } else {
+                        sessionStorage.setItem('mw_admin_token', authToken);
+                        sessionStorage.setItem('mw_admin_role', role);
+                        localStorage.removeItem('mw_admin_token');
+                        localStorage.removeItem('mw_admin_user');
+                        localStorage.removeItem('mw_admin_role');
+                    }
                     
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('appContainer').classList.remove('hidden');
@@ -270,8 +283,7 @@
                 } catch (e) {
                     err.innerText = e.message || "Incorrect Username or Password";
                     err.classList.remove('hidden');
-                } finally {
-                    btn.innerHTML = `Login to Dashboard`; 
+                    btn.innerHTML = `Login to Dashboard`;
                     btn.disabled = false;
                 }
             };
