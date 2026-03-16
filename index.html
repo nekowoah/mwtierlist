@@ -437,9 +437,17 @@
                     
                     try {
                         if (db) {
-                            const snapshot = await db.collection('tierlist').get();
-                            if (!snapshot.empty) {
-                                snapshot.forEach(doc => freshData.push(doc.data()));
+                            const docRef = await db.collection('cache').doc('tierlist_payload').get();
+                            if (docRef.exists) {
+                                const payloadData = docRef.data();
+                                if (payloadData && payloadData.data) {
+                                    const parsed = JSON.parse(payloadData.data);
+                                    if (Array.isArray(parsed)) {
+                                        freshData = parsed;
+                                        // FIX: Added visual confirmation to the console!
+                                        console.log("🔥 Tierlist loaded instantly from Firebase CDN!");
+                                    }
+                                }
                             }
                         }
                     } catch (fbErr) {
@@ -460,7 +468,7 @@
                         render();
                     }
                     
-                    fetch(API_URL + "?view=logs").then(r => r.json()).then(data => { if (Array.isArray(data)) cachedLogs = data; });
+                    // FIX: Removed the automatic Changelog background fetch to keep the Network tab silent until requested
                 } catch(e) { 
                     if (!cachedHeroes) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; 
                 }
