@@ -23,7 +23,7 @@
                 class="w-full bg-gray-900 border border-gray-600 rounded px-4 py-3 mb-4 text-white focus:border-indigo-500 outline-none transition-colors">
             
             <div class="flex items-center justify-start mb-4 px-1">
-                <input type="checkbox" id="rememberMe" class="mr-2 cursor-pointer w-4 h-4 accent-indigo-600 rounded bg-gray-900 border-gray-600">
+                <input type="checkbox" id="rememberMe" class="appearance-none w-4 h-4 cursor-pointer bg-gray-900 border border-gray-600 rounded checked:bg-indigo-600 checked:border-indigo-600 flex items-center justify-center after:content-['✓'] after:text-white after:text-[10px] after:font-bold after:hidden checked:after:block mr-2">
                 <label for="rememberMe" class="text-sm font-bold text-gray-400 cursor-pointer hover:text-white transition-colors">Stay Logged In</label>
             </div>
 
@@ -103,7 +103,7 @@
         <div id="view-gallery" class="hidden flex-col flex-grow relative w-full fade-in bg-gray-900 transition-colors duration-300">
             <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow flex flex-col">
                 
-                <!-- FIX: Compact Upload Bar -->
+                <!-- Compact Upload Bar -->
                 <div class="bg-gray-800 border border-dashed border-gray-600 rounded-xl p-4 mb-4 flex flex-col sm:flex-row items-center justify-between hover:border-indigo-500 transition-colors shrink-0 gap-4">
                     <div class="flex items-center gap-4 text-left w-full sm:w-auto">
                         <div class="w-10 h-10 bg-indigo-900/30 rounded-full flex items-center justify-center shrink-0 border border-indigo-500/30">
@@ -130,7 +130,7 @@
                         <h2 class="text-xl font-bold text-gray-100 whitespace-nowrap"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> File Repository</h2>
                         
                         <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap">
-                            <!-- NEW: Search Bar -->
+                            <!-- Search Bar -->
                             <div class="relative group flex-grow sm:flex-grow-0">
                                 <input type="text" id="gallerySearchInput" onkeyup="window.admin.renderGallery()" placeholder="Search images..." class="w-full sm:w-48 bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 pl-8 text-white outline-none focus:border-indigo-500 transition-colors text-xs font-bold">
                                 <i class="fa-solid fa-search absolute left-2.5 top-2 text-gray-500"></i>
@@ -142,7 +142,7 @@
                                 <button onclick="window.admin.setGalleryView('grid')" id="btnViewGrid" class="px-3 py-1 rounded text-xs font-bold text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-border-all"></i></button>
                             </div>
 
-                            <!-- Sorting Dropdown (Time Options Removed) -->
+                            <!-- Sorting Dropdown -->
                             <select id="gallerySortSelect" onchange="window.admin.setGallerySort(this.value)" class="bg-gray-900 border border-gray-700 text-gray-300 text-xs rounded-lg px-2 py-1.5 outline-none focus:border-indigo-500 w-full sm:w-auto font-bold cursor-pointer">
                                 <option value="az">Sort: Alphabetical (A-Z)</option>
                                 <option value="za">Sort: Alphabetical (Z-A)</option>
@@ -178,7 +178,6 @@
                 </div>
 
                 <!-- GALLERY VIEW: LIST (Default) -->
-                <!-- FIX: Added fixed constrained height (h-[60vh] max-h-[600px]) so it scrolls internally and preview pane matches size -->
                 <div id="galleryListView" class="flex h-[60vh] min-h-[400px] max-h-[600px] overflow-hidden gap-4 mb-8">
                     <div id="galleryListContent" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col gap-2 pr-1 content-start bg-gray-900/30 rounded-xl p-2 border border-gray-800">
                         <!-- List rows injected here -->
@@ -226,9 +225,8 @@
             let selectedImages = new Set();
             let currentView = 'dashboard';
             
-            // New Gallery States
-            let galleryViewMode = 'list'; // 'list' or 'grid'
-            let gallerySortMode = 'az'; // Default changed to 'az'
+            let galleryViewMode = 'list'; 
+            let gallerySortMode = 'az'; 
             let currentPreviewSha = null;
 
             const init = () => {
@@ -485,10 +483,11 @@
                     const activeTextClass = isPreviewed ? 'text-white' : 'text-gray-300';
                     const extBadge = isConvertible ? `<span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold shrink-0">RAW</span>` : `<span class="bg-green-500/20 text-green-400 border border-green-500/30 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold shrink-0">WEBP</span>`;
 
+                    // FIX: Styled custom checkboxes to match the dark theme
                     return `
                         <div onclick="window.admin.selectPreview('${img.sha}')" class="flex items-center gap-3 p-2 rounded-lg border ${activeContainerClass} cursor-pointer transition-colors group">
                             <div class="shrink-0 flex items-center justify-center pl-1" onclick="event.stopPropagation()">
-                                <input type="checkbox" class="w-4 h-4 cursor-pointer accent-indigo-600 bg-gray-900 border-gray-600 rounded" onchange="window.admin.toggleImageSelection('${img.sha}')" ${isChecked ? 'checked' : ''}>
+                                <input type="checkbox" class="appearance-none w-4 h-4 cursor-pointer bg-gray-900 border border-gray-600 rounded checked:bg-indigo-600 checked:border-indigo-600 flex items-center justify-center after:content-['✓'] after:text-white after:text-[10px] after:font-bold after:hidden checked:after:block" onchange="window.admin.toggleImageSelection('${img.sha}')" ${isChecked ? 'checked' : ''}>
                             </div>
                             <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-900 rounded overflow-hidden flex-shrink-0 flex items-center justify-center border border-gray-700 shadow-inner p-1">
                                 <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
@@ -511,15 +510,14 @@
                         ? `<button onclick="event.stopPropagation(); window.admin.convertExistingToWebP('${img.name}', '${img.download_url}', '${img.path}', '${img.sha}')" class="absolute top-2 left-2 bg-yellow-500 hover:bg-yellow-400 text-black text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg z-20 transition-colors" title="Convert to WebP"><i class="fa-solid fa-bolt mr-1"></i>AUTO WEBP</button>` 
                         : `<span class="absolute top-2 left-2 bg-green-500/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg z-20 backdrop-blur-sm border border-green-400/50">WEBP</span>`;
                     
+                    // FIX: Replaced grid checkbox with custom dark styling to match background
                     return `
                     <div class="bg-gray-800 rounded-xl overflow-hidden border ${borderColor} flex flex-col transition-all cursor-pointer group" onclick="window.admin.toggleImageSelection('${img.sha}')">
                         
                         <!-- Image Container (Square) -->
                         <div class="relative w-full aspect-square bg-gray-900/50 p-2 flex items-center justify-center border-b border-gray-700">
                             ${convertBtn}
-                            <div class="absolute top-2 right-2 z-20 bg-gray-900/80 rounded border border-gray-600 p-0.5">
-                                <input type="checkbox" class="w-4 h-4 cursor-pointer accent-indigo-600 bg-gray-900 border-gray-600 rounded pointer-events-none" ${isChecked ? 'checked' : ''}>
-                            </div>
+                            <input type="checkbox" class="absolute top-2 right-2 z-20 appearance-none w-5 h-5 cursor-pointer bg-gray-900/80 backdrop-blur-sm border border-gray-600 rounded checked:bg-indigo-600 checked:border-indigo-600 flex items-center justify-center after:content-['✓'] after:text-white after:text-xs after:font-bold after:hidden checked:after:block pointer-events-none" ${isChecked ? 'checked' : ''}>
                             <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
                         </div>
                         
@@ -737,12 +735,10 @@
                         });
                     }
 
-                    // FIX: Removed timestamp injection, strictly uses the sanitized original filename
                     const originalName = file.name.replace(/\.[^/.]+$/, "");
                     let safeName = originalName.replace(/[^a-zA-Z0-9_\-]/g, "").toLowerCase();
                     if (!safeName) safeName = "image";
                     
-                    // Maintain the extension (whether it was converted to .webp or kept as original like .gif)
                     const ext = finalName.split('.').pop().toLowerCase();
                     finalName = `${safeName}.${ext}`;
 
@@ -763,7 +759,8 @@
             window.admin = { 
                 init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, 
                 convertExistingToWebP, copyUrl, toggleImageSelection, selectAllToggle, 
-                convertSelected, deleteSelected, clearCache, setGalleryView, setGallerySort, selectPreview 
+                convertSelected, deleteSelected, clearCache, setGalleryView, setGallerySort, selectPreview,
+                renderGallery 
             };
         })();
 
