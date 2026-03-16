@@ -67,6 +67,15 @@
                 </div>
 
                 <div class="flex gap-3 sm:gap-4 items-center w-full md:w-auto justify-between md:justify-end" id="navControls">
+                    <!-- Live Sync Indicator -->
+                    <div id="syncIndicator" class="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-md bg-gray-900/50 border border-gray-700 text-[10px] font-bold text-gray-400" title="Live Sync Active">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        LIVE
+                    </div>
+
                     <div class="relative group flex-grow md:flex-grow-0">
                         <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search..." class="bg-gray-900/50 text-gray-100 rounded-full px-4 py-1.5 pl-9 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
                         <i class="fa-solid fa-search absolute left-3 top-2 text-gray-400 text-xs group-focus-within:text-yellow-500"></i>
@@ -244,6 +253,7 @@
             let showAwakenedOnly = false;
             let cachedLogs = null;
             let isAdmin = false;
+            let syncInterval = null;
 
             const db = window.MWR_GLOBALS ? window.MWR_GLOBALS.db : null;
             
@@ -297,12 +307,7 @@
                 });
 
                 const CACHE_KEY = 'mwr_tierlist_data_v6';
-                const TIME_KEY = 'mwr_tierlist_timestamp';
-                const CHECK_KEY = 'mwr_tierlist_lastcheck';
                 const cachedHeroes = localStorage.getItem(CACHE_KEY);
-                const localTimestamp = localStorage.getItem(TIME_KEY);
-                const lastCheck = localStorage.getItem(CHECK_KEY);
-                const now = Date.now();
 
                 if (cachedHeroes) {
                     try {
@@ -313,61 +318,90 @@
                     } catch(e) { console.warn("Cache parse error", e); }
                 }
 
-                try {
-                    let freshData = [];
-                    // Only check Firebase if it's been more than 120,000ms (2 minutes) since the last check
-                    const shouldCheck = !lastCheck || (now - parseInt(lastCheck)) > 120000;
-                    
-                    if (shouldCheck) {
-                        try {
-                            if (db) {
-                                const metaRef = await db.collection('cache').doc('tierlist_meta').get();
-                                if (metaRef.exists) {
-                                    const liveTimestamp = metaRef.data().lastUpdated;
-                                    localStorage.setItem(CHECK_KEY, now.toString()); // Update check time
+                // Start Background Live Sync & Logs
+                startLiveSync();
+                fetchChangelogsBackground();
+            };
 
-                                    if (!localTimestamp || liveTimestamp !== localTimestamp) {
-                                        console.log("New update detected! Downloading tierlist payload...");
-                                        const docRef = await db.collection('cache').doc('tierlist_payload').get();
-                                        if (docRef.exists) {
-                                            const payloadData = docRef.data();
-                                            if (payloadData && payloadData.data) {
-                                                const parsed = JSON.parse(payloadData.data);
-                                                if (Array.isArray(parsed)) {
-                                                    freshData = parsed;
-                                                    localStorage.setItem(TIME_KEY, liveTimestamp);
-                                                    console.log("🔥 Tierlist synced & cached from Firebase CDN!");
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        console.log("⚡ Local cache is perfectly up to date! Skipped Firebase payload download.");
+            const startLiveSync = () => {
+                const CACHE_KEY = 'mwr_tierlist_data_v6';
+                const TIME_KEY = 'mwr_tierlist_timestamp';
+                let localTimestamp = localStorage.getItem(TIME_KEY);
+
+                if (db) {
+                    // Show the LIVE indicator
+                    const indicator = document.getElementById('syncIndicator');
+                    if (indicator) indicator.classList.remove('hidden');
+
+                    // Firebase Real-time Connection
+                    db.collection('cache').doc('tierlist_meta').onSnapshot(async (metaRef) => {
+                        if (metaRef.exists) {
+                            const liveTimestamp = metaRef.data().lastUpdated;
+                            
+                            if (!localTimestamp || liveTimestamp !== localTimestamp) {
+                                console.log("New update detected! Downloading tierlist payload...");
+                                const docRef = await db.collection('cache').doc('tierlist_payload').get();
+                                if (docRef.exists && docRef.data().data) {
+                                    const parsed = JSON.parse(docRef.data().data);
+                                    if (Array.isArray(parsed)) {
+                                        heroes = parsed;
+                                        localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
+                                        localStorage.setItem(TIME_KEY, liveTimestamp);
+                                        localTimestamp = liveTimestamp;
+                                        
+                                        document.getElementById('loading').classList.add('hidden'); 
+                                        document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+                                        render();
+                                        console.log("🔥 Tierlist synced & cached from Firebase CDN!");
                                     }
                                 }
                             }
-                        } catch (fbErr) {
-                            console.warn("Firebase fetch failed or not configured. Falling back to GAS.", fbErr);
                         }
-                    } else {
-                        console.log("⏳ Rate limited: Skipping Firebase update check to prevent spam.");
-                    }
-
-                    if (freshData.length === 0 && !cachedHeroes) {
-                        console.log("Fetching from Google Apps Script (Fallback)...");
-                        const res = await fetch(API_URL);
-                        freshData = await res.json();
-                    }
-                    
-                    if (freshData.length > 0 && JSON.stringify(heroes) !== JSON.stringify(freshData)) {
-                        heroes = freshData;
-                        localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
-                        document.getElementById('loading').classList.add('hidden'); 
-                        document.getElementById('tierListContainer').classList.remove('opacity-0'); 
-                        render();
-                    }
-                } catch(e) { 
-                    if (!cachedHeroes) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; 
+                    }, (error) => {
+                        console.warn("Firebase Live Sync blocked or disconnected. Falling back to 2-minute polling.", error);
+                        startPollingFallback();
+                    });
+                } else {
+                    startPollingFallback();
                 }
+            };
+
+            const startPollingFallback = () => {
+                if (syncInterval) clearInterval(syncInterval);
+                
+                const indicator = document.getElementById('syncIndicator');
+                if (indicator) indicator.classList.add('hidden');
+
+                const CACHE_KEY = 'mwr_tierlist_data_v6';
+                
+                const doFetch = async () => {
+                    try {
+                        const res = await fetch(API_URL, { redirect: "follow" });
+                        const freshData = await res.json();
+                        if (Array.isArray(freshData) && JSON.stringify(heroes) !== JSON.stringify(freshData)) {
+                            heroes = freshData;
+                            localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
+                            document.getElementById('loading').classList.add('hidden'); 
+                            document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+                            render();
+                            console.log("Tierlist synced from GAS API (Polling Fallback)");
+                        }
+                    } catch(e) {
+                        console.error("Polling fallback failed", e);
+                    }
+                };
+                
+                // If we don't have local data, do an immediate fetch
+                if (heroes.length === 0) doFetch();
+                
+                syncInterval = setInterval(doFetch, 120000); // 120,000ms = 2 minutes
+            };
+
+            const fetchChangelogsBackground = () => {
+                fetch(API_URL + "?view=logs", { redirect: "follow" })
+                    .then(r => r.json())
+                    .then(data => { if (Array.isArray(data)) cachedLogs = data; })
+                    .catch(e => console.log("Failed to fetch logs in background", e));
             };
 
             const toggleTypeMenu = () => document.getElementById('typeMenu').classList.toggle('hidden');
