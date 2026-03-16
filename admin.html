@@ -62,7 +62,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
                 <!-- Routing Card: Tierlist -->
-                <a href="index.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
+                <a href="index.html#admin" id="card-tierlist" class="dash-card bg-gray-800 border border-gray-700 hover:border-indigo-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
                     <div class="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-table-list text-3xl text-indigo-400"></i>
                     </div>
@@ -71,7 +71,7 @@
                 </a>
 
                 <!-- Routing Card: Information -->
-                <a href="info.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
+                <a href="info.html#admin" id="card-info" class="dash-card bg-gray-800 border border-gray-700 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
                     <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-book-open text-3xl text-blue-400"></i>
                     </div>
@@ -80,7 +80,7 @@
                 </a>
 
                 <!-- Routing Card: AOE Editor -->
-                <a href="aoe-editor.html#admin" class="dash-card bg-gray-800 border border-gray-700 hover:border-yellow-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
+                <a href="aoe-editor.html#admin" id="card-aoe" class="dash-card bg-gray-800 border border-gray-700 hover:border-yellow-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer transition-colors duration-300">
                     <div class="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-chess-board text-3xl text-yellow-400"></i>
                     </div>
@@ -89,7 +89,7 @@
                 </a>
 
                 <!-- Internal Card: Media Gallery -->
-                <button onclick="window.admin.switchView('gallery')" class="dash-card bg-gray-800 border border-gray-700 hover:border-green-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer w-full transition-colors duration-300">
+                <button onclick="window.admin.switchView('gallery')" id="card-gallery" class="dash-card bg-gray-800 border border-gray-700 hover:border-green-500 rounded-2xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer w-full transition-colors duration-300">
                     <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-images text-3xl text-green-400"></i>
                     </div>
@@ -101,9 +101,9 @@
 
         <!-- VIEW 2: MEDIA GALLERY -->
         <div id="view-gallery" class="hidden flex-col flex-grow relative w-full fade-in bg-gray-900 transition-colors duration-300">
-            <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow">
+            <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-grow flex flex-col">
                 
-                <div class="bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl p-8 mb-8 text-center hover:border-indigo-500 transition-colors">
+                <div class="bg-gray-800 border-2 border-dashed border-gray-600 rounded-xl p-8 mb-6 text-center hover:border-indigo-500 transition-colors shrink-0">
                     <i class="fa-solid fa-cloud-arrow-up text-4xl text-indigo-400 mb-3"></i>
                     <h3 class="text-lg font-bold text-white mb-1">Upload to GitHub</h3>
                     <p class="text-gray-400 text-sm mb-4">PNGs and JPGs will be automatically converted to highly optimized WebP format.</p>
@@ -115,16 +115,41 @@
                     <div id="galleryUploadStatus" class="mt-3 text-sm font-bold text-yellow-400 hidden"><i class="fas fa-spinner fa-spin mr-1"></i> Processing & Uploading...</div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-gray-700 pb-3 gap-3">
-                    <h2 class="text-xl font-bold text-gray-100"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> File Repository</h2>
-                    <div class="flex gap-2 items-center w-full sm:w-auto justify-between sm:justify-end">
-                        <button onclick="window.admin.selectAllNonWebp()" class="text-sm text-gray-400 hover:text-white" id="btnSelectAll"><i class="fa-solid fa-check-double mr-1"></i> Select Non-WebP</button>
-                        <button onclick="window.admin.convertSelected()" id="btnConvertSelected" class="text-sm bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1.5 rounded hidden font-bold transition-colors shadow-lg"><i class="fa-solid fa-bolt mr-1"></i> Convert (<span id="selectedCount">0</span>)</button>
-                        <button onclick="window.admin.loadGallery()" class="text-sm text-gray-400 hover:text-white ml-2"><i class="fa-solid fa-rotate-right mr-1"></i> Refresh</button>
+                <!-- Gallery Controls Bar -->
+                <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-4 border-b border-gray-700 pb-4 gap-4 shrink-0">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full xl:w-auto">
+                        <h2 class="text-xl font-bold text-gray-100 whitespace-nowrap"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> File Repository</h2>
+                        
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <!-- View Toggles -->
+                            <div class="flex bg-gray-900 rounded-lg p-1 border border-gray-700 shrink-0">
+                                <button onclick="window.admin.setGalleryView('list')" id="btnViewList" class="px-3 py-1 rounded text-xs font-bold bg-gray-700 text-white shadow-md transition-colors"><i class="fa-solid fa-list"></i></button>
+                                <button onclick="window.admin.setGalleryView('grid')" id="btnViewGrid" class="px-3 py-1 rounded text-xs font-bold text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-border-all"></i></button>
+                            </div>
+
+                            <!-- Sorting Dropdown -->
+                            <select id="gallerySortSelect" onchange="window.admin.setGallerySort(this.value)" class="bg-gray-900 border border-gray-700 text-gray-300 text-xs rounded-lg px-2 py-1.5 outline-none focus:border-indigo-500 w-full sm:w-auto font-bold cursor-pointer">
+                                <option value="newest">Sort: Last Added (Newest)</option>
+                                <option value="oldest">Sort: First Added (Oldest)</option>
+                                <option value="az">Sort: Alphabetical (A-Z)</option>
+                                <option value="za">Sort: Alphabetical (Z-A)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Actions -->
+                    <div class="flex flex-wrap gap-2 items-center w-full xl:w-auto justify-between xl:justify-end bg-gray-800 p-2 rounded-lg border border-gray-700">
+                        <button onclick="window.admin.selectAllToggle()" class="text-sm text-gray-300 font-bold hover:text-white px-2 py-1 rounded hover:bg-gray-700 transition-colors" id="btnSelectAll"><i class="fa-solid fa-check-double mr-1"></i> Select All</button>
+                        
+                        <button onclick="window.admin.convertSelected()" id="btnConvertSelected" class="text-xs sm:text-sm bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1.5 rounded hidden font-bold transition-colors shadow-lg"><i class="fa-solid fa-bolt mr-1"></i> Convert (<span class="selectedCount">0</span>)</button>
+                        
+                        <button onclick="window.admin.deleteSelected()" id="btnDeleteSelected" class="text-xs sm:text-sm bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded hidden font-bold transition-colors shadow-lg"><i class="fa-solid fa-trash mr-1"></i> Delete (<span class="selectedCount">0</span>)</button>
+                        
+                        <button onclick="window.admin.loadGallery()" class="text-sm text-indigo-400 font-bold hover:text-indigo-300 px-2 py-1 rounded hover:bg-gray-700 transition-colors ml-auto xl:ml-2"><i class="fa-solid fa-rotate-right mr-1"></i> Refresh</button>
                     </div>
                 </div>
 
-                <div id="conversionProgressContainer" class="hidden w-full mb-6">
+                <div id="conversionProgressContainer" class="hidden w-full mb-6 shrink-0">
                     <div class="flex justify-between text-xs mb-1 font-bold text-gray-400">
                         <span class="text-indigo-400 animate-pulse"><i class="fas fa-spinner fa-spin mr-1"></i> Batch Converting Images...</span>
                         <span id="conversionProgressText">0 / 0</span>
@@ -134,12 +159,46 @@
                     </div>
                 </div>
 
-                <div id="galleryLoading" class="text-center py-16 hidden">
+                <div id="galleryLoading" class="text-center py-16 hidden shrink-0">
                     <i class="fas fa-circle-notch fa-spin text-4xl text-indigo-500 mb-3"></i>
-                    <p class="text-gray-400 text-sm animate-pulse">Fetching images from GitHub...</p>
+                    <p class="text-gray-400 text-sm animate-pulse font-bold">Fetching images from GitHub...</p>
                 </div>
 
-                <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+                <!-- GALLERY VIEW: LIST (Default) -->
+                <div id="galleryListView" class="flex flex-grow overflow-hidden min-h-[400px] gap-4">
+                    <div id="galleryListContent" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col gap-2 pr-1 content-start bg-gray-900/30 rounded-xl p-2 border border-gray-800">
+                        <!-- List rows injected here -->
+                    </div>
+
+                    <!-- List View: Right Side Preview Pane -->
+                    <div class="hidden md:flex w-1/2 lg:w-5/12 bg-gray-800/80 border border-gray-700 rounded-xl p-4 flex-col items-center justify-center relative overflow-hidden shadow-inner">
+                        <div id="galleryPreviewEmpty" class="text-gray-500 text-center flex flex-col items-center gap-3">
+                            <i class="fa-regular fa-image text-5xl opacity-50"></i>
+                            <span class="text-sm font-bold tracking-wide">Select an image from the list to preview</span>
+                        </div>
+                        <div id="galleryPreviewContent" class="hidden w-full h-full flex flex-col items-center justify-center gap-4">
+                            <div class="relative flex-grow w-full flex items-center justify-center bg-gray-900 rounded-lg border border-gray-700 p-2 overflow-hidden shadow-inner">
+                                <img id="galleryPreviewImg" src="" class="max-w-full max-h-full object-contain drop-shadow-xl rounded">
+                                <!-- Conversion indicator inside preview -->
+                                <div id="galleryPreviewConvertBtn" class="absolute top-2 left-2"></div>
+                            </div>
+                            <div class="w-full bg-gray-900 p-4 rounded-lg border border-gray-700 shrink-0 text-center shadow-lg">
+                                <div id="galleryPreviewName" class="text-sm text-gray-200 font-bold truncate mb-3 select-all"></div>
+                                <div class="flex justify-center gap-3" id="galleryPreviewActions">
+                                    <!-- Buttons injected dynamically based on selection -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GALLERY VIEW: GRID -->
+                <div id="galleryGridView" class="hidden overflow-y-auto hide-scrollbar flex-grow bg-gray-900/30 rounded-xl p-4 border border-gray-800">
+                    <div id="galleryGridContent" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4 sm:gap-6">
+                        <!-- Grid items injected here -->
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
@@ -152,6 +211,11 @@
             let galleryImages = []; 
             let selectedImages = new Set();
             let currentView = 'dashboard';
+            
+            // New Gallery States
+            let galleryViewMode = 'list'; // 'list' or 'grid'
+            let gallerySortMode = 'newest'; // 'newest', 'oldest', 'az', 'za'
+            let currentPreviewSha = null;
 
             const init = () => {
                 const savedUser = localStorage.getItem('mw_admin_user');
@@ -187,7 +251,6 @@
                             }
                         });
                 }
-                // Inject Sidebar
                 window.AppMenu.build(false, 'indigo');
             };
 
@@ -199,6 +262,15 @@
                 if (viewName === 'dashboard') {
                     document.getElementById('view-dashboard').classList.remove('hidden');
                     document.getElementById('topBarTitle').innerText = "Admin Dashboard";
+                    
+                    const role = sessionStorage.getItem('mw_admin_role') || localStorage.getItem('mw_admin_role') || 'admin';
+                    if (role !== 'admin') {
+                        document.getElementById('card-tierlist').classList.add('hidden');
+                        document.getElementById('card-gallery').classList.add('hidden');
+                    } else {
+                        document.getElementById('card-tierlist').classList.remove('hidden');
+                        document.getElementById('card-gallery').classList.remove('hidden');
+                    }
                 } else if (viewName === 'gallery') {
                     document.getElementById('view-gallery').classList.remove('hidden');
                     document.getElementById('topBarTitle').innerText = "Media Gallery";
@@ -220,21 +292,23 @@
                     `;
                 } else if (currentView === 'gallery') {
                     header.innerHTML = `
-                        <button onclick="window.admin.switchView('dashboard')" class="text-gray-400 hover:text-gray-100 mr-4 transition-colors font-bold text-sm">
-                            <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                        <button onclick="window.admin.switchView('dashboard')" class="text-gray-400 hover:text-white mr-4 transition-colors font-bold text-sm bg-gray-900 border border-gray-700 px-3 py-1.5 rounded-lg">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Dashboard
                         </button>
-                        <span class="text-xs font-bold text-gray-400 border border-gray-600 rounded-lg px-3 py-1 bg-gray-900/50">${galleryImages.length} Files</span>
+                        <span class="text-xs font-bold text-indigo-300 border border-indigo-500/30 rounded-lg px-3 py-1.5 bg-indigo-900/30 shadow-inner">${galleryImages.length} Files</span>
                     `;
                 }
             };
 
             const logout = () => { 
                 sessionStorage.removeItem('mw_admin_token'); 
+                sessionStorage.removeItem('mw_admin_role');
                 localStorage.removeItem('mw_admin_token');
+                localStorage.removeItem('mw_admin_user');
+                localStorage.removeItem('mw_admin_role');
                 window.location.reload(); 
             };
 
-            // NEW: Clear Cache Function
             const clearCache = async () => {
                 if(!confirm("Clear the live site cache? This will force the public site to instantly pull the latest data directly from your Google Sheets.")) return;
                 try {
@@ -317,54 +391,238 @@
                 });
             };
 
-            const convertExistingToWebP = async (fileName, downloadUrl, path, sha) => {
-                if(!confirm(`Convert ${fileName} to WebP and automatically update any heroes using this image?`)) return;
-                try {
-                    const heroes = await sendRequest({ action: "get_all_data" });
-                    const img = new Image(); img.crossOrigin = "Anonymous"; img.src = downloadUrl;
-                    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width; canvas.height = img.height;
-                    canvas.getContext('2d').drawImage(img, 0, 0);
-                    const base64 = canvas.toDataURL('image/webp', 0.85).split(',')[1];
-                    const newName = fileName.replace(/\.(png|jpg|jpeg)$/i, '.webp');
-                    const uploadRes = await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
-                    
-                    const affectedHeroes = heroes.filter(h => h.image === downloadUrl);
-                    for (let hero of affectedHeroes) {
-                        hero.image = uploadRes.url;
-                        await sendRequest({ action: "save", data: hero });
-                    }
-                    await sendRequest({ action: 'delete_image', path: path, sha: sha });
-                    alert(`Successfully converted to WebP! Auto-updated ${affectedHeroes.length} hero(es).`);
-                    loadGallery();
-                } catch(e) { alert("Failed to convert image. CORS or API error: " + e.message); }
+            const extractTimestamp = (filename) => {
+                // Looks for standard timestamp appended at end before extension e.g., name_1625345.webp
+                const match = filename.match(/_(\d{13})\./);
+                return match ? parseInt(match[1]) : 0;
             };
+
+            // --- NEW GALLERY UI & SORTING LOGIC ---
+
+            const setGalleryView = (mode) => {
+                galleryViewMode = mode;
+                const btnList = document.getElementById('btnViewList');
+                const btnGrid = document.getElementById('btnViewGrid');
+                
+                if(mode === 'list') {
+                    btnList.className = "px-3 py-1 rounded text-xs font-bold bg-gray-700 text-white shadow-md transition-colors";
+                    btnGrid.className = "px-3 py-1 rounded text-xs font-bold text-gray-400 hover:text-white transition-colors";
+                    document.getElementById('galleryListView').classList.remove('hidden');
+                    document.getElementById('galleryGridView').classList.add('hidden');
+                } else {
+                    btnGrid.className = "px-3 py-1 rounded text-xs font-bold bg-gray-700 text-white shadow-md transition-colors";
+                    btnList.className = "px-3 py-1 rounded text-xs font-bold text-gray-400 hover:text-white transition-colors";
+                    document.getElementById('galleryGridView').classList.remove('hidden');
+                    document.getElementById('galleryListView').classList.add('hidden');
+                }
+            };
+
+            const setGallerySort = (mode) => {
+                gallerySortMode = mode;
+                renderGallery();
+            };
+
+            const loadGallery = async () => {
+                document.getElementById('galleryLoading').classList.remove('hidden');
+                document.getElementById('galleryListContent').innerHTML = '';
+                document.getElementById('galleryGridContent').innerHTML = '';
+                selectedImages.clear(); 
+                currentPreviewSha = null;
+                updateBulkControls();
+                
+                document.getElementById('galleryPreviewEmpty').classList.remove('hidden');
+                document.getElementById('galleryPreviewContent').classList.add('hidden');
+
+                try {
+                    galleryImages = await sendRequest({ action: "list_images" }) || [];
+                    buildHeaderControls(); 
+                    renderGallery();
+                } catch(e) { alert("Failed to load gallery: " + e.message); } 
+                finally { document.getElementById('galleryLoading').classList.add('hidden'); }
+            };
+
+            const renderGallery = () => {
+                const listContainer = document.getElementById('galleryListContent');
+                const gridContainer = document.getElementById('galleryGridContent');
+                
+                if (galleryImages.length === 0) {
+                    listContainer.innerHTML = '<div class="text-center text-gray-500 py-10 font-bold w-full">Library is empty.</div>';
+                    gridContainer.innerHTML = '<div class="text-center text-gray-500 py-10 font-bold col-span-full">Library is empty.</div>';
+                    return;
+                }
+
+                // Apply Sorting
+                const sortedImages = [...galleryImages].sort((a, b) => {
+                    if (gallerySortMode === 'az') return a.name.localeCompare(b.name);
+                    if (gallerySortMode === 'za') return b.name.localeCompare(a.name);
+                    
+                    const tsA = extractTimestamp(a.name);
+                    const tsB = extractTimestamp(b.name);
+                    
+                    if (gallerySortMode === 'newest') return tsB - tsA;
+                    if (gallerySortMode === 'oldest') return tsA - tsB;
+                    return 0;
+                });
+
+                // Render List View
+                listContainer.innerHTML = sortedImages.map(img => {
+                    const isConvertible = img.name.match(/\.(png|jpg|jpeg)$/i);
+                    const isChecked = selectedImages.has(img.sha);
+                    const isPreviewed = currentPreviewSha === img.sha;
+                    
+                    const activeContainerClass = isPreviewed ? 'bg-indigo-600/20 border-indigo-500' : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-700/50';
+                    const activeTextClass = isPreviewed ? 'text-white' : 'text-gray-300';
+                    const extBadge = isConvertible ? `<span class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold shrink-0">RAW</span>` : `<span class="bg-green-500/20 text-green-400 border border-green-500/30 text-[9px] px-1.5 py-0.5 rounded ml-2 font-bold shrink-0">WEBP</span>`;
+
+                    return `
+                        <div onclick="window.admin.selectPreview('${img.sha}')" class="flex items-center gap-3 p-2 rounded-lg border ${activeContainerClass} cursor-pointer transition-colors group">
+                            <div class="shrink-0 flex items-center justify-center pl-1" onclick="event.stopPropagation()">
+                                <input type="checkbox" class="w-4 h-4 cursor-pointer accent-indigo-600 bg-gray-900 border-gray-600 rounded" onchange="window.admin.toggleImageSelection('${img.sha}')" ${isChecked ? 'checked' : ''}>
+                            </div>
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-900 rounded overflow-hidden flex-shrink-0 flex items-center justify-center border border-gray-700 shadow-inner p-1">
+                                <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
+                            </div>
+                            <div class="flex-grow min-w-0 flex items-center">
+                                <h4 class="text-xs sm:text-sm font-bold ${activeTextClass} truncate group-hover:text-white transition-colors">${img.name}</h4>
+                                ${extBadge}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Render Grid View (Names strictly underneath)
+                gridContainer.innerHTML = sortedImages.map(img => {
+                    const isConvertible = img.name.match(/\.(png|jpg|jpeg)$/i);
+                    const isChecked = selectedImages.has(img.sha);
+                    const borderColor = isChecked ? 'border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'border-gray-700 hover:border-gray-500';
+
+                    const convertBtn = isConvertible 
+                        ? `<button onclick="event.stopPropagation(); window.admin.convertExistingToWebP('${img.name}', '${img.download_url}', '${img.path}', '${img.sha}')" class="absolute top-2 left-2 bg-yellow-500 hover:bg-yellow-400 text-black text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg z-20 transition-colors" title="Convert to WebP"><i class="fa-solid fa-bolt mr-1"></i>AUTO WEBP</button>` 
+                        : `<span class="absolute top-2 left-2 bg-green-500/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg z-20 backdrop-blur-sm border border-green-400/50">WEBP</span>`;
+                    
+                    return `
+                    <div class="bg-gray-800 rounded-xl overflow-hidden border ${borderColor} flex flex-col transition-all cursor-pointer group" onclick="window.admin.toggleImageSelection('${img.sha}')">
+                        
+                        <!-- Image Container (Square) -->
+                        <div class="relative w-full aspect-square bg-gray-900/50 p-2 flex items-center justify-center border-b border-gray-700">
+                            ${convertBtn}
+                            <div class="absolute top-2 right-2 z-20 bg-gray-900/80 rounded border border-gray-600 p-0.5">
+                                <input type="checkbox" class="w-4 h-4 cursor-pointer accent-indigo-600 bg-gray-900 border-gray-600 rounded pointer-events-none" ${isChecked ? 'checked' : ''}>
+                            </div>
+                            <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        </div>
+                        
+                        <!-- Details Container (Underneath) -->
+                        <div class="p-3 flex flex-col items-center bg-gray-800 shrink-0">
+                            <span class="text-xs font-bold text-gray-300 truncate w-full text-center mb-2" title="${img.name}">${img.name}</span>
+                            <div class="flex justify-center gap-2 w-full">
+                                <button onclick="event.stopPropagation(); window.admin.copyUrl('${img.download_url}')" class="flex-1 text-[10px] bg-gray-700 hover:bg-gray-600 text-white py-1.5 rounded transition-colors font-bold shadow-sm"><i class="fa-regular fa-copy"></i> URL</button>
+                                <button onclick="event.stopPropagation(); window.admin.deleteFromGallery('${img.path}', '${img.sha}')" class="flex-1 text-[10px] bg-red-900/50 hover:bg-red-600 text-red-400 hover:text-white border border-red-800/50 py-1.5 rounded transition-colors font-bold shadow-sm"><i class="fa-solid fa-trash"></i> DEL</button>
+                            </div>
+                        </div>
+
+                    </div>
+                `}).join('');
+            };
+
+            const selectPreview = (sha) => {
+                currentPreviewSha = sha;
+                const imgObj = galleryImages.find(i => i.sha === sha);
+                if (!imgObj) return;
+
+                document.getElementById('galleryPreviewEmpty').classList.add('hidden');
+                document.getElementById('galleryPreviewContent').classList.remove('hidden');
+                
+                document.getElementById('galleryPreviewImg').src = imgObj.download_url;
+                document.getElementById('galleryPreviewName').innerText = imgObj.name;
+                
+                const isConvertible = imgObj.name.match(/\.(png|jpg|jpeg)$/i);
+                document.getElementById('galleryPreviewConvertBtn').innerHTML = isConvertible
+                    ? `<button onclick="window.admin.convertExistingToWebP('${imgObj.name}', '${imgObj.download_url}', '${imgObj.path}', '${imgObj.sha}')" class="bg-yellow-500 hover:bg-yellow-400 text-black text-[10px] font-bold px-2 py-1 rounded shadow-lg transition-colors"><i class="fa-solid fa-bolt mr-1"></i> Convert to WebP</button>`
+                    : `<span class="bg-green-500/80 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg backdrop-blur-sm border border-green-400/50">Optimized WebP</span>`;
+
+                document.getElementById('galleryPreviewActions').innerHTML = `
+                    <button onclick="window.admin.copyUrl('${imgObj.download_url}')" class="text-xs font-bold bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors shadow-md border border-gray-600"><i class="fa-regular fa-copy mr-1.5"></i> Copy Link</button>
+                    <button onclick="window.admin.deleteFromGallery('${imgObj.path}', '${imgObj.sha}')" class="text-xs font-bold bg-red-900/50 hover:bg-red-600 text-red-400 hover:text-white border border-red-800 px-4 py-2 rounded-lg transition-colors shadow-md"><i class="fa-solid fa-trash mr-1.5"></i> Delete</button>
+                `;
+
+                // Re-render to highlight active list row
+                renderGallery();
+            };
+
+            // --- BULK SELECTION & ACTIONS ---
 
             const toggleImageSelection = (sha) => {
                 if(selectedImages.has(sha)) selectedImages.delete(sha); else selectedImages.add(sha);
                 updateBulkControls();
+                renderGallery();
             };
 
-            const selectAllNonWebp = () => {
-                const convertibles = galleryImages.filter(img => img.name.match(/\.(png|jpg|jpeg)$/i));
-                if(selectedImages.size === convertibles.length && convertibles.length > 0) {
+            const selectAllToggle = () => {
+                if(selectedImages.size === galleryImages.length && galleryImages.length > 0) {
                     selectedImages.clear(); 
                 } else {
-                    convertibles.forEach(img => selectedImages.add(img.sha));
+                    galleryImages.forEach(img => selectedImages.add(img.sha));
                 }
-                renderGallery(); updateBulkControls();
+                updateBulkControls();
+                renderGallery();
             };
 
             const updateBulkControls = () => {
-                const btn = document.getElementById('btnConvertSelected');
-                if(selectedImages.size > 0) { btn.classList.remove('hidden'); document.getElementById('selectedCount').innerText = selectedImages.size; } 
-                else { btn.classList.add('hidden'); }
+                const btnConvert = document.getElementById('btnConvertSelected');
+                const btnDelete = document.getElementById('btnDeleteSelected');
+                const counts = document.querySelectorAll('.selectedCount');
+                
+                if(selectedImages.size > 0) { 
+                    counts.forEach(el => el.innerText = selectedImages.size);
+                    btnDelete.classList.remove('hidden');
+                    
+                    // Only show Convert if at least one selected image needs converting
+                    const hasRaw = galleryImages.some(img => selectedImages.has(img.sha) && img.name.match(/\.(png|jpg|jpeg)$/i));
+                    if (hasRaw) btnConvert.classList.remove('hidden');
+                    else btnConvert.classList.add('hidden');
+                } else { 
+                    btnConvert.classList.add('hidden'); 
+                    btnDelete.classList.add('hidden'); 
+                }
+            };
+
+            const deleteSelected = async () => {
+                if(selectedImages.size === 0) return;
+                if(!confirm(`Permanently delete ${selectedImages.size} image(s) from GitHub? This action cannot be undone.`)) return;
+
+                const btn = document.getElementById('btnDeleteSelected');
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Deleting...`; btn.disabled = true;
+
+                const imgsToDelete = galleryImages.filter(img => selectedImages.has(img.sha));
+                let completed = 0; let errors = 0;
+
+                try {
+                    // Process in small batches to avoid GitHub API rate limits/timeouts
+                    const batchSize = 3;
+                    for (let i = 0; i < imgsToDelete.length; i += batchSize) {
+                        const batch = imgsToDelete.slice(i, i + batchSize);
+                        await Promise.all(batch.map(async (img) => {
+                            try {
+                                await sendRequest({ action: 'delete_image', path: img.path, sha: img.sha });
+                                completed++;
+                            } catch(err) { console.error("Failed to delete " + img.name, err); errors++; } 
+                        }));
+                    }
+                    setTimeout(() => {
+                        alert(`Bulk deletion complete. Successfully deleted ${completed} file(s). ${errors > 0 ? errors + ' failed.' : ''}`);
+                        loadGallery();
+                    }, 500);
+                } catch(e) {
+                    alert("Bulk deletion error: " + e.message); loadGallery();
+                } finally {
+                    btn.innerHTML = `<i class="fa-solid fa-trash mr-1"></i> Delete (<span class="selectedCount">${selectedImages.size}</span>)`; btn.disabled = false;
+                }
             };
 
             const convertSelected = async () => {
                 if(selectedImages.size === 0) return;
-                if(!confirm(`Convert ${selectedImages.size} selected image(s) to WebP and automatically update all associated heroes?`)) return;
+                if(!confirm(`Convert selected image(s) to WebP and automatically update all associated heroes?`)) return;
 
                 const btn = document.getElementById('btnConvertSelected');
                 btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Processing...`; btn.disabled = true;
@@ -374,9 +632,16 @@
                 const progressText = document.getElementById('conversionProgressText');
                 progressContainer.classList.remove('hidden');
 
-                const imgsToConvert = galleryImages.filter(img => selectedImages.has(img.sha));
+                const imgsToConvert = galleryImages.filter(img => selectedImages.has(img.sha) && img.name.match(/\.(png|jpg|jpeg)$/i));
                 const total = imgsToConvert.length;
                 let completed = 0; let updateCount = 0;
+
+                if (total === 0) {
+                    alert("No PNG or JPG images selected to convert.");
+                    btn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Convert (<span class="selectedCount">${selectedImages.size}</span>)`; btn.disabled = false;
+                    progressContainer.classList.add('hidden');
+                    return;
+                }
 
                 const updateUI = () => {
                     progressBar.style.width = `${Math.round((completed / total) * 100)}%`;
@@ -414,51 +679,32 @@
                 } catch(e) {
                     alert("Bulk conversion error: " + e.message); progressContainer.classList.add('hidden');
                 } finally {
-                    btn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Convert (<span id="selectedCount">${selectedImages.size}</span>)`; btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Convert (<span class="selectedCount">${selectedImages.size}</span>)`; btn.disabled = false;
                 }
             };
 
-            const loadGallery = async () => {
-                document.getElementById('galleryLoading').classList.remove('hidden');
-                document.getElementById('galleryGrid').innerHTML = '';
-                selectedImages.clear(); updateBulkControls();
+            const convertExistingToWebP = async (fileName, downloadUrl, path, sha) => {
+                if(!confirm(`Convert ${fileName} to WebP and automatically update any heroes using this image?`)) return;
                 try {
-                    galleryImages = await sendRequest({ action: "list_images" }) || [];
-                    buildHeaderControls(); renderGallery();
-                } catch(e) { alert("Failed to load gallery: " + e.message); } 
-                finally { document.getElementById('galleryLoading').classList.add('hidden'); }
-            };
-
-            const renderGallery = () => {
-                const grid = document.getElementById('galleryGrid');
-                grid.innerHTML = galleryImages.map(img => {
-                    const isConvertible = img.name.match(/\.(png|jpg|jpeg)$/i);
-                    const isChecked = selectedImages.has(img.sha) ? 'checked' : '';
+                    const heroes = await sendRequest({ action: "get_all_data" });
+                    const img = new Image(); img.crossOrigin = "Anonymous"; img.src = downloadUrl;
+                    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width; canvas.height = img.height;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    const base64 = canvas.toDataURL('image/webp', 0.85).split(',')[1];
+                    const newName = fileName.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+                    const uploadRes = await sendRequest({ action: 'upload_image', fileData: base64, fileName: newName });
                     
-                    const checkboxHtml = isConvertible 
-                        ? `<input type="checkbox" class="absolute top-2 right-10 z-20 w-4 h-4 cursor-pointer accent-indigo-600 bg-gray-900 border-gray-600 rounded" onchange="window.admin.toggleImageSelection('${img.sha}')" ${isChecked}>` 
-                        : '';
-
-                    const convertBtn = isConvertible 
-                        ? `<button onclick="window.admin.convertExistingToWebP('${img.name}', '${img.download_url}', '${img.path}', '${img.sha}')" class="absolute top-2 left-2 bg-yellow-500 hover:bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded shadow-lg z-20" title="Convert to WebP">AUTO WEBP</button>` 
-                        : `<span class="absolute top-2 left-2 bg-green-500/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-lg z-20">WEBP</span>`;
-                    
-                    return `
-                    <div class="bg-gray-800 rounded-lg overflow-hidden border ${isChecked ? 'border-indigo-500' : 'border-gray-700'} relative group aspect-square flex flex-col transition-colors">
-                        ${convertBtn}
-                        ${checkboxHtml}
-                        <button onclick="window.admin.deleteFromGallery('${img.path}', '${img.sha}')" class="absolute top-1.5 right-2 bg-red-600 hover:bg-red-500 text-white w-6 h-6 rounded-full shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" title="Delete">
-                            <i class="fa-solid fa-trash text-[10px]"></i>
-                        </button>
-                        <div class="flex-grow relative bg-gray-900/50 p-2 flex items-center justify-center">
-                            <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-lg">
-                        </div>
-                        <div class="bg-gray-800 p-2 border-t border-gray-700 flex justify-between items-center z-10">
-                            <span class="text-[10px] text-gray-400 truncate pr-2">${img.name}</span>
-                            <button onclick="window.admin.copyUrl('${img.download_url}')" class="text-gray-400 hover:text-white" title="Copy URL"><i class="fa-regular fa-copy"></i></button>
-                        </div>
-                    </div>
-                `}).join('');
+                    const affectedHeroes = heroes.filter(h => h.image === downloadUrl);
+                    for (let hero of affectedHeroes) {
+                        hero.image = uploadRes.url;
+                        await sendRequest({ action: "save", data: hero });
+                    }
+                    await sendRequest({ action: 'delete_image', path: path, sha: sha });
+                    alert(`Successfully converted to WebP! Auto-updated ${affectedHeroes.length} hero(es).`);
+                    loadGallery();
+                } catch(e) { alert("Failed to convert image. CORS or API error: " + e.message); }
             };
 
             const galleryUpload = async () => {
@@ -480,9 +726,10 @@
                         });
                     }
 
-                    if (galleryImages.find(img => img.name.toLowerCase() === finalName.toLowerCase()) && !confirm(`A file named "${finalName}" already exists. Overwrite?`)) {
-                        status.classList.add('hidden'); input.value = ""; return;
-                    }
+                    // Append timestamp for accurate sorting!
+                    const originalName = finalName.replace(/\.[^/.]+$/, "");
+                    const safeName = originalName.replace(/[^a-zA-Z0-9_\-]/g, "").toLowerCase();
+                    finalName = `${safeName}_${Date.now()}.webp`;
 
                     await sendRequest({ action: "upload_image", fileData: finalBase64, fileName: finalName });
                     input.value = ""; await loadGallery(); 
@@ -498,7 +745,11 @@
 
             const copyUrl = (url) => { navigator.clipboard.writeText(url).then(() => { alert("URL Copied to clipboard!"); }); };
 
-            window.admin = { init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, convertExistingToWebP, copyUrl, toggleImageSelection, selectAllNonWebp, convertSelected, clearCache };
+            window.admin = { 
+                init, login, logout, switchView, loadGallery, galleryUpload, deleteFromGallery, 
+                convertExistingToWebP, copyUrl, toggleImageSelection, selectAllToggle, 
+                convertSelected, deleteSelected, clearCache, setGalleryView, setGallerySort, selectPreview 
+            };
         })();
 
         window.onload = window.admin.init;
