@@ -130,7 +130,14 @@
                     </div>
                     <div>
                         <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Banner Image URL (Optional)</label>
-                        <input type="url" id="articleImage" placeholder="https://..." class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white transition-colors">
+                        <div class="flex gap-2">
+                            <input type="url" id="articleImage" placeholder="https://..." class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white transition-colors">
+                            <button type="button" onclick="app.openImageGallery()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
+                            <label class="bg-gray-700 hover:bg-gray-600 text-white px-3 flex items-center justify-center rounded border border-gray-600 transition-colors shadow-sm cursor-pointer" title="Upload to GitHub (Auto WebP)">
+                                <i class="fa-solid fa-upload"></i>
+                                <input type="file" accept="image/*" class="hidden" onchange="app.uploadImage(event)">
+                            </label>
+                        </div>
                     </div>
                     <!-- NEW: Pin Checkbox -->
                     <div class="col-span-1 md:col-span-2 flex items-center gap-2 mt-1 mb-2">
@@ -165,6 +172,7 @@
             let authToken = "";
             let quillEditor = null;
             let currentView = 'grid';
+            let galleryCache = [];
 
             const toggleSidebar = () => { if (window.AppMenu && window.AppMenu.toggleSidebar) window.AppMenu.toggleSidebar(); };
 
@@ -191,7 +199,6 @@
 
             const init = async () => {
                 if (window.location.hash === '#admin') {
-                    // FIX: Changed from 'mw_admin_pass' to 'mw_admin_token' to match the rest of the site
                     const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
                         isAdmin = true;
@@ -324,7 +331,6 @@
                 
                 grid.innerHTML = ''; list.innerHTML = '';
 
-                // FIX: Add custom sort logic to push pinned posts to the top
                 const filtered = articles.filter(art => {
                     const searchMatchTitle = (art.title || "").toLowerCase().includes(filterSearch);
                     const rawContent = stripHtml(art.content || "").toLowerCase();
@@ -333,7 +339,6 @@
                 }).sort((a, b) => {
                     if (a.isPinned && !b.isPinned) return -1;
                     if (!a.isPinned && b.isPinned) return 1;
-                    // Fallback to chronological (newest first)
                     return new Date(b.lastUpdate || 0) > new Date(a.lastUpdate || 0) ? 1 : -1;
                 });
 
@@ -349,22 +354,21 @@
                         adminControls = `<button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="absolute top-2 right-2 bg-yellow-600/90 hover:bg-yellow-500 text-white w-7 h-7 rounded shadow-lg z-20 flex items-center justify-center backdrop-blur-sm transition-colors"><i class="fa-solid fa-pen text-[10px]"></i></button>`;
                     }
 
-                    // NEW: Badge for pinned status
-                    const pinHtml = art.isPinned ? `<div class="absolute top-2 left-2 bg-gray-900/90 text-red-500 w-7 h-7 rounded-full shadow-lg z-20 flex items-center justify-center backdrop-blur-sm border border-gray-700/50" title="Pinned Post"><i class="fa-solid fa-thumbtack text-[11px]"></i></div>` : '';
+                    const pinHtml = art.isPinned ? `<div class="absolute -top-2.5 -left-2.5 bg-gray-900/90 text-red-500 w-8 h-8 rounded-full shadow-[0_4px_10px_rgba(0,0,0,0.5)] z-20 flex items-center justify-center backdrop-blur-sm border border-gray-700/50" title="Pinned Post"><i class="fa-solid fa-thumbtack text-xs"></i></div>` : '';
 
                     const bannerHtml = art.image 
-                        ? `<div class="h-24 sm:h-28 bg-gray-900 relative overflow-hidden shrink-0"><img src="${art.image}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"></div>`
-                        : `<div class="h-1 bg-blue-600 shrink-0"></div>`;
+                        ? `<div class="h-24 sm:h-28 bg-gray-900 relative overflow-hidden shrink-0 rounded-t-xl"><img src="${art.image}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"></div>`
+                        : `<div class="h-1 bg-blue-600 shrink-0 rounded-t-xl"></div>`;
                     
                     const dateStr = formatDate(art.lastUpdate);
 
                     return `
-                    <div onclick="app.viewArticle('${art.id}')" class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all cursor-pointer group flex flex-col h-[160px] sm:h-[180px] relative">
+                    <div onclick="app.viewArticle('${art.id}')" class="bg-gray-800 border border-gray-700 rounded-xl shadow-lg hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all cursor-pointer group flex flex-col h-[160px] sm:h-[180px] relative">
                         ${adminControls}
                         ${pinHtml}
                         ${bannerHtml}
-                        <div class="p-3 flex-grow flex flex-col relative">
-                            <h3 class="text-sm font-bold text-white mb-1 line-clamp-3 leading-snug group-hover:text-blue-400 transition-colors">${art.title}</h3>
+                        <div class="p-3 flex-grow flex flex-col relative items-center justify-start text-center">
+                            <h3 class="text-sm font-bold text-white mb-1 line-clamp-3 leading-snug group-hover:text-blue-400 transition-colors w-full px-1">${art.title}</h3>
                             <div class="absolute bottom-2 right-3 text-[9px] sm:text-[10px] text-gray-500 font-bold bg-gray-900/80 px-2 py-0.5 rounded border border-gray-700/50">${dateStr}</div>
                         </div>
                     </div>
@@ -495,7 +499,127 @@
                 } catch(e) { alert("Failed to delete."); window.location.reload(); }
             };
 
-            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle, toggleSidebar, setView };
+            const openImageGallery = async () => {
+                if (!document.getElementById('imageGalleryModal')) {
+                    const modalHtml = `
+                    <div id="imageGalleryModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+                        <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col">
+                            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2 shrink-0">
+                                <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-images text-blue-400 mr-2"></i> Select Image</h3>
+                                <button type="button" onclick="document.getElementById('imageGalleryModal').classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+                            </div>
+                            <div class="mb-4 shrink-0">
+                                <input type="text" id="gallerySearchInput" onkeyup="app.filterGallery()" placeholder="Search images..." class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white outline-none focus:border-blue-500">
+                            </div>
+                            <div id="galleryGrid" class="flex-grow overflow-y-auto hide-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 content-start">
+                                <div class="col-span-full text-center text-gray-500 py-10"><i class="fas fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i><br>Loading Library...</div>
+                            </div>
+                        </div>
+                    </div>`;
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                }
+                
+                document.getElementById('imageGalleryModal').classList.remove('hidden');
+                const grid = document.getElementById('galleryGrid');
+                
+                if (galleryCache.length === 0) {
+                    try {
+                        const res = await fetch(API_URL, { 
+                            method: "POST", 
+                            body: JSON.stringify({ action: "list_images", token: authToken }), 
+                            redirect: "follow" 
+                        });
+                        const data = await res.json();
+                        if (data.error) throw new Error(data.error);
+                        galleryCache = data;
+                        renderGallery();
+                    } catch(e) {
+                        grid.innerHTML = `<div class="col-span-full text-red-400 text-center py-10">Failed to load images.</div>`;
+                    }
+                } else {
+                    renderGallery();
+                }
+            };
+
+            const renderGallery = () => {
+                const grid = document.getElementById('galleryGrid');
+                const search = document.getElementById('gallerySearchInput').value.toLowerCase();
+                
+                const filtered = galleryCache.filter(img => img.name.toLowerCase().includes(search));
+                
+                if (filtered.length === 0) {
+                    grid.innerHTML = `<div class="col-span-full text-gray-500 text-center py-10">No images found.</div>`;
+                    return;
+                }
+                
+                grid.innerHTML = filtered.map(img => `
+                    <div onclick="app.selectImage('${img.download_url}')" class="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500 cursor-pointer aspect-square relative group flex items-center justify-center p-2 transition-colors">
+                        <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
+                        <div class="absolute bottom-0 left-0 right-0 bg-black/80 text-[10px] text-gray-300 truncate px-1 py-1 text-center">${img.name}</div>
+                    </div>
+                `).join('');
+            };
+
+            const filterGallery = () => renderGallery();
+
+            const selectImage = (url) => {
+                document.getElementById('articleImage').value = url;
+                document.getElementById('imageGalleryModal').classList.add('hidden');
+            };
+
+            const uploadImage = async (event) => {
+                const file = event.target.files[0];
+                if(!file) return;
+                
+                const title = document.getElementById('articleTitle').value;
+                if(!title) { alert("Please enter a Title first so we can name the file!"); event.target.value = ""; return; }
+
+                const imgInput = document.getElementById('articleImage');
+                const oldVal = imgInput.value;
+                imgInput.value = "Converting & Uploading...";
+
+                try {
+                    const base64WebP = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.src = e.target.result;
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = img.width; canvas.height = img.height;
+                                canvas.getContext('2d').drawImage(img, 0, 0);
+                                resolve(canvas.toDataURL('image/webp', 0.85).split(',')[1]);
+                            };
+                            img.onerror = () => reject("Image processing failed.");
+                        };
+                        reader.onerror = () => reject("File reading failed.");
+                    });
+
+                    const safeName = title.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+                    const fileName = `post_${safeName}_${Date.now()}.webp`;
+
+                    const res = await fetch(API_URL, { 
+                        method: "POST", 
+                        body: JSON.stringify({ action: "upload_image", fileData: base64WebP, fileName: fileName, token: authToken }), 
+                        redirect: "follow" 
+                    });
+                    const data = await res.json();
+                    
+                    if(data.error) throw new Error(data.error);
+                    imgInput.value = data.url;
+                    
+                    // Reset cache so new image shows next time gallery is opened
+                    galleryCache = [];
+                } catch(e) {
+                    alert("Upload failed: " + e.message);
+                    imgInput.value = oldVal;
+                } finally {
+                    event.target.value = ""; 
+                }
+            };
+
+            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle, toggleSidebar, setView, openImageGallery, filterGallery, selectImage, uploadImage };
         })();
         window.onload = app.init;
     </script>
