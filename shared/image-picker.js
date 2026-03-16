@@ -194,10 +194,10 @@ window.ImagePicker = (() => {
                 reader.onerror = () => reject("File reading failed.");
             });
 
-            // Extract the original filename without the extension, make it safe, append .webp
+            // FIX: Use exact original filename without appending a timestamp
             const originalName = file.name.replace(/\.[^/.]+$/, "");
             let safeName = originalName.replace(/[^a-zA-Z0-9_\-]/g, "").toLowerCase();
-            if (!safeName) safeName = `image_${Date.now()}`; 
+            if (!safeName) safeName = `image`; 
             const fileName = `${safeName}.webp`;
 
             const token = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
