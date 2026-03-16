@@ -186,7 +186,8 @@
 
             const init = async () => {
                 if (window.location.hash === '#admin') {
-                    const savedToken = localStorage.getItem('mw_admin_pass') || sessionStorage.getItem('mw_admin_pass');
+                    // FIX: Changed from 'mw_admin_pass' to 'mw_admin_token' to match the rest of the site
+                    const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
                         isAdmin = true;
                         authToken = savedToken;
@@ -220,7 +221,12 @@
                 } catch(e) { console.warn("Text Editor CDN blocked by CSP. Editor disabled.", e); }
 
                 const CACHE_KEY = 'mwr_info_data';
+                const TIME_KEY = 'mwr_info_timestamp';
+                const CHECK_KEY = 'mwr_info_lastcheck';
                 const cachedData = localStorage.getItem(CACHE_KEY);
+                const localTimestamp = localStorage.getItem(TIME_KEY);
+                const lastCheck = localStorage.getItem(CHECK_KEY);
+                const now = Date.now();
                 
                 if (cachedData) {
                     try {
@@ -236,26 +242,40 @@
 
                 try {
                     let freshData = null;
+                    const shouldCheck = !lastCheck || (now - parseInt(lastCheck)) > 120000;
                     
-                    // FIX: Fetch the Single Payload Document from Firebase
-                    try {
-                        if (db) {
-                            const docRef = await db.collection('cache').doc('info_payload').get();
-                            if (docRef.exists) {
-                                const payloadData = docRef.data();
-                                if (payloadData && payloadData.data) {
-                                    const parsed = JSON.parse(payloadData.data);
-                                    if (Array.isArray(parsed)) {
-                                        freshData = parsed;
-                                        // FIX: Added visual confirmation
-                                        console.log("🔥 Info Guides loaded instantly from Firebase CDN!");
+                    if (shouldCheck) {
+                        try {
+                            if (db) {
+                                const metaRef = await db.collection('cache').doc('info_meta').get();
+                                if (metaRef.exists) {
+                                    const liveTimestamp = metaRef.data().lastUpdated;
+                                    localStorage.setItem(CHECK_KEY, now.toString()); // Update check time
+
+                                    if (!localTimestamp || liveTimestamp !== localTimestamp) {
+                                        const docRef = await db.collection('cache').doc('info_payload').get();
+                                        if (docRef.exists) {
+                                            const payloadData = docRef.data();
+                                            if (payloadData && payloadData.data) {
+                                                const parsed = JSON.parse(payloadData.data);
+                                                if (Array.isArray(parsed)) {
+                                                    freshData = parsed;
+                                                    localStorage.setItem(TIME_KEY, liveTimestamp);
+                                                    console.log("🔥 Info Guides loaded instantly from Firebase CDN!");
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        console.log("⚡ Local info cache is perfectly up to date! Skipped Firebase payload download.");
                                     }
                                 }
                             }
-                        }
-                    } catch (fbErr) { console.warn("Firebase fetch failed. Falling back to GAS.", fbErr); }
+                        } catch (fbErr) { console.warn("Firebase fetch failed. Falling back to GAS.", fbErr); }
+                    } else {
+                        console.log("⏳ Rate limited: Skipping Firebase info update check to prevent spam.");
+                    }
 
-                    if (!freshData || freshData.length === 0) {
+                    if (!freshData && (!cachedData || articles.length === 0)) {
                         const res = await fetch(API_URL + "?view=info", { redirect: "follow" });
                         const gasData = await res.json();
                         if (Array.isArray(gasData)) freshData = gasData;
@@ -263,12 +283,14 @@
                         else throw new Error("Invalid format received from Google Apps Script.");
                     }
                     
-                    articles = Array.isArray(freshData) ? freshData : [];
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(articles));
-                    
-                    document.getElementById('loading').classList.add('hidden');
-                    document.getElementById(currentView === 'grid' ? 'articleGrid' : 'articleList').classList.remove('opacity-0');
-                    render();
+                    if (freshData) {
+                        articles = Array.isArray(freshData) ? freshData : [];
+                        localStorage.setItem(CACHE_KEY, JSON.stringify(articles));
+                        
+                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById(currentView === 'grid' ? 'articleGrid' : 'articleList').classList.remove('opacity-0');
+                        render();
+                    }
                     
                 } catch(e) { 
                     if (!cachedData || articles.length === 0) {
