@@ -132,6 +132,11 @@
                         <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Banner Image URL (Optional)</label>
                         <input type="url" id="articleImage" placeholder="https://..." class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white transition-colors">
                     </div>
+                    <!-- NEW: Pin Checkbox -->
+                    <div class="col-span-1 md:col-span-2 flex items-center gap-2 mt-1 mb-2">
+                        <input type="checkbox" id="articlePinned" class="w-4 h-4 accent-blue-500 bg-gray-900 border-gray-600 rounded cursor-pointer">
+                        <label for="articlePinned" class="text-sm font-bold text-gray-300 cursor-pointer hover:text-white transition-colors"><i class="fa-solid fa-thumbtack text-red-500 mr-1.5"></i> Pin to Top</label>
+                    </div>
                 </div>
                 <div class="flex-grow flex flex-col min-h-[300px]">
                     <label class="text-xs text-gray-400 uppercase font-bold block mb-1 flex justify-between">
@@ -319,11 +324,17 @@
                 
                 grid.innerHTML = ''; list.innerHTML = '';
 
+                // FIX: Add custom sort logic to push pinned posts to the top
                 const filtered = articles.filter(art => {
                     const searchMatchTitle = (art.title || "").toLowerCase().includes(filterSearch);
                     const rawContent = stripHtml(art.content || "").toLowerCase();
                     const searchMatchContent = rawContent.includes(filterSearch);
                     return searchMatchTitle || searchMatchContent;
+                }).sort((a, b) => {
+                    if (a.isPinned && !b.isPinned) return -1;
+                    if (!a.isPinned && b.isPinned) return 1;
+                    // Fallback to chronological (newest first)
+                    return new Date(b.lastUpdate || 0) > new Date(a.lastUpdate || 0) ? 1 : -1;
                 });
 
                 if (filtered.length === 0) {
@@ -338,6 +349,9 @@
                         adminControls = `<button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="absolute top-2 right-2 bg-yellow-600/90 hover:bg-yellow-500 text-white w-7 h-7 rounded shadow-lg z-20 flex items-center justify-center backdrop-blur-sm transition-colors"><i class="fa-solid fa-pen text-[10px]"></i></button>`;
                     }
 
+                    // NEW: Badge for pinned status
+                    const pinHtml = art.isPinned ? `<div class="absolute top-2 left-2 bg-gray-900/90 text-red-500 w-7 h-7 rounded-full shadow-lg z-20 flex items-center justify-center backdrop-blur-sm border border-gray-700/50" title="Pinned Post"><i class="fa-solid fa-thumbtack text-[11px]"></i></div>` : '';
+
                     const bannerHtml = art.image 
                         ? `<div class="h-24 sm:h-28 bg-gray-900 relative overflow-hidden shrink-0"><img src="${art.image}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"></div>`
                         : `<div class="h-1 bg-blue-600 shrink-0"></div>`;
@@ -347,6 +361,7 @@
                     return `
                     <div onclick="app.viewArticle('${art.id}')" class="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all cursor-pointer group flex flex-col h-[160px] sm:h-[180px] relative">
                         ${adminControls}
+                        ${pinHtml}
                         ${bannerHtml}
                         <div class="p-3 flex-grow flex flex-col relative">
                             <h3 class="text-sm font-bold text-white mb-1 line-clamp-3 leading-snug group-hover:text-blue-400 transition-colors">${art.title}</h3>
@@ -362,12 +377,13 @@
                         adminControls = `<button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="bg-yellow-600/90 hover:bg-yellow-500 text-white w-7 h-7 rounded shadow-md z-20 flex items-center justify-center transition-colors shrink-0 ml-3"><i class="fa-solid fa-pen text-[10px]"></i></button>`;
                     }
                     const dateStr = formatDate(art.lastUpdate);
+                    const pinIcon = art.isPinned ? `<i class="fa-solid fa-thumbtack text-red-500 mr-2" title="Pinned"></i>` : '';
 
                     return `
                     <div onclick="app.viewArticle('${art.id}')" class="bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4 hover:bg-gray-750 hover:border-blue-500 transition-colors cursor-pointer group flex justify-between items-center relative shadow-sm">
                         <div class="flex items-center gap-3 overflow-hidden pr-4">
                             <i class="fa-regular fa-file-lines text-blue-400 text-lg sm:text-xl group-hover:text-blue-300 shrink-0"></i>
-                            <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-blue-400 transition-colors truncate">${art.title}</h3>
+                            <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-blue-400 transition-colors truncate">${pinIcon}${art.title}</h3>
                         </div>
                         <div class="flex items-center shrink-0">
                             <div class="text-[10px] sm:text-xs text-gray-400 font-bold whitespace-nowrap bg-gray-900/50 px-2 py-1 rounded border border-gray-700/50">${dateStr}</div>
@@ -412,6 +428,7 @@
                     document.getElementById('articleId').value = art.id;
                     document.getElementById('articleTitle').value = art.title;
                     document.getElementById('articleImage').value = art.image || "";
+                    document.getElementById('articlePinned').checked = art.isPinned === true;
                     quillEditor.root.innerHTML = art.content || "";
                     btnDelete.classList.remove('hidden');
                 } else {
@@ -419,6 +436,7 @@
                     document.getElementById('articleId').value = "";
                     document.getElementById('articleTitle').value = "";
                     document.getElementById('articleImage').value = "";
+                    document.getElementById('articlePinned').checked = false;
                     quillEditor.root.innerHTML = "";
                     btnDelete.classList.add('hidden');
                 }
@@ -436,6 +454,7 @@
                     id: document.getElementById('articleId').value || "temp_" + Date.now(),
                     title: document.getElementById('articleTitle').value,
                     image: document.getElementById('articleImage').value,
+                    isPinned: document.getElementById('articlePinned').checked,
                     content: quillEditor.root.innerHTML,
                     lastUpdate: new Date().toISOString()
                 };
