@@ -283,8 +283,11 @@
 
                 const CACHE_KEY = 'mwr_tierlist_data_v6';
                 const TIME_KEY = 'mwr_tierlist_timestamp';
+                const CHECK_KEY = 'mwr_tierlist_lastcheck';
                 const cachedHeroes = localStorage.getItem(CACHE_KEY);
                 const localTimestamp = localStorage.getItem(TIME_KEY);
+                const lastCheck = localStorage.getItem(CHECK_KEY);
+                const now = Date.now();
 
                 if (cachedHeroes) {
                     try {
@@ -297,34 +300,41 @@
 
                 try {
                     let freshData = [];
+                    // Only check Firebase if it's been more than 120,000ms (2 minutes) since the last check
+                    const shouldCheck = !lastCheck || (now - parseInt(lastCheck)) > 120000;
                     
-                    try {
-                        if (db) {
-                            const metaRef = await db.collection('cache').doc('tierlist_meta').get();
-                            if (metaRef.exists) {
-                                const liveTimestamp = metaRef.data().lastUpdated;
+                    if (shouldCheck) {
+                        try {
+                            if (db) {
+                                const metaRef = await db.collection('cache').doc('tierlist_meta').get();
+                                if (metaRef.exists) {
+                                    const liveTimestamp = metaRef.data().lastUpdated;
+                                    localStorage.setItem(CHECK_KEY, now.toString()); // Update check time
 
-                                if (!localTimestamp || liveTimestamp !== localTimestamp) {
-                                    console.log("New update detected! Downloading tierlist payload...");
-                                    const docRef = await db.collection('cache').doc('tierlist_payload').get();
-                                    if (docRef.exists) {
-                                        const payloadData = docRef.data();
-                                        if (payloadData && payloadData.data) {
-                                            const parsed = JSON.parse(payloadData.data);
-                                            if (Array.isArray(parsed)) {
-                                                freshData = parsed;
-                                                localStorage.setItem(TIME_KEY, liveTimestamp);
-                                                console.log("🔥 Tierlist synced & cached from Firebase CDN!");
+                                    if (!localTimestamp || liveTimestamp !== localTimestamp) {
+                                        console.log("New update detected! Downloading tierlist payload...");
+                                        const docRef = await db.collection('cache').doc('tierlist_payload').get();
+                                        if (docRef.exists) {
+                                            const payloadData = docRef.data();
+                                            if (payloadData && payloadData.data) {
+                                                const parsed = JSON.parse(payloadData.data);
+                                                if (Array.isArray(parsed)) {
+                                                    freshData = parsed;
+                                                    localStorage.setItem(TIME_KEY, liveTimestamp);
+                                                    console.log("🔥 Tierlist synced & cached from Firebase CDN!");
+                                                }
                                             }
                                         }
+                                    } else {
+                                        console.log("⚡ Local cache is perfectly up to date! Skipped Firebase payload download.");
                                     }
-                                } else {
-                                    console.log("⚡ Local cache is perfectly up to date! Skipped Firebase payload download.");
                                 }
                             }
+                        } catch (fbErr) {
+                            console.warn("Firebase fetch failed or not configured. Falling back to GAS.", fbErr);
                         }
-                    } catch (fbErr) {
-                        console.warn("Firebase fetch failed or not configured. Falling back to GAS.", fbErr);
+                    } else {
+                        console.log("⏳ Rate limited: Skipping Firebase update check to prevent spam.");
                     }
 
                     if (freshData.length === 0 && !cachedHeroes) {
@@ -691,11 +701,13 @@
                     } else {
                         content.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-circle-notch fa-spin mr-2"></i> Loading logs...</div>';
                         try {
-                            // FIX: Pull directly from the new Firebase payload for instant loading!
                             if (db) {
                                 const doc = await db.collection('cache').doc('logs_payload').get();
                                 if (doc.exists) {
-                                    cachedLogs = JSON.parse(doc.data().data);
+                                    let parsed = JSON.parse(doc.data().data);
+                                    // Safe array check to prevent the .forEach error
+                                    if (!Array.isArray(parsed)) parsed = []; 
+                                    cachedLogs = parsed;
                                     renderLogs(cachedLogs);
                                     return;
                                 }
