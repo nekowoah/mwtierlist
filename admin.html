@@ -129,17 +129,21 @@
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full xl:w-auto">
                         <h2 class="text-xl font-bold text-gray-100 whitespace-nowrap"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> File Repository</h2>
                         
-                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap">
+                            <!-- NEW: Search Bar -->
+                            <div class="relative group flex-grow sm:flex-grow-0">
+                                <input type="text" id="gallerySearchInput" onkeyup="window.admin.renderGallery()" placeholder="Search images..." class="w-full sm:w-48 bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 pl-8 text-white outline-none focus:border-indigo-500 transition-colors text-xs font-bold">
+                                <i class="fa-solid fa-search absolute left-2.5 top-2 text-gray-500"></i>
+                            </div>
+
                             <!-- View Toggles -->
                             <div class="flex bg-gray-900 rounded-lg p-1 border border-gray-700 shrink-0">
                                 <button onclick="window.admin.setGalleryView('list')" id="btnViewList" class="px-3 py-1 rounded text-xs font-bold bg-gray-700 text-white shadow-md transition-colors"><i class="fa-solid fa-list"></i></button>
                                 <button onclick="window.admin.setGalleryView('grid')" id="btnViewGrid" class="px-3 py-1 rounded text-xs font-bold text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-border-all"></i></button>
                             </div>
 
-                            <!-- Sorting Dropdown -->
+                            <!-- Sorting Dropdown (Time Options Removed) -->
                             <select id="gallerySortSelect" onchange="window.admin.setGallerySort(this.value)" class="bg-gray-900 border border-gray-700 text-gray-300 text-xs rounded-lg px-2 py-1.5 outline-none focus:border-indigo-500 w-full sm:w-auto font-bold cursor-pointer">
-                                <option value="newest">Sort: Last Added (Newest)</option>
-                                <option value="oldest">Sort: First Added (Oldest)</option>
                                 <option value="az">Sort: Alphabetical (A-Z)</option>
                                 <option value="za">Sort: Alphabetical (Z-A)</option>
                             </select>
@@ -224,7 +228,7 @@
             
             // New Gallery States
             let galleryViewMode = 'list'; // 'list' or 'grid'
-            let gallerySortMode = 'newest'; // 'newest', 'oldest', 'az', 'za'
+            let gallerySortMode = 'az'; // Default changed to 'az'
             let currentPreviewSha = null;
 
             const init = () => {
@@ -401,12 +405,6 @@
                 });
             };
 
-            const extractTimestamp = (filename) => {
-                // Looks for standard timestamp appended at end before extension e.g., name_1625345.webp
-                const match = filename.match(/_(\d{13})\./);
-                return match ? parseInt(match[1]) : 0;
-            };
-
             // --- NEW GALLERY UI & SORTING LOGIC ---
 
             const setGalleryView = (mode) => {
@@ -440,6 +438,9 @@
                 currentPreviewSha = null;
                 updateBulkControls();
                 
+                const searchEl = document.getElementById('gallerySearchInput');
+                if(searchEl) searchEl.value = '';
+                
                 document.getElementById('galleryPreviewEmpty').classList.remove('hidden');
                 document.getElementById('galleryPreviewContent').classList.add('hidden');
 
@@ -454,6 +455,7 @@
             const renderGallery = () => {
                 const listContainer = document.getElementById('galleryListContent');
                 const gridContainer = document.getElementById('galleryGridContent');
+                const searchVal = document.getElementById('gallerySearchInput') ? document.getElementById('gallerySearchInput').value.toLowerCase() : '';
                 
                 if (galleryImages.length === 0) {
                     listContainer.innerHTML = '<div class="text-center text-gray-500 py-10 font-bold w-full">Library is empty.</div>';
@@ -461,21 +463,20 @@
                     return;
                 }
 
-                // Apply Sorting
-                const sortedImages = [...galleryImages].sort((a, b) => {
-                    if (gallerySortMode === 'az') return a.name.localeCompare(b.name);
+                // Apply Search Filter & Alphabetical Sorting
+                const processedImages = galleryImages.filter(img => img.name.toLowerCase().includes(searchVal)).sort((a, b) => {
                     if (gallerySortMode === 'za') return b.name.localeCompare(a.name);
-                    
-                    const tsA = extractTimestamp(a.name);
-                    const tsB = extractTimestamp(b.name);
-                    
-                    if (gallerySortMode === 'newest') return tsB - tsA;
-                    if (gallerySortMode === 'oldest') return tsA - tsB;
-                    return 0;
+                    return a.name.localeCompare(b.name); // Default A-Z
                 });
 
+                if (processedImages.length === 0) {
+                    listContainer.innerHTML = '<div class="text-center text-gray-500 py-10 font-bold w-full">No images match your search.</div>';
+                    gridContainer.innerHTML = '<div class="text-center text-gray-500 py-10 font-bold col-span-full">No images match your search.</div>';
+                    return;
+                }
+
                 // Render List View
-                listContainer.innerHTML = sortedImages.map(img => {
+                listContainer.innerHTML = processedImages.map(img => {
                     const isConvertible = img.name.match(/\.(png|jpg|jpeg)$/i);
                     const isChecked = selectedImages.has(img.sha);
                     const isPreviewed = currentPreviewSha === img.sha;
@@ -501,7 +502,7 @@
                 }).join('');
 
                 // Render Grid View (Names strictly underneath)
-                gridContainer.innerHTML = sortedImages.map(img => {
+                gridContainer.innerHTML = processedImages.map(img => {
                     const isConvertible = img.name.match(/\.(png|jpg|jpeg)$/i);
                     const isChecked = selectedImages.has(img.sha);
                     const borderColor = isChecked ? 'border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'border-gray-700 hover:border-gray-500';
