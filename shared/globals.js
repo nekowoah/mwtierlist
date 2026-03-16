@@ -56,9 +56,9 @@ window.MWR_GLOBALS = {
 // HYBRID CONFIGURATION: Initialize Global Firebase Instance
 if (typeof firebase !== 'undefined') {
     const firebaseConfig = {
-        apiKey: "AIzaSyAuiszbK6B-EzOD9yTsrGHlPIlGWIGUdEQ",
-        authDomain: "legion-mwr-archive.firebaseapp.com",
-        projectId: "legion-mwr-archive"
+        apiKey: "AIzaSyDXucaPMYRlmagL3LEIq70cH2k8_i5xnJc",
+        authDomain: "mwr-tierlist-site.firebaseapp.com",
+        projectId: "mwr-tierlist-site"
     };
     
     if (!firebase.apps.length) {
@@ -192,4 +192,20 @@ window.AppMenu = (() => {
     };
 
     return { build, toggleSidebar, exitAdmin, toggleTheme };
+})();
+
+
+// --- GOOGLE ANALYTICS (GA4) ---
+(function() {
+    // 1. Inject the external Google Tag Manager script
+    const gaScript = document.createElement('script');
+    gaScript.async = true;
+    gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-770Z73BYC0';
+    document.head.appendChild(gaScript);
+
+    // 2. Initialize the data layer and config
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-770Z73BYC0');
 })();
