@@ -17,6 +17,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script src="shared/globals.js"></script>
+    <!-- FIX: Included the new factored-out image picker -->
+    <script src="shared/image-picker.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared/styles.css">
@@ -132,14 +134,10 @@
                         <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Banner Image URL (Optional)</label>
                         <div class="flex gap-2">
                             <input type="url" id="articleImage" placeholder="https://..." class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white transition-colors">
-                            <button type="button" onclick="app.openImageGallery()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
-                            <label class="bg-gray-700 hover:bg-gray-600 text-white px-3 flex items-center justify-center rounded border border-gray-600 transition-colors shadow-sm cursor-pointer" title="Upload to GitHub (Auto WebP)">
-                                <i class="fa-solid fa-upload"></i>
-                                <input type="file" accept="image/*" class="hidden" onchange="app.uploadImage(event)">
-                            </label>
+                            <!-- FIX: Hooked up to the Universal Image Picker -->
+                            <button type="button" onclick="ImagePicker.open((url) => document.getElementById('articleImage').value = url, document.getElementById('articleTitle').value)" class="bg-gray-700 hover:bg-gray-600 text-white px-4 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
                         </div>
                     </div>
-                    <!-- NEW: Pin Checkbox -->
                     <div class="col-span-1 md:col-span-2 flex items-center gap-2 mt-1 mb-2">
                         <input type="checkbox" id="articlePinned" class="w-4 h-4 accent-blue-500 bg-gray-900 border-gray-600 rounded cursor-pointer">
                         <label for="articlePinned" class="text-sm font-bold text-gray-300 cursor-pointer hover:text-white transition-colors"><i class="fa-solid fa-thumbtack text-red-500 mr-1.5"></i> Pin to Top</label>
@@ -262,7 +260,7 @@
                                 const metaRef = await db.collection('cache').doc('info_meta').get();
                                 if (metaRef.exists) {
                                     const liveTimestamp = metaRef.data().lastUpdated;
-                                    localStorage.setItem(CHECK_KEY, now.toString()); // Update check time
+                                    localStorage.setItem(CHECK_KEY, now.toString()); 
 
                                     if (!localTimestamp || liveTimestamp !== localTimestamp) {
                                         const docRef = await db.collection('cache').doc('info_payload').get();
@@ -499,130 +497,7 @@
                 } catch(e) { alert("Failed to delete."); window.location.reload(); }
             };
 
-            const openImageGallery = async () => {
-                if (!document.getElementById('imageGalleryModal')) {
-                    const modalHtml = `
-                    <div id="imageGalleryModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
-                        <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col">
-                            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2 shrink-0">
-                                <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-images text-blue-400 mr-2"></i> Select Image</h3>
-                                <button type="button" onclick="document.getElementById('imageGalleryModal').classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
-                            </div>
-                            <div class="mb-4 shrink-0">
-                                <input type="text" id="gallerySearchInput" onkeyup="app.filterGallery()" placeholder="Search images..." class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white outline-none focus:border-blue-500">
-                            </div>
-                            <div id="galleryGrid" class="flex-grow overflow-y-auto hide-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 content-start">
-                                <div class="col-span-full text-center text-gray-500 py-10"><i class="fas fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i><br>Loading Library...</div>
-                            </div>
-                        </div>
-                    </div>`;
-                    document.body.insertAdjacentHTML('beforeend', modalHtml);
-                }
-                
-                document.getElementById('imageGalleryModal').classList.remove('hidden');
-                const grid = document.getElementById('galleryGrid');
-                
-                if (galleryCache.length === 0) {
-                    try {
-                        const res = await fetch(API_URL, { 
-                            method: "POST", 
-                            body: JSON.stringify({ action: "list_images", token: authToken }), 
-                            redirect: "follow" 
-                        });
-                        const data = await res.json();
-                        if (data.error) throw new Error(data.error);
-                        galleryCache = data;
-                        renderGallery();
-                    } catch(e) {
-                        grid.innerHTML = `<div class="col-span-full text-red-400 text-center py-10">Failed to load images.</div>`;
-                    }
-                } else {
-                    renderGallery();
-                }
-            };
-
-            const renderGallery = () => {
-                const grid = document.getElementById('galleryGrid');
-                const search = document.getElementById('gallerySearchInput').value.toLowerCase();
-                
-                const filtered = galleryCache.filter(img => img.name.toLowerCase().includes(search));
-                
-                if (filtered.length === 0) {
-                    grid.innerHTML = `<div class="col-span-full text-gray-500 text-center py-10">No images found.</div>`;
-                    return;
-                }
-                
-                // FIX: Added absolute inset-0 wrapper to strictly lock the image to the grid cell bounds
-                grid.innerHTML = filtered.map(img => `
-                    <div onclick="app.selectImage('${img.download_url}')" class="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500 cursor-pointer aspect-square relative group transition-colors">
-                        <div class="absolute inset-0 p-2 flex items-center justify-center">
-                            <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 bg-black/80 text-[10px] text-gray-300 truncate px-1 py-1 text-center z-10">${img.name}</div>
-                    </div>
-                `).join('');
-            };
-
-            const filterGallery = () => renderGallery();
-
-            const selectImage = (url) => {
-                document.getElementById('articleImage').value = url;
-                document.getElementById('imageGalleryModal').classList.add('hidden');
-            };
-
-            const uploadImage = async (event) => {
-                const file = event.target.files[0];
-                if(!file) return;
-                
-                const title = document.getElementById('articleTitle').value;
-                if(!title) { alert("Please enter a Title first so we can name the file!"); event.target.value = ""; return; }
-
-                const imgInput = document.getElementById('articleImage');
-                const oldVal = imgInput.value;
-                imgInput.value = "Converting & Uploading...";
-
-                try {
-                    const base64WebP = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.readAsDataURL(file);
-                        reader.onload = (e) => {
-                            const img = new Image();
-                            img.src = e.target.result;
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                canvas.width = img.width; canvas.height = img.height;
-                                canvas.getContext('2d').drawImage(img, 0, 0);
-                                resolve(canvas.toDataURL('image/webp', 0.85).split(',')[1]);
-                            };
-                            img.onerror = () => reject("Image processing failed.");
-                        };
-                        reader.onerror = () => reject("File reading failed.");
-                    });
-
-                    const safeName = title.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-                    const fileName = `post_${safeName}_${Date.now()}.webp`;
-
-                    const res = await fetch(API_URL, { 
-                        method: "POST", 
-                        body: JSON.stringify({ action: "upload_image", fileData: base64WebP, fileName: fileName, token: authToken }), 
-                        redirect: "follow" 
-                    });
-                    const data = await res.json();
-                    
-                    if(data.error) throw new Error(data.error);
-                    imgInput.value = data.url;
-                    
-                    // Reset cache so new image shows next time gallery is opened
-                    galleryCache = [];
-                } catch(e) {
-                    alert("Upload failed: " + e.message);
-                    imgInput.value = oldVal;
-                } finally {
-                    event.target.value = ""; 
-                }
-            };
-
-            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle, toggleSidebar, setView, openImageGallery, filterGallery, selectImage, uploadImage };
+            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle, toggleSidebar, setView };
         })();
         window.onload = app.init;
     </script>
