@@ -245,7 +245,11 @@
                                 const payloadData = docRef.data();
                                 if (payloadData && payloadData.data) {
                                     const parsed = JSON.parse(payloadData.data);
-                                    if (Array.isArray(parsed)) freshData = parsed;
+                                    if (Array.isArray(parsed)) {
+                                        freshData = parsed;
+                                        // FIX: Added visual confirmation
+                                        console.log("🔥 Info Guides loaded instantly from Firebase CDN!");
+                                    }
                                 }
                             }
                         }
