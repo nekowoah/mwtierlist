@@ -159,7 +159,7 @@
             let isAdmin = false;
             let authToken = "";
             let quillEditor = null;
-            let currentView = 'grid'; // Controls Grid/List display
+            let currentView = 'grid';
 
             const toggleSidebar = () => { if (window.AppMenu && window.AppMenu.toggleSidebar) window.AppMenu.toggleSidebar(); };
 
@@ -186,7 +186,7 @@
 
             const init = async () => {
                 if (window.location.hash === '#admin') {
-                    const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
+                    const savedToken = localStorage.getItem('mw_admin_pass') || sessionStorage.getItem('mw_admin_pass');
                     if (savedToken) {
                         isAdmin = true;
                         authToken = savedToken;
@@ -236,12 +236,17 @@
 
                 try {
                     let freshData = null;
+                    
+                    // FIX: Fetch the Single Payload Document from Firebase
                     try {
                         if (db) {
-                            const snapshot = await db.collection('information').get();
-                            if (!snapshot.empty) {
-                                freshData = [];
-                                snapshot.forEach(doc => freshData.push(doc.data()));
+                            const docRef = await db.collection('cache').doc('info_payload').get();
+                            if (docRef.exists) {
+                                const payloadData = docRef.data();
+                                if (payloadData && payloadData.data) {
+                                    const parsed = JSON.parse(payloadData.data);
+                                    if (Array.isArray(parsed)) freshData = parsed;
+                                }
                             }
                         }
                     } catch (fbErr) { console.warn("Firebase fetch failed. Falling back to GAS.", fbErr); }
@@ -288,7 +293,6 @@
                 
                 grid.innerHTML = ''; list.innerHTML = '';
 
-                // Search Filter
                 const filtered = articles.filter(art => {
                     const searchMatchTitle = (art.title || "").toLowerCase().includes(filterSearch);
                     const rawContent = stripHtml(art.content || "").toLowerCase();
@@ -302,7 +306,6 @@
                     return;
                 }
 
-                // GRID VIEW RENDERING
                 grid.innerHTML = filtered.map(art => {
                     let adminControls = '';
                     if (isAdmin) {
@@ -327,7 +330,6 @@
                     `;
                 }).join('');
 
-                // LIST VIEW RENDERING (Forum Style)
                 list.innerHTML = filtered.map(art => {
                     let adminControls = '';
                     if (isAdmin) {
