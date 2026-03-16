@@ -262,15 +262,16 @@ window.TierlistEditor = (() => {
 
         // Optimistic Local Update
         let heroes = appRef.getHeroes();
-        const existingIndex = heroes.findIndex(h => h.id == formData.id);
-        if (existingIndex >= 0) heroes[existingIndex] = formData;
-        else heroes.unshift(formData);
-        
-        appRef.setHeroes(heroes);
-        appRef.render();
-        close();
+                };
+                reader.onerror = () => reject("File reading failed.");
+            });
 
-        try {
+            // FIX: Use exact original filename instead of the Hero's name + timestamp
+            const originalName = file.name.replace(/\.[^/.]+$/, "");
+            let safeName = originalName.replace(/[^a-zA-Z0-9_\-]/g, "").toLowerCase();
+            if (!safeName) safeName = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase() || "hero";
+            const fileName = `${safeName}.webp`;
+
             const token = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
             const res = await fetch(window.MWR_GLOBALS.API_URL, { 
                 method: "POST", 
@@ -319,5 +320,6 @@ window.TierlistEditor = (() => {
         }
     };
 
+    // FIX: Removed all the dead image gallery functions from the return block
     return { open, close, save, delete: deleteHero };
 })();
