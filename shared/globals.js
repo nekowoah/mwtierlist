@@ -32,9 +32,9 @@ window.MWR_GLOBALS = {
 // HYBRID CONFIGURATION: Initialize Global Firebase Instance
 if (typeof firebase !== 'undefined') {
     const firebaseConfig = {
-        apiKey: "AIzaSyAuiszbK6B-EzOD9yTsrGHlPIlGWIGUdEQ",
-        authDomain: "legion-mwr-archive.firebaseapp.com",
-        projectId: "legion-mwr-archive"
+        apiKey: "AIzaSyDXucaPMYRlmagL3LEIq70cH2k8_i5xnJc",
+        authDomain: "mwr-tierlist-site.firebaseapp.com",
+        projectId: "mwr-tierlist-site"
     };
     
     if (!firebase.apps.length) {
@@ -48,7 +48,7 @@ window.AppMenu = (() => {
     const PUBLIC_PAGES = [
         { name: "Tierlist", url: "index.html", icon: "fa-list" },
         { name: "Information", url: "info.html", icon: "fa-circle-info" },
-        { name: "Formations", url: "formation.html", icon: "fa-chess-board" }
+        { name: "Formations", url: "formations.html", icon: "fa-chess-board" }
     ];
 
     const ADMIN_PAGES = [
@@ -59,9 +59,17 @@ window.AppMenu = (() => {
     ];
 
     const build = (isAdmin = false, activeColor = 'indigo') => {
-        const pages = isAdmin ? ADMIN_PAGES : PUBLIC_PAGES;
+        let pages = isAdmin ? ADMIN_PAGES : PUBLIC_PAGES;
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
         const hash = isAdmin ? "#admin" : "";
+
+        // FIX: Remove "Edit Tierlist" from the sidebar menu if the user is an Editor
+        if (isAdmin) {
+            const role = sessionStorage.getItem('mw_admin_role') || localStorage.getItem('mw_admin_role') || 'admin';
+            if (role !== 'admin') {
+                pages = pages.filter(p => p.name !== "Edit Tierlist");
+            }
+        }
 
         const navLinks = pages.map(p => {
             const isActive = currentPath === p.url;
@@ -133,6 +141,9 @@ window.AppMenu = (() => {
 
     const exitAdmin = () => {
         sessionStorage.removeItem('mw_admin_token');
+        sessionStorage.removeItem('mw_admin_role');
+        localStorage.removeItem('mw_admin_token');
+        localStorage.removeItem('mw_admin_role');
         window.location.href = 'index.html';
     };
 
