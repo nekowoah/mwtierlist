@@ -1,61 +1,144 @@
-/* shared/styles.css */
+/* --- THEME PALETTES --- */
 
-/* --- THEME VARIABLES (RGBA Format for Tailwind Opacity Support) --- */
-:root {
-    /* DARK MODE (Default) */
-    --color-white: 255, 255, 255;
-    --color-black: 0, 0, 0;
-    --color-gray-100: 243, 244, 246;
-    --color-gray-200: 229, 231, 235;
-    --color-gray-300: 209, 213, 219;
-    --color-gray-400: 156, 163, 175;
-    --color-gray-500: 107, 114, 128;
-    --color-gray-600: 75, 85, 99;
-    --color-gray-700: 55, 65, 81;
-    --color-gray-800: 31, 41, 55;
+/* 1. Default Dark (Bluish Slate) */
+:root, [data-theme="dark"] {
     --color-gray-900: 17, 24, 39;
+    --color-gray-800: 31, 41, 55;
+    --color-gray-700: 55, 65, 81;
+    --color-gray-600: 75, 85, 99;
+    --color-gray-500: 107, 114, 128;
+    --color-gray-400: 156, 163, 175;
+    --color-gray-300: 209, 213, 219;
+    --color-gray-200: 229, 231, 235;
+    --color-gray-100: 243, 244, 246;
+    --color-white: 255, 255, 255;
 }
 
+/* 2. Light Mode (Inverted) */
 [data-theme="light"] {
-    /* LIGHT MODE (Inverted Palette) */
-    --color-white: 17, 24, 39;       /* White text becomes dark gray */
-    --color-black: 255, 255, 255;    /* Black overlays become white */
-    
-    /* We invert the grayscale so light mode works natively */
-    --color-gray-100: 31, 41, 55;
-    --color-gray-200: 55, 65, 81;
-    --color-gray-300: 75, 85, 99;
-    --color-gray-400: 107, 114, 128;
-    --color-gray-500: 156, 163, 175;
-    --color-gray-600: 209, 213, 219;
-    --color-gray-700: 229, 231, 235;
-    
-    /* Makes Top Bar & Cards Light Gray instead of Pure White */
-    --color-gray-800: 243, 244, 246; 
-    
-    /* Makes the main background body Pure White */
-    --color-gray-900: 255, 255, 255; 
+    --color-gray-900: 243, 244, 246;
+    --color-gray-800: 229, 231, 235;
+    --color-gray-700: 209, 213, 219;
+    --color-gray-600: 156, 163, 175;
+    --color-gray-500: 107, 114, 128;
+    --color-gray-400: 75, 85, 99;
+    --color-gray-300: 55, 65, 81;
+    --color-gray-200: 31, 41, 55;
+    --color-gray-100: 17, 24, 39;
+    --color-white: 17, 24, 39;
 }
 
-/* FIX: Typography Plugin Overrides for Light Mode Readability */
-[data-theme="light"] .prose-invert {
-    --tw-prose-body: rgba(var(--color-gray-200), 1);
-    --tw-prose-headings: rgba(var(--color-white), 1);
-    --tw-prose-lead: rgba(var(--color-gray-300), 1);
-    --tw-prose-links: #3b82f6; 
-    --tw-prose-bold: rgba(var(--color-white), 1);
-    --tw-prose-counters: rgba(var(--color-gray-400), 1);
-    --tw-prose-bullets: rgba(var(--color-gray-400), 1);
-    --tw-prose-hr: rgba(var(--color-gray-600), 1);
-    --tw-prose-quotes: rgba(var(--color-gray-100), 1);
-    --tw-prose-quote-borders: rgba(var(--color-gray-600), 1);
-    --tw-prose-captions: rgba(var(--color-gray-400), 1);
-    --tw-prose-code: rgba(var(--color-white), 1);
-    --tw-prose-pre-code: rgba(var(--color-gray-900), 1);
-    --tw-prose-pre-bg: rgba(var(--color-gray-100), 1);
+/* 3. True Gray (Neutral) */
+[data-theme="true-gray"] {
+    --color-gray-900: 23, 23, 23;
+    --color-gray-800: 38, 38, 38;
+    --color-gray-700: 64, 64, 64;
+    --color-gray-600: 82, 82, 82;
 }
 
-/* --- TIERLIST SPECIFIC CLASSES --- */
+/* 4. OLED Black */
+[data-theme="oled"] {
+    --color-gray-900: 0, 0, 0;
+    --color-gray-800: 10, 10, 10;
+    --color-gray-700: 26, 26, 26;
+    --color-gray-600: 38, 38, 38;
+}
+
+/* 5. Deep Purple */
+[data-theme="purple"] {
+    --color-gray-900: 46, 16, 101;
+    --color-gray-800: 76, 29, 149;
+    --color-gray-700: 109, 40, 217;
+    --color-gray-600: 124, 58, 237;
+}
+
+/* 6. Maroon / Pink */
+[data-theme="pink"] {
+    --color-gray-900: 76, 5, 25;
+    --color-gray-800: 131, 24, 67;
+    --color-gray-700: 190, 24, 93;
+    --color-gray-600: 225, 29, 72;
+}
+
+/* 7. Pastel Yellow (Light Variant - Inverts Text) */
+[data-theme="pastel-yellow"] {
+    --color-gray-900: 254, 249, 195;
+    --color-gray-800: 253, 224, 71;
+    --color-gray-700: 250, 204, 21;
+    --color-gray-600: 234, 179, 8;
+    --color-gray-500: 161, 98, 7;
+    --color-gray-400: 113, 63, 18;
+    --color-gray-300: 66, 32, 6;
+    --color-gray-200: 0, 0, 0;
+    --color-gray-100: 0, 0, 0;
+    --color-white: 0, 0, 0;
+}
+
+/* --- CUSTOM UI COMPONENTS --- */
+
+/* Custom Scrollbar for Main Page */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(var(--color-gray-800), 1); 
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(var(--color-gray-600), 1); 
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--color-gray-500), 1); 
+}
+
+/* Hide scrollbar completely but allow scrolling */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Tooltip Styling */
+.tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background-color: rgba(var(--color-gray-900), 0.95);
+    color: rgba(var(--color-white), 1);
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 100;
+    transition: all 0.2s ease-out;
+    border: 1px solid rgba(var(--color-gray-600), 0.5);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(var(--color-gray-900), 0.95) transparent transparent transparent;
+}
+.group:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Base Rank Colors */
 .bg-tier-sss { background-color: #ef4444; color: black; }
 .bg-tier-ss { background-color: #f59e0b; color: black; }
 .bg-tier-s { background-color: #f97316; color: black; }
@@ -63,34 +146,37 @@
 .bg-tier-b { background-color: #84cc16; color: black; }
 .bg-tier-c { background-color: #22c55e; color: black; }
 .bg-tier-d { background-color: #3b82f6; color: black; }
-.bg-tier-f { background-color: #6b7280; color: white; }
-.bg-tier-unranked { background-color: rgba(var(--color-gray-700), 1); color: white; border-color: rgba(var(--color-gray-600), 1); }
+.bg-tier-f { background-color: rgba(var(--color-gray-600), 1); color: rgba(var(--color-white), 1); }
+.bg-tier-unranked { background-color: rgba(var(--color-gray-700), 1); color: rgba(var(--color-white), 1); border-color: rgba(var(--color-gray-600), 1); }
 
+/* Top Border Types with Glow */
 .border-t-vip { border-top: 2px solid #fbbf24; box-shadow: 0 -2px 8px rgba(251, 191, 36, 0.6); }
-.border-t-limited { border-top: 2px solid #e879f9; box-shadow: 0 -2px 8px rgba(232, 121, 249, 0.6); }
+.border-t-limited { border-top: 2px solid #c90dde; box-shadow: 0 -2px 8px rgba(244, 114, 182, 0.6); }
 .border-t-basic { border-top: 2px solid #22c55e; box-shadow: 0 -2px 8px rgba(34, 197, 94, 0.6); }
 .border-t-normal { border-top: 2px solid rgba(var(--color-gray-600), 1); box-shadow: none; }
 
-.hero-portrait { transition: transform 0.2s, box-shadow 0.2s; will-change: transform; transform: translateZ(0); }
-.hero-portrait:hover { transform: translateY(-4px) translateZ(0); box-shadow: 0 12px 24px -5px rgba(0,0,0,0.7); z-index: 10; }
+/* FIX: Strict Hardware Acceleration for Hero Cards to eliminate layout thrashing */
+.hero-portrait { 
+    transition: transform 0.2s, box-shadow 0.2s; 
+    will-change: transform; 
+    transform: translateZ(0); 
+}
+.hero-portrait:hover { 
+    transform: translateY(-4px) translateZ(0); 
+    box-shadow: 0 12px 24px -5px rgba(0,0,0,0.7); 
+    z-index: 10; 
+}
 
+/* Animations */
 .modal-fade-in { animation: fadeIn 0.2s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
+.fade-in { animation: softFadeIn 0.3s ease-out forwards; }
+@keyframes softFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Utility Classes */
+.class-btn-active { border-color: #eab308; background-color: rgba(234, 179, 8, 0.2); color: #eab308; }
+.class-btn-inactive { border-color: rgba(var(--color-gray-600), 1); opacity: 0.7; }
+.class-btn-inactive:hover { opacity: 1; border-color: rgba(var(--color-gray-400), 1); color: rgba(var(--color-white), 1); }
+
 .custom-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
-
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-.tooltip {
-    visibility: hidden; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-    padding: 4px 8px; background: rgba(0,0,0,0.9); color: white; font-size: 0.75rem;
-    border-radius: 4px; white-space: nowrap; z-index: 30; pointer-events: none;
-}
-.hero-portrait:hover .tooltip { visibility: visible; }
-
-/* Admin Dashboard Specific */
-.fade-in { animation: fadeInY 0.3s ease-in-out forwards; }
-@keyframes fadeInY { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.dash-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.dash-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
