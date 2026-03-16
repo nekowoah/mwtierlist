@@ -10,7 +10,24 @@ window.ImagePicker = (() => {
     const injectHTML = () => {
         if (document.getElementById('imagePickerModal')) return;
 
+        // We inject a tiny native CSS block to guarantee 4 cols on mobile and 6 on desktop, 
+        // completely bypassing any Tailwind CDN purging bugs!
         const modalHtml = `
+        <style>
+            .picker-grid-custom {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.75rem;
+                justify-content: center;
+                align-content: start;
+            }
+            @media (min-width: 768px) {
+                .picker-grid-custom {
+                    grid-template-columns: repeat(6, 1fr);
+                    gap: 1rem;
+                }
+            }
+        </style>
         <div id="imagePickerModal" class="fixed inset-0 hidden flex items-center justify-center p-4 backdrop-blur-sm fade-in" style="z-index: 70; background-color: rgba(0,0,0,0.9);">
             <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-2xl w-full max-w-4xl flex flex-col" style="height: 80vh;">
                 <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2 shrink-0">
@@ -26,9 +43,8 @@ window.ImagePicker = (() => {
                 <div class="mb-4 shrink-0">
                     <input type="text" id="pickerSearchInput" onkeyup="ImagePicker.filter()" placeholder="Search existing images..." class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white outline-none focus:border-indigo-500">
                 </div>
-                <!-- FIX: Bulletproof Flex Wrap Layout (Immune to CSS Grid bugs) -->
-                <div id="pickerGrid" class="flex-grow overflow-y-auto hide-scrollbar flex flex-wrap gap-4 content-start justify-center sm:justify-start">
-                    <div class="w-full text-center text-gray-500 py-10"><i class="fas fa-circle-notch fa-spin text-2xl text-indigo-500 mb-2"></i><br>Loading Library...</div>
+                <div id="pickerGrid" class="flex-grow overflow-y-auto hide-scrollbar picker-grid-custom">
+                    <div class="text-center text-gray-500 py-10" style="grid-column: 1 / -1;"><i class="fas fa-circle-notch fa-spin text-2xl text-indigo-500 mb-2"></i><br>Loading Library...</div>
                 </div>
             </div>
         </div>`;
@@ -56,7 +72,7 @@ window.ImagePicker = (() => {
                 galleryCache = data;
                 render();
             } catch(e) {
-                document.getElementById('pickerGrid').innerHTML = `<div class="w-full text-red-400 text-center py-10">Failed to load images.</div>`;
+                document.getElementById('pickerGrid').innerHTML = `<div class="text-red-400 text-center py-10" style="grid-column: 1 / -1;">Failed to load images.</div>`;
             }
         } else {
             render();
@@ -74,13 +90,13 @@ window.ImagePicker = (() => {
         const filtered = galleryCache.filter(img => img.name.toLowerCase().includes(search));
         
         if (filtered.length === 0) {
-            grid.innerHTML = `<div class="w-full text-gray-500 text-center py-10">No images found.</div>`;
+            grid.innerHTML = `<div class="text-gray-500 text-center py-10" style="grid-column: 1 / -1;">No images found.</div>`;
             return;
         }
         
-        // FIX: Hardcoded w-28 h-28 (112px) ensures they form perfect squares and wrap gracefully
+        // We use aspect-square here so the grid perfectly scales the height to match the new width!
         grid.innerHTML = filtered.map(img => `
-            <div onclick="ImagePicker.select('${img.download_url}')" class="w-28 h-28 sm:w-32 sm:h-32 bg-gray-900 rounded-lg overflow-hidden border border-gray-700 hover:border-indigo-500 cursor-pointer relative group transition-colors flex-shrink-0">
+            <div onclick="ImagePicker.select('${img.download_url}')" class="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 hover:border-indigo-500 cursor-pointer relative group transition-colors aspect-square w-full">
                 <div class="absolute inset-0 p-2 flex items-center justify-center">
                     <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
                 </div>
@@ -107,7 +123,7 @@ window.ImagePicker = (() => {
         }
 
         const grid = document.getElementById('pickerGrid');
-        grid.innerHTML = `<div class="w-full text-yellow-400 font-bold text-center py-10"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>Converting & Uploading...</div>`;
+        grid.innerHTML = `<div class="text-yellow-400 font-bold text-center py-10" style="grid-column: 1 / -1;"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>Converting & Uploading...</div>`;
 
         try {
             const base64WebP = await new Promise((resolve, reject) => {
@@ -140,6 +156,7 @@ window.ImagePicker = (() => {
             
             if(data.error) throw new Error(data.error);
             
+            // Auto-select the newly uploaded image!
             select(data.url);
             galleryCache = []; // Purge cache so it refreshes next time
             
