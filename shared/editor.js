@@ -31,7 +31,6 @@ window.TierlistEditor = (() => {
                             <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Image URL</label>
                             <div class="flex gap-2">
                                 <input type="text" id="editImage" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                                <!-- FIX: Changed to trigger the new Gallery Modal -->
                                 <button type="button" onclick="TierlistEditor.openImageGallery()" class="bg-gray-700 hover:bg-gray-600 text-white px-3 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
                                 <label class="bg-gray-700 hover:bg-gray-600 text-white px-3 flex items-center justify-center rounded border border-gray-600 transition-colors shadow-sm cursor-pointer" title="Upload to GitHub (Auto WebP)">
                                     <i class="fa-solid fa-upload"></i>
@@ -230,7 +229,6 @@ window.TierlistEditor = (() => {
         if(modal) modal.classList.add('hidden');
     };
 
-    // NEW: Interactive Image Gallery Logic
     let galleryCache = [];
 
     const openImageGallery = async () => {
@@ -240,7 +238,7 @@ window.TierlistEditor = (() => {
                 <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col">
                     <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2 shrink-0">
                         <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-images text-indigo-400 mr-2"></i> Select Image</h3>
-                        <button onclick="document.getElementById('imageGalleryModal').classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+                        <button type="button" onclick="document.getElementById('imageGalleryModal').classList.add('hidden')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
                     </div>
                     <div class="mb-4 shrink-0">
                         <input type="text" id="gallerySearchInput" onkeyup="TierlistEditor.filterGallery()" placeholder="Search images..." class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-2 text-white outline-none focus:border-indigo-500">
@@ -287,10 +285,11 @@ window.TierlistEditor = (() => {
             return;
         }
         
+        // FIX: The flex utilities and max-w-full keep the image properly constrained inside the box!
         grid.innerHTML = filtered.map(img => `
-            <div onclick="TierlistEditor.selectImage('${img.download_url}')" class="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 hover:border-indigo-500 cursor-pointer aspect-square flex flex-col transition-colors group relative p-2">
-                <img src="${img.download_url}" class="w-full h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
-                <div class="absolute bottom-0 left-0 right-0 bg-black/80 text-[10px] text-gray-300 truncate px-1 py-0.5 text-center">${img.name}</div>
+            <div onclick="TierlistEditor.selectImage('${img.download_url}')" class="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 hover:border-indigo-500 cursor-pointer aspect-square relative group flex items-center justify-center p-2 transition-colors">
+                <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
+                <div class="absolute bottom-0 left-0 right-0 bg-black/80 text-[10px] text-gray-300 truncate px-1 py-1 text-center">${img.name}</div>
             </div>
         `).join('');
     };
@@ -314,7 +313,6 @@ window.TierlistEditor = (() => {
         imgInput.value = "Converting & Uploading...";
 
         try {
-            // Auto Convert to WebP
             const base64WebP = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -333,7 +331,7 @@ window.TierlistEditor = (() => {
             });
 
             const safeName = name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-            const fileName = `hero_${safeName}.webp`;
+            const fileName = `hero_${safeName}_${Date.now()}.webp`;
 
             const token = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
             const res = await fetch(window.MWR_GLOBALS.API_URL, { 
@@ -345,6 +343,7 @@ window.TierlistEditor = (() => {
             
             if(data.error) throw new Error(data.error);
             imgInput.value = data.url;
+            galleryCache = []; // Purge cache so it refreshes next time it's opened
         } catch(e) {
             alert("Upload failed: " + e.message);
             imgInput.value = oldVal;
