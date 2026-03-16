@@ -736,10 +736,14 @@
                         });
                     }
 
-                    // Append timestamp for accurate sorting!
-                    const originalName = finalName.replace(/\.[^/.]+$/, "");
-                    const safeName = originalName.replace(/[^a-zA-Z0-9_\-]/g, "").toLowerCase();
-                    finalName = `${safeName}_${Date.now()}.webp`;
+                    // FIX: Removed timestamp injection, strictly uses the sanitized original filename
+                    const originalName = file.name.replace(/\.[^/.]+$/, "");
+                    let safeName = originalName.replace(/[^a-zA-Z0-9_\-]/g, "").toLowerCase();
+                    if (!safeName) safeName = "image";
+                    
+                    // Maintain the extension (whether it was converted to .webp or kept as original like .gif)
+                    const ext = finalName.split('.').pop().toLowerCase();
+                    finalName = `${safeName}.${ext}`;
 
                     await sendRequest({ action: "upload_image", fileData: finalBase64, fileName: finalName });
                     input.value = ""; await loadGallery(); 
