@@ -56,9 +56,9 @@ window.MWR_GLOBALS = {
 // HYBRID CONFIGURATION: Initialize Global Firebase Instance
 if (typeof firebase !== 'undefined') {
     const firebaseConfig = {
-        apiKey: "AIzaSyDXucaPMYRlmagL3LEIq70cH2k8_i5xnJc",
-        authDomain: "mwr-tierlist-site.firebaseapp.com",
-        projectId: "mwr-tierlist-site"
+        apiKey: "AIzaSyAuiszbK6B-EzOD9yTsrGHlPIlGWIGUdEQ",
+        authDomain: "legion-mwr-archive.firebaseapp.com",
+        projectId: "legion-mwr-archive"
     };
     
     if (!firebase.apps.length) {
