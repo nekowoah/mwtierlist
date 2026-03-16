@@ -552,10 +552,13 @@
                     return;
                 }
                 
+                // FIX: Added absolute inset-0 wrapper to strictly lock the image to the grid cell bounds
                 grid.innerHTML = filtered.map(img => `
-                    <div onclick="app.selectImage('${img.download_url}')" class="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500 cursor-pointer aspect-square relative group flex items-center justify-center p-2 transition-colors">
-                        <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
-                        <div class="absolute bottom-0 left-0 right-0 bg-black/80 text-[10px] text-gray-300 truncate px-1 py-1 text-center">${img.name}</div>
+                    <div onclick="app.selectImage('${img.download_url}')" class="bg-gray-900 rounded-lg overflow-hidden border border-gray-700 hover:border-blue-500 cursor-pointer aspect-square relative group transition-colors">
+                        <div class="absolute inset-0 p-2 flex items-center justify-center">
+                            <img src="${img.download_url}" class="max-w-full max-h-full object-contain drop-shadow-md group-hover:scale-110 transition-transform">
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-black/80 text-[10px] text-gray-300 truncate px-1 py-1 text-center z-10">${img.name}</div>
                     </div>
                 `).join('');
             };
