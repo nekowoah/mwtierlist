@@ -138,23 +138,32 @@ window.AppMenu = (() => {
                 </div>
                 
                 <div class="p-3 text-xs font-bold text-gray-500 uppercase tracking-wider mt-2">Navigation</div>
-                <div class="flex flex-col gap-1 px-3 flex-grow">
+                
+                <div class="flex flex-col gap-1 px-3 flex-grow pb-4">
+                    <!-- Top Navigation Links -->
                     ${navLinks}
-                    <div class="h-px bg-gray-700 my-2 mx-2"></div>
-                    <a href="admin.html" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-${activeColor}-400 rounded-lg font-bold transition-colors w-full text-left border border-transparent">
-                        <i class="fa-solid fa-shield-halved w-5 text-center"></i> Admin Panel
-                    </a>
                     
-                    <!-- THEME TOGGLE BUTTON -->
-                    <button onclick="window.AppMenu.toggleTheme()" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-yellow-400 rounded-lg font-bold transition-colors w-full text-left border border-transparent mt-auto mb-2">
-                        <i class="fa-solid fa-palette w-5 text-center"></i> Change Theme
-                    </button>
+                    <!-- Bottom Anchored Links -->
+                    <div class="mt-auto flex flex-col gap-1">
+                        <div class="h-px bg-gray-700 my-2 mx-2"></div>
+                        
+                        <!-- THEME TOGGLE BUTTON -->
+                        <button onclick="window.AppMenu.toggleTheme()" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-yellow-400 rounded-lg font-bold transition-colors w-full text-left border border-transparent">
+                            <i class="fa-solid fa-palette w-5 text-center"></i> Change Theme
+                        </button>
 
-                    ${isAdmin ? `
-                    <button onclick="window.AppMenu.exitAdmin()" class="flex items-center gap-3 px-4 py-2.5 text-red-400 hover:bg-gray-800 hover:text-red-300 rounded-lg font-bold transition-colors w-full text-left border border-transparent mb-4">
-                        <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> Exit Admin
-                    </button>
-                    ` : ''}
+                        ${isAdmin ? `
+                        <!-- Exit Admin -->
+                        <button onclick="window.AppMenu.exitAdmin()" class="flex items-center gap-3 px-4 py-2.5 text-red-400 hover:bg-gray-800 hover:text-red-300 rounded-lg font-bold transition-colors w-full text-left border border-transparent">
+                            <i class="fa-solid fa-right-from-bracket w-5 text-center"></i> Exit Admin
+                        </button>
+                        ` : `
+                        <!-- Admin Access -->
+                        <a href="admin.html" class="flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-${activeColor}-400 rounded-lg font-bold transition-colors w-full text-left border border-transparent">
+                            <i class="fa-solid fa-lock w-5 text-center"></i> Admin Access
+                        </a>
+                        `}
+                    </div>
                 </div>
             </div>
         `;
