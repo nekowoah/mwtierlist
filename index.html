@@ -35,6 +35,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script src="shared/globals.js"></script>
+    <script src="shared/editor.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared/styles.css">
@@ -213,133 +214,6 @@
         </div>
     </div>
 
-    <!-- Edit Hero Modal (Admin Only) -->
-    <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
-        <div class="absolute inset-0 bg-black/90 transition-opacity" onclick="app.closeModal('editModal')"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-[92vw] sm:w-[90vw] max-w-lg md:max-w-5xl h-[82vh] md:h-[90vh] flex flex-col fade-in">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900 rounded-t-xl shrink-0">
-                <h2 class="text-xl font-bold text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> <span id="editModalTitle">Edit Hero</span></h2>
-                <button onclick="app.closeModal('editModal')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            
-            <form onsubmit="event.preventDefault(); app.saveHero();" class="flex flex-col flex-grow p-4 sm:p-6 overflow-y-auto hide-scrollbar gap-4">
-                <input type="hidden" id="editId">
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Name</label>
-                        <input type="text" id="editName" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Image URL</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="editImage" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Class</label>
-                        <select id="editClass" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Early Rank</label>
-                        <select id="editEarly" class="rank-select bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Late Rank</label>
-                        <select id="editLate" class="rank-select bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Sacrament Rank</label>
-                        <select id="editSacrament" class="rank-select bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Hero Type</label>
-                        <select id="editType" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                            <option value="Normal">Normal</option>
-                            <option value="Basic Limited">Basic Limited</option>
-                            <option value="Limited">Limited</option>
-                            <option value="VIP">VIP</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Has Awaken?</label>
-                        <select id="editAwaken" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                            <option value="No">No</option>
-                            <option value="Yes">Yes</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Role Summary</label>
-                    <input type="text" id="editRole" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                </div>
-
-                <div>
-                    <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Analysis & Notes</label>
-                    <textarea id="editNotes" rows="3" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></textarea>
-                </div>
-
-                <!-- Skills Section Toggle -->
-                <div class="border-t border-gray-700 pt-4 mt-2">
-                    <button type="button" onclick="document.getElementById('skillsEditContainer').classList.toggle('hidden')" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded font-bold w-full flex justify-between items-center transition-colors">
-                        <span><i class="fa-solid fa-cogs mr-2"></i> Expand/Collapse Skills Data</span>
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </button>
-                    
-                    <div id="skillsEditContainer" class="hidden flex flex-col gap-4 mt-4 bg-gray-900/50 p-4 rounded-lg border border-gray-700">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-xs text-blue-400 uppercase font-bold block mb-1">Skill Name</label>
-                                <input type="text" id="editSkillName" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white">
-                            </div>
-                            <div>
-                                <label class="text-xs text-blue-400 uppercase font-bold block mb-1">Skill Summary</label>
-                                <textarea id="editSkillSummary" rows="2" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="border-t border-gray-700 pt-4">
-                            <label class="text-xs text-yellow-500 uppercase font-bold block mb-1">Sacrament Name</label>
-                            <input type="text" id="editSacrName" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white mb-2">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <input type="text" id="editS1" placeholder="Sacrament 1" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                <input type="text" id="editS2" placeholder="Sacrament 2" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                <input type="text" id="editS3" placeholder="Sacrament 3" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                <input type="text" id="editS4" placeholder="Sacrament 4" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                <input type="text" id="editS5" placeholder="Sacrament 5" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                            </div>
-                        </div>
-
-                        <div class="border-t border-gray-700 pt-4">
-                            <label class="text-xs text-red-400 uppercase font-bold block mb-1">Awaken Name</label>
-                            <input type="text" id="editAwakenName" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white mb-2">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <input type="text" id="editAw1" placeholder="Awaken 1" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                <input type="text" id="editAw2" placeholder="Awaken 2" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                <input type="text" id="editAw3" placeholder="Awaken 3" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center shrink-0 pt-4 border-t border-gray-700 mt-2">
-                    <button type="button" onclick="app.deleteHero()" id="btnDelete" class="text-red-400 hover:text-red-300 text-sm font-bold transition-colors hidden"><i class="fa-solid fa-trash mr-1"></i>Delete Hero</button>
-                    <div class="flex gap-3 ml-auto">
-                        <button type="button" onclick="app.closeModal('editModal')" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-bold transition-colors">Cancel</button>
-                        <button type="submit" id="btnSave" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-bold transition-colors shadow-lg"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Save</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Changelog Modal -->
     <div id="changelogModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 transition-opacity" onclick="app.toggleChangelog()"></div>
@@ -367,31 +241,19 @@
             let activeTypeFilters = new Set(['VIP', 'Limited', 'Basic Limited', 'Normal']);
             let showAwakenedOnly = false;
             let cachedLogs = null;
-            
             let isAdmin = false;
 
             const db = window.MWR_GLOBALS ? window.MWR_GLOBALS.db : null;
             
             const toggleSidebar = () => {
-                if (window.AppMenu && window.AppMenu.toggleSidebar) {
-                    window.AppMenu.toggleSidebar();
-                } else {
-                    console.warn("AppMenu is not initialized yet.");
-                }
+                if (window.AppMenu && window.AppMenu.toggleSidebar) window.AppMenu.toggleSidebar();
             };
             
             const exitAdmin = () => {
-                if (window.AppMenu && window.AppMenu.exitAdmin) {
-                    window.AppMenu.exitAdmin();
-                }
+                if (window.AppMenu && window.AppMenu.exitAdmin) window.AppMenu.exitAdmin();
             };
 
             const init = async () => {
-                if (!window.MWR_GLOBALS) {
-                    document.getElementById('loading').innerHTML = `<div class="bg-red-900/20 border border-red-500/50 rounded-xl p-6 max-w-md mx-auto mt-10"><i class="fa-solid fa-triangle-exclamation text-4xl text-red-500 mb-3"></i><h3 class="text-xl font-black text-white mb-2">Missing Shared Files</h3><p class="text-gray-300 text-sm">Cannot find shared/globals.js</p></div>`;
-                    return; 
-                }
-
                 if (window.location.hash === '#admin') {
                     const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
                     if (savedToken) {
@@ -401,16 +263,14 @@
                         document.getElementById('discordLink').classList.add('hidden');
                         
                         document.getElementById('navControls').insertAdjacentHTML('afterbegin', `
-                            <button onclick="app.openEditModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg transition-colors font-bold shadow-lg flex items-center gap-2 mr-2">
+                            <button onclick="TierlistEditor.open(null, app)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg transition-colors font-bold shadow-lg flex items-center gap-2 mr-2">
                                 <i class="fa-solid fa-plus"></i><span class="hidden sm:inline">Add Hero</span>
                             </button>
                         `);
                     } else { window.location.href = 'admin.html'; return; }
                 }
 
-                if (window.AppMenu && window.AppMenu.build) {
-                    window.AppMenu.build(isAdmin, 'indigo');
-                }
+                if (window.AppMenu && window.AppMenu.build) window.AppMenu.build(isAdmin, 'indigo');
                 
                 renderClassButtons();
                 updateInfo();
@@ -422,7 +282,10 @@
                 });
 
                 const CACHE_KEY = 'mwr_tierlist_data_v6';
+                const TIME_KEY = 'mwr_tierlist_timestamp';
                 const cachedHeroes = localStorage.getItem(CACHE_KEY);
+                const localTimestamp = localStorage.getItem(TIME_KEY);
+
                 if (cachedHeroes) {
                     try {
                         heroes = JSON.parse(cachedHeroes);
@@ -437,16 +300,26 @@
                     
                     try {
                         if (db) {
-                            const docRef = await db.collection('cache').doc('tierlist_payload').get();
-                            if (docRef.exists) {
-                                const payloadData = docRef.data();
-                                if (payloadData && payloadData.data) {
-                                    const parsed = JSON.parse(payloadData.data);
-                                    if (Array.isArray(parsed)) {
-                                        freshData = parsed;
-                                        // FIX: Added visual confirmation to the console!
-                                        console.log("🔥 Tierlist loaded instantly from Firebase CDN!");
+                            const metaRef = await db.collection('cache').doc('tierlist_meta').get();
+                            if (metaRef.exists) {
+                                const liveTimestamp = metaRef.data().lastUpdated;
+
+                                if (!localTimestamp || liveTimestamp !== localTimestamp) {
+                                    console.log("New update detected! Downloading tierlist payload...");
+                                    const docRef = await db.collection('cache').doc('tierlist_payload').get();
+                                    if (docRef.exists) {
+                                        const payloadData = docRef.data();
+                                        if (payloadData && payloadData.data) {
+                                            const parsed = JSON.parse(payloadData.data);
+                                            if (Array.isArray(parsed)) {
+                                                freshData = parsed;
+                                                localStorage.setItem(TIME_KEY, liveTimestamp);
+                                                console.log("🔥 Tierlist synced & cached from Firebase CDN!");
+                                            }
+                                        }
                                     }
+                                } else {
+                                    console.log("⚡ Local cache is perfectly up to date! Skipped Firebase payload download.");
                                 }
                             }
                         }
@@ -454,21 +327,19 @@
                         console.warn("Firebase fetch failed or not configured. Falling back to GAS.", fbErr);
                     }
 
-                    if (freshData.length === 0) {
+                    if (freshData.length === 0 && !cachedHeroes) {
                         console.log("Fetching from Google Apps Script (Fallback)...");
                         const res = await fetch(API_URL);
                         freshData = await res.json();
                     }
                     
-                    if (JSON.stringify(heroes) !== JSON.stringify(freshData)) {
+                    if (freshData.length > 0 && JSON.stringify(heroes) !== JSON.stringify(freshData)) {
                         heroes = freshData;
                         localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
                         document.getElementById('loading').classList.add('hidden'); 
                         document.getElementById('tierListContainer').classList.remove('opacity-0'); 
                         render();
                     }
-                    
-                    // FIX: Removed the automatic Changelog background fetch to keep the Network tab silent until requested
                 } catch(e) { 
                     if (!cachedHeroes) document.getElementById('loading').innerHTML = `<p class="text-red-400">Failed to load data.</p>`; 
                 }
@@ -589,7 +460,7 @@
                                 if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') topBorderClass = 'border-t-basic';
 
                                 heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded ${topBorderClass} group transition-all`;
-                                heroEl.onclick = () => { isAdmin ? app.openEditModal(h) : app.openModal(h); };
+                                heroEl.onclick = () => { isAdmin ? TierlistEditor.open(h, app) : openModal(h); };
                                 
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
                                 const classIconHtml = `<div class="absolute -top-1.5 -left-1.5 z-20 w-6 h-6 sm:w-7 sm:h-7 bg-[#111827] rounded-full p-1 border border-[#4b5563]/50 shadow-md flex justify-center items-center"><img src="${classIconUrl}" class="w-full h-full object-contain opacity-90 group-hover:opacity-100"></div>`;
@@ -711,6 +582,7 @@
 
                 const historyContainer = document.getElementById('modalHistoryContent');
                 if (cachedLogs && cachedLogs.length > 0) {
+                    // Match by direct heroId or legacy fuzzy match by name
                     const heroLogs = cachedLogs.filter(log => log.heroId === h.id || (log.details && log.details.includes(h.name)));
                     if (heroLogs.length > 0) {
                         historyContainer.innerHTML = heroLogs.map(l => {
@@ -736,167 +608,7 @@
                 document.getElementById('viewModal').classList.remove('hidden');
             };
 
-            const openEditModal = (h = null) => {
-                if (!isAdmin) return;
-                
-                const modal = document.getElementById('editModal');
-                const btnDelete = document.getElementById('btnDelete');
-                
-                const classSelect = document.getElementById('editClass');
-                if (classSelect.options.length === 0) {
-                    classSelect.innerHTML = Object.keys(CLASS_ICONS).map(c => `<option value="${c}">${c}</option>`).join('');
-                }
-
-                const rankSelects = document.querySelectorAll('.rank-select');
-                if (rankSelects[0].options.length === 0) {
-                    const rankOptions = RANKS.map(r => `<option value="${r}">${r}</option>`).join('');
-                    rankSelects.forEach(s => s.innerHTML = rankOptions);
-                }
-
-                if (h && h.id) {
-                    document.getElementById('editModalTitle').innerText = "Edit Hero";
-                    document.getElementById('editId').value = h.id;
-                    document.getElementById('editName').value = h.name || "";
-                    document.getElementById('editImage').value = h.image || "";
-                    document.getElementById('editClass').value = h.heroClass || "Mage";
-                    document.getElementById('editType').value = h.heroType || "Normal";
-                    document.getElementById('editAwaken').value = h.hasAwaken || "No";
-                    document.getElementById('editEarly').value = h.early || "Unranked";
-                    document.getElementById('editLate').value = h.late || "Unranked";
-                    document.getElementById('editSacrament').value = h.sacrament || "Unranked";
-                    document.getElementById('editRole').value = h.role || "";
-                    document.getElementById('editNotes').value = h.notes || "";
-                    
-                    document.getElementById('editSkillName').value = h.skillName || "";
-                    document.getElementById('editSkillSummary').value = h.skill || "";
-                    document.getElementById('editSacrName').value = h.sacramentName || "";
-                    document.getElementById('editS1').value = h.s1 || "";
-                    document.getElementById('editS2').value = h.s2 || "";
-                    document.getElementById('editS3').value = h.s3 || "";
-                    document.getElementById('editS4').value = h.s4 || "";
-                    document.getElementById('editS5').value = h.s5 || "";
-                    document.getElementById('editAwakenName').value = h.awakenName || "";
-                    document.getElementById('editAw1').value = h.aw1 || "";
-                    document.getElementById('editAw2').value = h.aw2 || "";
-                    document.getElementById('editAw3').value = h.aw3 || "";
-                    
-                    btnDelete.classList.remove('hidden');
-                } else {
-                    document.getElementById('editModalTitle').innerText = "Add New Hero";
-                    document.getElementById('editId').value = "";
-                    document.getElementById('editName').value = "";
-                    document.getElementById('editImage').value = "";
-                    document.getElementById('editRole').value = "";
-                    document.getElementById('editNotes').value = "";
-                    
-                    document.getElementById('editSkillName').value = "";
-                    document.getElementById('editSkillSummary').value = "";
-                    document.getElementById('editSacrName').value = "";
-                    document.getElementById('editS1').value = "";
-                    document.getElementById('editS2').value = "";
-                    document.getElementById('editS3').value = "";
-                    document.getElementById('editS4').value = "";
-                    document.getElementById('editS5').value = "";
-                    document.getElementById('editAwakenName').value = "";
-                    document.getElementById('editAw1').value = "";
-                    document.getElementById('editAw2').value = "";
-                    document.getElementById('editAw3').value = "";
-                    
-                    btnDelete.classList.add('hidden');
-                }
-                
-                modal.classList.remove('hidden');
-            };
-
-            const closeModal = (id = 'viewModal') => document.getElementById(id).classList.add('hidden');
-
-            const saveHero = async () => {
-                if (!isAdmin) return;
-                const btn = document.getElementById('btnSave');
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Saving...`; 
-                btn.disabled = true;
-
-                const formData = {
-                    id: document.getElementById('editId').value || "temp_" + Date.now(),
-                    name: document.getElementById('editName').value,
-                    image: document.getElementById('editImage').value,
-                    heroClass: document.getElementById('editClass').value,
-                    heroType: document.getElementById('editType').value,
-                    hasAwaken: document.getElementById('editAwaken').value,
-                    early: document.getElementById('editEarly').value,
-                    late: document.getElementById('editLate').value,
-                    sacrament: document.getElementById('editSacrament').value,
-                    role: document.getElementById('editRole').value,
-                    notes: document.getElementById('editNotes').value,
-                    skillName: document.getElementById('editSkillName').value,
-                    skill: document.getElementById('editSkillSummary').value,
-                    sacramentName: document.getElementById('editSacrName').value,
-                    s1: document.getElementById('editS1').value,
-                    s2: document.getElementById('editS2').value,
-                    s3: document.getElementById('editS3').value,
-                    s4: document.getElementById('editS4').value,
-                    s5: document.getElementById('editS5').value,
-                    awakenName: document.getElementById('editAwakenName').value,
-                    aw1: document.getElementById('editAw1').value,
-                    aw2: document.getElementById('editAw2').value,
-                    aw3: document.getElementById('editAw3').value,
-                    lastUpdate: new Date().toISOString()
-                };
-
-                const existingIndex = heroes.findIndex(h => h.id == formData.id);
-                if (existingIndex >= 0) heroes[existingIndex] = formData;
-                else heroes.unshift(formData);
-                
-                render();
-                closeModal('editModal');
-
-                try {
-                    const authToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
-                    const res = await fetch(API_URL, { 
-                        method: "POST", 
-                        body: JSON.stringify({ action: "save", data: formData, token: authToken }), 
-                        redirect: "follow" 
-                    });
-                    const data = await res.json();
-                    
-                    if(data.error) throw new Error(data.error);
-                    
-                    if(formData.id.startsWith("temp_") && data.id) {
-                        const idx = heroes.findIndex(h => h.id === formData.id);
-                        if(idx !== -1) heroes[idx].id = data.id;
-                    }
-                    localStorage.setItem('mwr_tierlist_data_v6', JSON.stringify(heroes));
-                } catch(e) { 
-                    alert("Failed to save! Please check your connection."); 
-                    window.location.reload(); 
-                } finally {
-                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up mr-2"></i>Save`; 
-                    btn.disabled = false;
-                }
-            };
-
-            const deleteHero = async () => {
-                if (!isAdmin) return;
-                const id = document.getElementById('editId').value;
-                if (!id || !confirm("Are you sure you want to permanently delete this hero?")) return;
-
-                heroes = heroes.filter(h => h.id != id);
-                render();
-                closeModal('editModal');
-
-                try {
-                    const authToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
-                    await fetch(API_URL, { 
-                        method: "POST", 
-                        body: JSON.stringify({ action: "delete", id: id, token: authToken }), 
-                        redirect: "follow" 
-                    });
-                    localStorage.setItem('mwr_tierlist_data_v6', JSON.stringify(heroes));
-                } catch(e) { 
-                    alert("Failed to delete."); 
-                    window.location.reload(); 
-                }
-            };
+            const closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
             const switchModalTab = (tab) => {
                 const tabs = ['overview', 'skills', 'history'];
@@ -944,7 +656,7 @@
                     modal.classList.remove('hidden');
                     
                     const renderLogs = (logsToRender) => {
-                        if (logsToRender.length === 0) {
+                        if (!logsToRender || logsToRender.length === 0) {
                             content.innerHTML = '<div class="text-center text-gray-500 py-10">No recent changes found.</div>';
                             return;
                         }
@@ -979,6 +691,16 @@
                     } else {
                         content.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-circle-notch fa-spin mr-2"></i> Loading logs...</div>';
                         try {
+                            // FIX: Pull directly from the new Firebase payload for instant loading!
+                            if (db) {
+                                const doc = await db.collection('cache').doc('logs_payload').get();
+                                if (doc.exists) {
+                                    cachedLogs = JSON.parse(doc.data().data);
+                                    renderLogs(cachedLogs);
+                                    return;
+                                }
+                            }
+                            // Fallback
                             const res = await fetch(API_URL + "?view=logs");
                             let fetchedLogs = await res.json();
                             if (!Array.isArray(fetchedLogs)) fetchedLogs = [];
@@ -993,7 +715,14 @@
                 }
             };
 
-            return { init, setMode, render, openModal, closeModal, openEditModal, saveHero, deleteHero, switchModalTab, switchSkillTab, setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, toggleSidebar, exitAdmin };
+            // Expose properties to TierlistEditor
+            return { 
+                init, setMode, render, closeModal, switchModalTab, switchSkillTab, 
+                setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, 
+                toggleSidebar, exitAdmin, 
+                getHeroes: () => heroes, 
+                setHeroes: (h) => heroes = h 
+            };
         })();
 
         window.onload = app.init;
