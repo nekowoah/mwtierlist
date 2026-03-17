@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://www.gstatic.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com https://www.google-analytics.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
     <title>MWR | Formation Builder</title>
     
@@ -89,28 +89,33 @@
                 <div class="text-xs font-bold text-gray-400 bg-gray-900 px-2 py-1 rounded border border-gray-700"><span id="heroCount" class="text-blue-400">0</span> / 30 Placed</div>
             </div>
 
-            <div class="flex flex-col landscape:flex-row lg:flex-row flex-grow min-h-0 gap-3 w-full relative">
+            <!-- FIX: Added landscape:items-center lg:items-center to align the children vertically -->
+            <div class="flex flex-col landscape:flex-row lg:flex-row flex-grow min-h-0 gap-3 w-full relative landscape:items-center lg:items-center">
                 
                 <!-- Board & Tab Wrapper -->
-                <div class="flex-1 min-w-0 min-h-0 flex flex-row items-center justify-center py-1 overflow-visible z-10 relative gap-2 sm:gap-4">
+                <!-- FIX: Applied responsive height classes here so it dictates the height of both the tabs and grid -->
+                <div class="flex-1 min-w-0 min-h-0 flex flex-row items-center justify-center py-1 overflow-visible z-10 relative h-full landscape:h-[95%] lg:h-[90%] xl:h-[85%] transition-all duration-300">
                     
-                    <!-- NEW: Vertical Formation Tabs -->
-                    <div class="flex flex-col gap-2 justify-center shrink-0">
+                    <!-- Vertical Formation Tabs -->
+                    <!-- FIX: Removed heavy left margin, significantly reducing the left-side gap -->
+                    <div class="flex flex-col gap-2 justify-center shrink-0 mr-3 sm:mr-5 ml-0 sm:ml-1">
                         <button onclick="app.setFormation(0)" id="btnForm0" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-black text-white bg-blue-600 shadow-lg border-2 border-blue-400 transition-all flex items-center justify-center">1</button>
                         <button onclick="app.setFormation(1)" id="btnForm1" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-black text-gray-400 bg-gray-800 border-2 border-gray-700 hover:border-gray-500 transition-all flex items-center justify-center">2</button>
                         <button onclick="app.setFormation(2)" id="btnForm2" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-black text-gray-400 bg-gray-800 border-2 border-gray-700 hover:border-gray-500 transition-all flex items-center justify-center">3</button>
                     </div>
 
                     <!-- The Grid -->
-                    <div id="boardContainer" class="bg-gray-900 border border-gray-700 p-1.5 rounded-lg grid grid-cols-5 grid-rows-7 gap-[4px] relative h-full shadow-inner" style="aspect-ratio: 5/7; max-width: 100%; max-height: 100%;">
+                    <!-- FIX: Simply fills 100% of its wrapper's height now -->
+                    <div id="boardContainer" class="bg-gray-900 border border-gray-700 p-1.5 rounded-lg grid grid-cols-5 grid-rows-7 gap-[4px] relative shadow-inner h-full max-h-full transition-all duration-300" style="aspect-ratio: 5/7; max-width: 100%;">
                         <div id="wholeFormationHighlight" class="absolute inset-0 bg-green-500/10 hidden pointer-events-none z-0 rounded-lg"></div>
                         <!-- JS Injected 35 Cells & Layers -->
                     </div>
                 </div>
 
                 <!-- Legend Panel -->
-                <div class="flex-shrink-0 landscape:w-32 lg:w-48 bg-gray-900 border border-gray-700 rounded-lg p-2 min-h-[3.5rem] max-h-[5rem] landscape:max-h-none lg:max-h-none landscape:h-full lg:h-full overflow-y-auto hide-scroll flex flex-col z-30 relative">
-                    <!-- NEW: Global Toggle Switch -->
+                <!-- FIX: Applied the exact same responsive height classes as the left wrapper so they match perfectly -->
+                <div class="flex-shrink-0 landscape:w-32 lg:w-48 bg-gray-900 border border-gray-700 rounded-lg p-2 min-h-[3.5rem] max-h-[5rem] landscape:max-h-none lg:max-h-none landscape:h-[95%] lg:h-[90%] xl:h-[85%] overflow-y-auto hide-scroll flex flex-col z-30 relative transition-all duration-300">
+                    <!-- Global Toggle Switch -->
                     <div class="flex justify-between items-center mb-1 landscape:mb-2 lg:mb-2 landscape:border-b lg:border-b border-gray-700 landscape:pb-1 lg:pb-1">
                         <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Heroes on Board</h4>
                         <button onclick="app.toggleGlobalAOE()" id="btnGlobalAOE" class="text-blue-400 hover:text-blue-300 transition-colors" title="Toggle All AOE/Auras">
