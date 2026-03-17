@@ -67,23 +67,21 @@
         </div>
     </nav>
 
-    <!-- FIX: Applied strict height percentages and native landscape orientation queries -->
     <main class="flex-grow flex flex-col-reverse landscape:flex-row md:flex-row max-w-7xl w-full mx-auto p-2 sm:p-4 gap-4 h-[calc(100vh-64px)] overflow-visible">
         
-        <!-- Hero Catalog Panel (Clips ABOVE escaping auras) -->
+        <!-- Hero Catalog Panel -->
         <div class="w-full landscape:w-[40%] md:w-[45%] lg:w-[40%] flex flex-col bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-lg h-[40%] landscape:h-full md:h-full transition-colors duration-300 z-30 relative">
             <div class="p-2 sm:p-3 border-b border-gray-700 bg-gray-900/50 flex flex-col gap-2 flex-shrink-0">
                 <input type="text" id="searchInput" onkeyup="app.renderPool()" placeholder="Search heroes..." class="w-full bg-gray-900 text-white rounded px-3 py-1.5 border border-gray-600 text-sm outline-none focus:border-blue-500 transition-colors">
                 <div class="flex flex-wrap gap-1 justify-center" id="classFilters"></div>
             </div>
             
-            <!-- FIX: Forced exactly 6 columns across all screen sizes and orientations -->
             <div id="heroPool" class="flex-grow overflow-y-auto hide-scroll p-2 sm:p-3 grid grid-cols-6 gap-2 sm:gap-3 content-start">
                 <div class="col-span-full text-center text-gray-500 py-10" id="poolLoading"><i class="fas fa-circle-notch fa-spin text-2xl text-blue-500 mb-2"></i><br>Loading Heroes...</div>
             </div>
         </div>
 
-        <!-- Formation Board Area (Clips BELOW Catalog & Legend) -->
+        <!-- Formation Board Area -->
         <div class="w-full landscape:w-[60%] md:w-[55%] lg:w-[60%] flex flex-col bg-gray-800 border border-gray-700 rounded-xl p-3 shadow-lg h-[60%] landscape:h-full md:h-full transition-colors duration-300 z-10 relative">
             
             <div class="flex justify-between items-end mb-2 flex-shrink-0">
@@ -91,20 +89,34 @@
                 <div class="text-xs font-bold text-gray-400 bg-gray-900 px-2 py-1 rounded border border-gray-700"><span id="heroCount" class="text-blue-400">0</span> / 30 Placed</div>
             </div>
 
-            <!-- Landscape forces side-by-side layout for Grid & Legend -->
             <div class="flex flex-col landscape:flex-row lg:flex-row flex-grow min-h-0 gap-3 w-full relative">
                 
-                <!-- Board Wrapper (z-10 guarantees children slip under the z-30 panels) -->
-                <div class="flex-1 min-w-0 min-h-0 flex items-center justify-center py-1 overflow-visible z-10 relative">
+                <!-- Board & Tab Wrapper -->
+                <div class="flex-1 min-w-0 min-h-0 flex flex-row items-center justify-center py-1 overflow-visible z-10 relative gap-2 sm:gap-4">
+                    
+                    <!-- NEW: Vertical Formation Tabs -->
+                    <div class="flex flex-col gap-2 justify-center shrink-0">
+                        <button onclick="app.setFormation(0)" id="btnForm0" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-black text-white bg-blue-600 shadow-lg border-2 border-blue-400 transition-all flex items-center justify-center">1</button>
+                        <button onclick="app.setFormation(1)" id="btnForm1" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-black text-gray-400 bg-gray-800 border-2 border-gray-700 hover:border-gray-500 transition-all flex items-center justify-center">2</button>
+                        <button onclick="app.setFormation(2)" id="btnForm2" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-black text-gray-400 bg-gray-800 border-2 border-gray-700 hover:border-gray-500 transition-all flex items-center justify-center">3</button>
+                    </div>
+
+                    <!-- The Grid -->
                     <div id="boardContainer" class="bg-gray-900 border border-gray-700 p-1.5 rounded-lg grid grid-cols-5 grid-rows-7 gap-[4px] relative h-full shadow-inner" style="aspect-ratio: 5/7; max-width: 100%; max-height: 100%;">
                         <div id="wholeFormationHighlight" class="absolute inset-0 bg-green-500/10 hidden pointer-events-none z-0 rounded-lg"></div>
                         <!-- JS Injected 35 Cells & Layers -->
                     </div>
                 </div>
 
-                <!-- Legend Panel (Clips ABOVE escaping auras and dynamically snaps to right side in Landscape) -->
+                <!-- Legend Panel -->
                 <div class="flex-shrink-0 landscape:w-32 lg:w-48 bg-gray-900 border border-gray-700 rounded-lg p-2 min-h-[3.5rem] max-h-[5rem] landscape:max-h-none lg:max-h-none landscape:h-full lg:h-full overflow-y-auto hide-scroll flex flex-col z-30 relative">
-                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 landscape:mb-2 lg:mb-2 landscape:border-b lg:border-b border-gray-700 landscape:pb-1 lg:pb-1">Heroes on Board</h4>
+                    <!-- NEW: Global Toggle Switch -->
+                    <div class="flex justify-between items-center mb-1 landscape:mb-2 lg:mb-2 landscape:border-b lg:border-b border-gray-700 landscape:pb-1 lg:pb-1">
+                        <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Heroes on Board</h4>
+                        <button onclick="app.toggleGlobalAOE()" id="btnGlobalAOE" class="text-blue-400 hover:text-blue-300 transition-colors" title="Toggle All AOE/Auras">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
                     <div id="legendContainer" class="flex flex-wrap landscape:flex-col lg:flex-col gap-x-3 gap-y-1 landscape:gap-y-2 lg:gap-y-2">
                         <span class="text-xs text-gray-600 italic">No active auras on board.</span>
                     </div>
@@ -152,7 +164,13 @@
             
             let heroes = [];
             let aoeDB = {}; 
-            let placedHeroes = []; 
+            
+            // NEW State Variables for Multi-Formation and Toggles
+            let formations = [[], [], []]; 
+            let currentFormationIndex = 0;
+            let showAllAOE = true;
+            let hiddenAOEHeroes = new Set();
+            
             let currentFilter = 'All';
             let selectedPoolHero = null;
             let selectedGridCell = null;
@@ -186,6 +204,59 @@
                 }
             };
 
+            // NEW: Rank Sorting Functions
+            const parseRank = (fullRank) => {
+                if (!fullRank || fullRank === 'Unranked' || fullRank === '') return { base: 'Unranked', sub: '' };
+                const match = fullRank.match(/^([A-S]+|F|D|C|B)([+-]?)$/);
+                if (match) return { base: match[1], sub: match[2] };
+                return { base: 'Unranked', sub: '' };
+            };
+            
+            const rankWeights = { 'SSS': 9, 'SS': 8, 'S': 7, 'A': 6, 'B': 5, 'C': 4, 'D': 3, 'F': 2, 'Unranked': 1 };
+            const subWeights = { '+': 0.3, '': 0.2, '-': 0.1 };
+            
+            const getRankScore = (rankStr) => {
+                const p = parseRank(rankStr);
+                return (rankWeights[p.base] || 0) + (subWeights[p.sub] || 0);
+            };
+
+            // NEW: Tab Navigation
+            const setFormation = (index) => {
+                currentFormationIndex = index;
+                [0, 1, 2].forEach(i => {
+                    const btn = document.getElementById(`btnForm${i}`);
+                    if (i === index) {
+                        btn.className = "w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-black text-white bg-blue-600 shadow-lg border-2 border-blue-400 transition-all flex items-center justify-center";
+                    } else {
+                        btn.className = "w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-black text-gray-400 bg-gray-800 border-2 border-gray-700 hover:border-gray-500 transition-all flex items-center justify-center";
+                    }
+                });
+                selectedPoolHero = null; 
+                selectedGridCell = null;
+                renderPool(); 
+                updateGridVisuals();
+            };
+
+            // NEW: Global & Individual Toggles
+            const toggleGlobalAOE = () => {
+                showAllAOE = !showAllAOE;
+                const btn = document.getElementById('btnGlobalAOE');
+                if (showAllAOE) {
+                    btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+                    btn.className = "text-blue-400 hover:text-blue-300 transition-colors";
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+                    btn.className = "text-gray-500 hover:text-gray-400 transition-colors";
+                }
+                updateGridVisuals();
+            };
+
+            const toggleIndividualAOE = (heroId) => {
+                if (hiddenAOEHeroes.has(heroId)) hiddenAOEHeroes.delete(heroId);
+                else hiddenAOEHeroes.add(heroId);
+                updateGridVisuals();
+            };
+
             const buildFilters = () => {
                 const container = document.getElementById('classFilters');
                 container.innerHTML = `<button onclick="app.setFilter('All')" class="px-2 py-1 rounded text-xs font-bold transition-all border border-gray-600 text-white bg-gray-700">All</button>` + 
@@ -205,7 +276,13 @@
                     const classMatch = currentFilter === 'All' || h.heroClass === currentFilter;
                     const searchMatch = !search || h.name.toLowerCase().includes(search);
                     return classMatch && searchMatch;
-                }).sort((a,b) => a.name.localeCompare(b.name));
+                }).sort((a,b) => {
+                    // NEW: Sort catalog by Tierlist late game score, then alphabetical
+                    const scoreA = getRankScore(a.late);
+                    const scoreB = getRankScore(b.late);
+                    if (scoreA !== scoreB) return scoreB - scoreA;
+                    return a.name.localeCompare(b.name);
+                });
 
                 container.innerHTML = filtered.map(h => {
                     let typeClass = 'type-normal';
@@ -213,7 +290,8 @@
                     if(h.heroType === 'Limited') typeClass = 'type-limited';
                     if(h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeClass = 'type-basic';
 
-                    const isPlaced = placedHeroes.some(p => p && p.id === h.id);
+                    // Prevent hero from being placed if they are already in ANY of the 3 formations
+                    const isPlaced = formations.some(f => f.some(p => p && p.id === h.id));
                     const isSelected = selectedPoolHero === h.id ? 'selected' : '';
                     const stateClass = isPlaced ? 'opacity-30 grayscale pointer-events-none' : '';
                     
@@ -235,7 +313,6 @@
                 for(let y = 0; y < 7; y++) {
                     for(let x = 0; x < 5; x++) {
                         const cell = document.createElement('div');
-                        // FIX: Removed z-index from the individual cells so they don't break stacking context
                         cell.className = "grid-cell bg-gray-800 border border-gray-700 rounded relative flex items-center justify-center overflow-visible cursor-pointer";
                         cell.dataset.x = x; cell.dataset.y = y;
                         cell.onclick = () => handleCellClick(x, y);
@@ -253,6 +330,7 @@
                 });
                 document.querySelectorAll('.aura-circle').forEach(el => el.remove());
 
+                const placedHeroes = formations[currentFormationIndex];
                 const aoeMap = {}; 
                 let isWholeFormationActive = false;
                 let activeAoeHeroes = [];
@@ -266,6 +344,21 @@
                     const fillCol = generateColor(ph.id, 0.25); 
                     const borderCol = generateColor(ph.id, 0.9); 
                     
+                    const hasValidAoe = (conf.grid && conf.grid.length > 0) || 
+                                        (conf.fullRows && conf.fullRows.length > 0) || 
+                                        (conf.fullCols && conf.fullCols.length > 0) || 
+                                        conf.wholeFormation || 
+                                        (conf.radius && Number(conf.radius) > 0) ||
+                                        conf.wholeRow || conf.wholeCol;
+                    
+                    if (hasValidAoe) {
+                        const heroData = heroes.find(h => h.id === ph.id);
+                        if (heroData) activeAoeHeroes.push({ id: ph.id, name: heroData.name, color: generateColor(ph.id, 1) });
+                    }
+
+                    // NEW: Skip generating AOE visuals if the user toggled it off
+                    if (!showAllAOE || hiddenAOEHeroes.has(ph.id)) return;
+
                     if (conf.wholeFormation) isWholeFormationActive = true;
 
                     const addAoe = (cx, cy) => {
@@ -306,25 +399,12 @@
                         }
                     }
 
-                    // FIX: Append Aura accurately INSIDE the specific cell, using Z-15 so it pops out of grid freely
                     if(conf.radius && Number(conf.radius) > 0) {
                         const radiusCells = Number(conf.radius) / 10;
                         const sizeStr = `calc(${radiusCells * 200}% + ${radiusCells * 8}px)`;
                         const auraHtml = `<div class="aura-circle" style="width: ${sizeStr}; height: ${sizeStr}; border-color: ${borderCol}; z-index: 15;"></div>`;
                         const targetCell = document.querySelector(`.grid-cell[data-x="${ph.x}"][data-y="${ph.y}"]`);
                         if (targetCell) targetCell.innerHTML += auraHtml;
-                    }
-                    
-                    const hasValidAoe = (conf.grid && conf.grid.length > 0) || 
-                                        (conf.fullRows && conf.fullRows.length > 0) || 
-                                        (conf.fullCols && conf.fullCols.length > 0) || 
-                                        conf.wholeFormation || 
-                                        (conf.radius && Number(conf.radius) > 0) ||
-                                        conf.wholeRow || conf.wholeCol;
-                    
-                    if (hasValidAoe) {
-                        const heroData = heroes.find(h => h.id === ph.id);
-                        if (heroData) activeAoeHeroes.push({ name: heroData.name, color: generateColor(ph.id, 1) });
                     }
                 });
 
@@ -402,11 +482,12 @@
             const handleCellClick = (x, y) => {
                 if(isDragging) return; 
 
+                const placedHeroes = formations[currentFormationIndex];
                 const existingIndex = placedHeroes.findIndex(p => p && p.x === x && p.y === y);
                 
                 if(selectedPoolHero) {
                     if (existingIndex > -1) placedHeroes.splice(existingIndex, 1);
-                    else if (placedHeroes.length >= 30) return alert("Maximum of 30 heroes allowed on the grid.");
+                    else if (placedHeroes.length >= 30) return alert("Maximum of 30 heroes allowed per formation.");
                     
                     placedHeroes.push({ id: selectedPoolHero, x: x, y: y });
                     selectedPoolHero = null; 
@@ -416,7 +497,7 @@
                     if (sourceIndex === -1) { selectedGridCell = null; return; }
                     
                     if (selectedGridCell.x === x && selectedGridCell.y === y) {
-                        selectedGridCell = null; // Un-select on second click
+                        selectedGridCell = null; 
                     } else {
                         if (existingIndex > -1) {
                             placedHeroes[existingIndex].x = placedHeroes[sourceIndex].x;
@@ -439,6 +520,7 @@
             };
 
             const handleCellDoubleClick = (x, y) => {
+                const placedHeroes = formations[currentFormationIndex];
                 const existingIndex = placedHeroes.findIndex(p => p && p.x === x && p.y === y);
                 if (existingIndex > -1) {
                     placedHeroes.splice(existingIndex, 1);
@@ -456,13 +538,14 @@
             const drop = (e, x, y, cell) => {
                 e.preventDefault(); cell.classList.remove('drag-over'); isDragging = false;
                 const type = e.dataTransfer.getData("type");
+                const placedHeroes = formations[currentFormationIndex];
                 const targetIndex = placedHeroes.findIndex(p => p && p.x === x && p.y === y);
 
                 if (type === "pool") {
                     const id = e.dataTransfer.getData("heroId");
                     if (!id) return;
                     if (targetIndex > -1) placedHeroes.splice(targetIndex, 1);
-                    else if (placedHeroes.length >= 30) return alert("Maximum of 30 heroes allowed.");
+                    else if (placedHeroes.length >= 30) return alert("Maximum of 30 heroes allowed per formation.");
                     placedHeroes.push({ id, x, y });
                 } else if (type === "grid") {
                     const sourceX = parseInt(e.dataTransfer.getData("sourceX"));
@@ -471,13 +554,11 @@
                     if (sourceIndex === -1) return;
 
                     if (targetIndex > -1) {
-                        // Swap
                         placedHeroes[sourceIndex].x = x; 
                         placedHeroes[sourceIndex].y = y;
                         placedHeroes[targetIndex].x = sourceX; 
                         placedHeroes[targetIndex].y = sourceY;
                     } else {
-                        // Move
                         placedHeroes[sourceIndex].x = x; 
                         placedHeroes[sourceIndex].y = y;
                     }
@@ -503,16 +584,22 @@
                 const unique = []; const seen = new Set();
                 active.forEach(a => { if(!seen.has(a.name)) { seen.add(a.name); unique.push(a); } });
 
-                container.innerHTML = unique.map(a => `
-                    <div class="flex items-center gap-1.5 bg-gray-800 border border-gray-700 px-2 py-0.5 rounded">
-                        <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${a.color};"></div>
-                        <span class="text-[10px] sm:text-xs font-bold text-gray-300">${a.name}</span>
-                    </div>
-                `).join('');
+                container.innerHTML = unique.map(a => {
+                    const isHidden = hiddenAOEHeroes.has(a.id) || !showAllAOE;
+                    const styleClasses = isHidden ? 'opacity-40 grayscale' : 'hover:opacity-80';
+                    return `
+                        <div onclick="app.toggleIndividualAOE('${a.id}')" class="flex items-center gap-1.5 bg-gray-800 border border-gray-700 px-2 py-0.5 rounded cursor-pointer transition-all ${styleClasses}" title="Click to toggle AOE">
+                            <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${a.color};"></div>
+                            <span class="text-[10px] sm:text-xs font-bold ${isHidden ? 'text-gray-500 line-through' : 'text-gray-300'}">${a.name}</span>
+                        </div>
+                    `;
+                }).join('');
             };
 
             const saveFormation = async () => {
-                if(placedHeroes.length === 0) return alert("Place at least one hero before saving.");
+                const totalHeroes = formations.reduce((acc, form) => acc + form.length, 0);
+                if(totalHeroes === 0) return alert("Place at least one hero in any formation before saving.");
+                
                 const btn = document.getElementById('btnSave');
                 const ogHTML = btn.innerHTML;
                 btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i>`;
@@ -521,7 +608,7 @@
                 try {
                     const res = await fetch(API_URL, {
                         method: "POST",
-                        body: JSON.stringify({ action: "save_formation", data: placedHeroes }),
+                        body: JSON.stringify({ action: "save_formation", data: formations }),
                         redirect: "follow"
                     });
                     const data = await res.json();
@@ -572,11 +659,28 @@
                     if (loadedGrid && !Array.isArray(loadedGrid) && Array.isArray(loadedGrid.grid)) {
                         loadedGrid = loadedGrid.grid;
                     }
-                    placedHeroes = (Array.isArray(loadedGrid) ? loadedGrid : []).filter(p => p !== null);
+                    
+                    // Backward Compatibility: Check if the loaded data is the old 1D array or new 2D array
+                    if (Array.isArray(loadedGrid)) {
+                        if (loadedGrid.length > 0 && Array.isArray(loadedGrid[0])) {
+                            // New format (Array of Arrays)
+                            formations = [
+                                (loadedGrid[0] || []).filter(p => p !== null), 
+                                (loadedGrid[1] || []).filter(p => p !== null), 
+                                (loadedGrid[2] || []).filter(p => p !== null)
+                            ];
+                        } else {
+                            // Old format (Single Array)
+                            formations = [loadedGrid.filter(p => p !== null), [], []];
+                        }
+                    } else {
+                        formations = [[], [], []];
+                    }
                     
                     document.getElementById('loadModal').classList.add('hidden');
-                    selectedPoolHero = null; selectedGridCell = null;
-                    renderPool(); updateGridVisuals();
+                    
+                    // Reset to the 1st formation tab
+                    setFormation(0); 
                 } catch(e) {
                     err.innerText = e.message; err.classList.remove('hidden');
                 } finally {
@@ -586,7 +690,11 @@
 
             const loadFormation = (code) => { fetchFormation(code); };
 
-            return { init, setFilter, renderPool, selectFromPool, dragStartPool, dragStartGrid, dragEnd, dragOver, dragLeave, drop, handleCellDoubleClick, handleCellClick, saveFormation, copyCode, openLoadModal, fetchFormation };
+            return { 
+                init, setFilter, renderPool, selectFromPool, dragStartPool, dragStartGrid, dragEnd, dragOver, dragLeave, drop, 
+                handleCellDoubleClick, handleCellClick, saveFormation, copyCode, openLoadModal, fetchFormation, 
+                setFormation, toggleGlobalAOE, toggleIndividualAOE 
+            };
         })();
 
         window.onload = app.init;
