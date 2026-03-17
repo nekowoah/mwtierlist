@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- FIX: Updated CSP to allow Google Analytics tracking -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://www.gstatic.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com https://www.google-analytics.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
-    <!-- PRIMARY SEO META TAGS -->
+
     <title>Legion's Mini Warriors Reborn Archive</title>
     <meta name="title" content="Legion's Mini Warriors Reborn Archive">
     <meta name="description" content="Legion Community's Mini Warriors Reborn (MWR) Tierlist and Info.">
@@ -67,11 +68,11 @@
                 </div>
 
                 <div class="flex gap-3 sm:gap-4 items-center w-full md:w-auto justify-between md:justify-end" id="navControls">
-                    <!-- FIX: Simplified to a clean circular dot without text or background -->
-                    <div id="syncIndicator" class="hidden sm:flex items-center justify-center w-8 h-8 rounded-full" title="Live Sync Active">
+                    <!-- FIX: Added IDs to the dot elements for dynamic color swapping -->
+                    <div id="syncIndicator" class="hidden sm:flex items-center justify-center w-8 h-8 rounded-full" title="Live Updates Active">
                         <span class="relative flex h-2.5 w-2.5">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                          <span id="syncPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span id="syncDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
                         </span>
                     </div>
 
@@ -252,7 +253,12 @@
             let showAwakenedOnly = false;
             let cachedLogs = null;
             let isAdmin = false;
+            
+            // FIX: Elevated these variables so all 3 fallback tiers can share them
             let syncInterval = null;
+            let localTimestamp = localStorage.getItem('mwr_tierlist_timestamp');
+            const CACHE_KEY = 'mwr_tierlist_data_v6';
+            const TIME_KEY = 'mwr_tierlist_timestamp';
 
             const db = window.MWR_GLOBALS ? window.MWR_GLOBALS.db : null;
             
@@ -262,6 +268,26 @@
             
             const exitAdmin = () => {
                 if (window.AppMenu && window.AppMenu.exitAdmin) window.AppMenu.exitAdmin();
+            };
+
+            // NEW: UI helper for dynamic sync status
+            const updateSyncUI = (isLive) => {
+                const indicator = document.getElementById('syncIndicator');
+                const ping = document.getElementById('syncPing');
+                const dot = document.getElementById('syncDot');
+                if (!indicator || !ping || !dot) return;
+                
+                indicator.classList.remove('hidden');
+                
+                if (isLive) {
+                    indicator.title = "Live Updates Active";
+                    ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
+                    dot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500";
+                } else {
+                    indicator.title = "Live Updates Not Active";
+                    ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75";
+                    dot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-500";
+                }
             };
 
             const init = async () => {
@@ -317,28 +343,57 @@
                     } catch(e) { console.warn("Cache parse error", e); }
                 }
 
-                // Start Background Live Sync & Logs
+                // Start the 3-Tier Fallback Engine
                 startLiveSync();
                 fetchChangelogsBackground();
             };
 
+            // TIER 1: Firebase WebSockets (Live Sync)
             const startLiveSync = () => {
-                const CACHE_KEY = 'mwr_tierlist_data_v6';
-                const TIME_KEY = 'mwr_tierlist_timestamp';
-                let localTimestamp = localStorage.getItem(TIME_KEY);
+                if (!db) return startGasPollingFallback();
 
-                if (db) {
-                    // Show the LIVE indicator
-                    const indicator = document.getElementById('syncIndicator');
-                    if (indicator) indicator.classList.remove('hidden');
+                updateSyncUI(true);
 
-                    // Firebase Real-time Connection
-                    db.collection('cache').doc('tierlist_meta').onSnapshot(async (metaRef) => {
+                db.collection('cache').doc('tierlist_meta').onSnapshot(async (metaRef) => {
+                    if (metaRef.exists) {
+                        const liveTimestamp = metaRef.data().lastUpdated;
+                        
+                        if (!localTimestamp || liveTimestamp !== localTimestamp) {
+                            console.log("New update detected! Downloading tierlist payload...");
+                            const docRef = await db.collection('cache').doc('tierlist_payload').get();
+                            if (docRef.exists && docRef.data().data) {
+                                const parsed = JSON.parse(docRef.data().data);
+                                if (Array.isArray(parsed)) {
+                                    heroes = parsed;
+                                    localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
+                                    localStorage.setItem(TIME_KEY, liveTimestamp);
+                                    localTimestamp = liveTimestamp;
+                                    
+                                    document.getElementById('loading').classList.add('hidden'); 
+                                    document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+                                    render();
+                                }
+                            }
+                        }
+                    }
+                }, (error) => {
+                    console.warn("Tier 1 Failed: Firebase Live Sync blocked. Dropping to Tier 2 (Standard Fetch).");
+                    startFirebasePollingFallback();
+                });
+            };
+
+            // TIER 2: Firebase Standard Fetch (Polling)
+            const startFirebasePollingFallback = () => {
+                if (syncInterval) clearInterval(syncInterval);
+                
+                updateSyncUI(false);
+
+                const doFirebaseFetch = async () => {
+                    try {
+                        const metaRef = await db.collection('cache').doc('tierlist_meta').get();
                         if (metaRef.exists) {
                             const liveTimestamp = metaRef.data().lastUpdated;
-                            
                             if (!localTimestamp || liveTimestamp !== localTimestamp) {
-                                console.log("New update detected! Downloading tierlist payload...");
                                 const docRef = await db.collection('cache').doc('tierlist_payload').get();
                                 if (docRef.exists && docRef.data().data) {
                                     const parsed = JSON.parse(docRef.data().data);
@@ -351,49 +406,56 @@
                                         document.getElementById('loading').classList.add('hidden'); 
                                         document.getElementById('tierListContainer').classList.remove('opacity-0'); 
                                         render();
-                                        console.log("🔥 Tierlist synced & cached from Firebase CDN!");
                                     }
                                 }
                             }
                         }
-                    }, (error) => {
-                        console.warn("Firebase Live Sync blocked or disconnected. Falling back to 2-minute polling.", error);
-                        startPollingFallback();
-                    });
-                } else {
-                    startPollingFallback();
-                }
+                    } catch (e) {
+                        console.warn("Tier 2 Failed: Firebase Permissions Denied. Dropping to Tier 3 (Google Apps Script).");
+                        startGasPollingFallback();
+                    }
+                };
+
+                // Try an immediate fetch to test permissions
+                doFirebaseFetch().then(() => {
+                    // Only set interval if it didn't crash and cascade to Tier 3
+                    if (syncInterval === null) { 
+                       syncInterval = setInterval(doFirebaseFetch, 120000); 
+                    }
+                });
             };
 
-            const startPollingFallback = () => {
+            // TIER 3: Google Apps Script API (Ultimate Safety Net)
+            const startGasPollingFallback = () => {
                 if (syncInterval) clearInterval(syncInterval);
                 
-                const indicator = document.getElementById('syncIndicator');
-                if (indicator) indicator.classList.add('hidden');
+                updateSyncUI(false);
 
-                const CACHE_KEY = 'mwr_tierlist_data_v6';
-                
-                const doFetch = async () => {
+                const doGasFetch = async () => {
                     try {
                         const res = await fetch(API_URL, { redirect: "follow" });
                         const freshData = await res.json();
                         if (Array.isArray(freshData) && JSON.stringify(heroes) !== JSON.stringify(freshData)) {
                             heroes = freshData;
                             localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
+                            
+                            // Prevent Firebase from immediately re-fetching if it suddenly comes back online
+                            localTimestamp = new Date().toISOString(); 
+                            localStorage.setItem(TIME_KEY, localTimestamp);
+
                             document.getElementById('loading').classList.add('hidden'); 
                             document.getElementById('tierListContainer').classList.remove('opacity-0'); 
                             render();
-                            console.log("Tierlist synced from GAS API (Polling Fallback)");
                         }
                     } catch(e) {
-                        console.error("Polling fallback failed", e);
+                        console.error("Tier 3 Failed: All data connections offline.", e);
                     }
                 };
                 
                 // If we don't have local data, do an immediate fetch
-                if (heroes.length === 0) doFetch();
+                if (heroes.length === 0) doGasFetch();
                 
-                syncInterval = setInterval(doFetch, 120000); // 120,000ms = 2 minutes
+                syncInterval = setInterval(doGasFetch, 120000); // 120,000ms = 2 minutes
             };
 
             const fetchChangelogsBackground = () => {
