@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://www.gstatic.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com https://www.google-analytics.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+    <title>MWR Information</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://unpkg.com https://www.gstatic.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com https://www.google-analytics.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://unpkg.com/quill-blot-formatter@1.0.5/dist/BlotFormatter.min.js"></script>
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -35,6 +37,44 @@
         .ql-snow .ql-stroke { stroke: #9ca3af; }
         .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: #9ca3af; }
         .ql-snow .ql-picker { color: #9ca3af; }
+
+        /* Quill Image Resize & Alignment */
+        .ql-editor img { max-width: 100%; height: auto; cursor: pointer; border-radius: 0.375rem; margin: 0.5rem 0; }
+        .ql-editor .ql-align-center { text-align: center; }
+        .ql-editor .ql-align-right { text-align: right; }
+        .ql-editor .ql-align-left { text-align: left; }
+        .ql-editor .ql-align-center img { margin: 0.5rem auto; display: block; }
+
+        /* Full Page Article View */
+        #articleFullPage .article-banner { max-height: 280px; object-fit: cover; width: 100%; border-radius: 0.75rem; }
+        #articleFullPage .article-body img { max-width: 100%; height: auto; border-radius: 0.375rem; margin: 0.75rem 0; }
+
+        /* Recommended Heroes Row */
+        .hero-rec-row { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; padding: 1rem 0; }
+        .hero-rec-circle { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #6b7280; overflow: hidden; position: relative; flex-shrink: 0; transition: transform 0.15s, box-shadow 0.15s; }
+        .hero-rec-circle:hover { transform: scale(1.1); }
+        .hero-rec-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .hero-rec-circle.type-vip { border-color: #fbbf24; }
+        .hero-rec-circle.type-limited { border-color: #c90dde; }
+        .hero-rec-circle.type-basic { border-color: #22c55e; }
+        .hero-rec-label { text-align: center; font-size: 9px; font-weight: 700; color: #9ca3af; margin-top: 2px; max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* Hero Picker in Editor */
+        .hero-pick-item { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #6b7280; overflow: hidden; cursor: pointer; transition: transform 0.1s, opacity 0.2s; flex-shrink: 0; }
+        .hero-pick-item:hover { transform: scale(1.1); }
+        .hero-pick-item.selected-hero { box-shadow: 0 0 0 2px #60a5fa; opacity: 0.4; }
+        .hero-pick-item.type-vip { border-color: #fbbf24; }
+        .hero-pick-item.type-limited { border-color: #c90dde; }
+        .hero-pick-item.type-basic { border-color: #22c55e; }
+
+        /* Formation Grid Display */
+        .formation-grid { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(7, 1fr); gap: 3px; aspect-ratio: 5/7; max-width: 280px; margin: 0 auto; background: #111827; border: 1px solid #374151; border-radius: 0.5rem; padding: 4px; }
+        .formation-cell { background: #1f2937; border: 1px solid #374151; border-radius: 0.25rem; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .formation-cell img { width: 85%; height: 85%; object-fit: cover; border-radius: 50%; }
+        .formation-cell .cell-hero-border { width: 90%; height: 90%; border-radius: 50%; border: 2px solid #6b7280; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .formation-cell .cell-hero-border.type-vip { border-color: #fbbf24; }
+        .formation-cell .cell-hero-border.type-limited { border-color: #c90dde; }
+        .formation-cell .cell-hero-border.type-basic { border-color: #22c55e; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
@@ -96,21 +136,27 @@
         <p>MWR Information Archive! Built by the Legion Community</p>
     </footer>
 
-    <!-- Read Article Modal -->
-    <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal('viewModal')"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] md:h-[85vh] overflow-hidden flex flex-col fade-in">
-            <div id="viewModalBanner" class="h-40 sm:h-56 w-full bg-gray-900 relative flex-shrink-0 border-b border-gray-700 hidden">
-                <img id="viewModalImage" src="" class="w-full h-full object-cover opacity-60">
-                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
-            </div>
-            <div class="p-6 sm:p-8 flex-grow overflow-y-auto hide-scrollbar relative">
-                <button onclick="app.closeModal('viewModal')" class="absolute top-4 right-4 bg-black/50 hover:bg-black text-gray-300 hover:text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors z-20 shadow-lg"><i class="fa-solid fa-xmark"></i></button>
-                <h2 id="viewModalTitle" class="text-2xl sm:text-4xl font-black text-white mb-2 pr-10 tracking-tight leading-tight"></h2>
-                <div id="viewModalDate" class="text-xs text-blue-400 font-bold mb-6 tracking-wide"></div>
-                <div id="viewModalContent" class="ql-editor p-0 bg-transparent border-0"></div>
-            </div>
+    <!-- Full Page Article View (replaces the old modal) -->
+    <div id="articleFullPage" class="hidden max-w-4xl mx-auto px-4 py-8 w-full flex-grow">
+        <button onclick="app.closeArticle()" class="mb-6 text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
+            <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+            <span class="font-bold text-sm">Back to Guides</span>
+        </button>
+        <div id="fpBanner" class="hidden mb-6 rounded-xl overflow-hidden border border-gray-700 shadow-lg">
+            <img id="fpBannerImg" src="" class="article-banner">
         </div>
+        <h1 id="fpTitle" class="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tight leading-tight"></h1>
+        <div id="fpDate" class="text-xs text-blue-400 font-bold mb-6 tracking-wide"></div>
+        <div id="fpHeroesSection" class="hidden mb-6">
+            <h3 class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-2 text-center">Recommended Heroes</h3>
+            <div id="fpHeroesRow" class="hero-rec-row"></div>
+        </div>
+        <div id="fpFormationSection" class="hidden mb-6">
+            <h3 class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-3 text-center">Formation</h3>
+            <div id="fpFormationGrid" class="formation-grid"></div>
+            <p id="fpFormationLoading" class="text-center text-xs text-gray-500 py-4 hidden"><i class="fas fa-circle-notch fa-spin mr-1"></i>Loading formation...</p>
+        </div>
+        <div id="fpContent" class="ql-editor p-0 bg-transparent border-0"></div>
     </div>
 
     <!-- Admin Edit Modal -->
@@ -136,9 +182,15 @@
                             <button type="button" onclick="ImagePicker.open((url) => document.getElementById('articleImage').value = url, document.getElementById('articleTitle').value)" class="bg-gray-700 hover:bg-gray-600 text-white px-4 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
                         </div>
                     </div>
-                    <div class="col-span-1 md:col-span-2 flex items-center gap-2 mt-1 mb-2">
-                        <input type="checkbox" id="articlePinned" class="w-4 h-4 accent-blue-500 bg-gray-900 border-gray-600 rounded cursor-pointer">
-                        <label for="articlePinned" class="text-sm font-bold text-gray-300 cursor-pointer hover:text-white transition-colors"><i class="fa-solid fa-thumbtack text-red-500 mr-1.5"></i> Pin to Top</label>
+                    <div class="col-span-1 md:col-span-2 flex flex-wrap items-center gap-x-6 gap-y-2 mt-1 mb-2">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="articlePinned" class="w-4 h-4 accent-blue-500 bg-gray-900 border-gray-600 rounded cursor-pointer">
+                            <label for="articlePinned" class="text-sm font-bold text-gray-300 cursor-pointer hover:text-white transition-colors"><i class="fa-solid fa-thumbtack text-red-500 mr-1.5"></i> Pin to Top</label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs text-gray-400 uppercase font-bold whitespace-nowrap"><i class="fa-solid fa-chess-board text-blue-400 mr-1"></i>Formation Code</label>
+                            <input type="text" id="articleFormationCode" placeholder="e.g. X7K9P" maxlength="5" class="bg-gray-900 border border-gray-600 rounded px-3 py-1 w-24 text-center text-sm font-black text-white uppercase tracking-widest outline-none focus:border-blue-500 transition-colors">
+                        </div>
                     </div>
                 </div>
                 <div class="flex-grow flex flex-col min-h-[300px]">
@@ -147,6 +199,22 @@
                         <span class="text-yellow-500 font-normal italic text-[10px]"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Avoid pasting raw images; use URLs if possible.</span>
                     </label>
                     <div id="quillEditorContainer" class="bg-gray-900 text-white flex-grow rounded-b-lg overflow-hidden border-t-0"></div>
+                </div>
+                <!-- Recommended Heroes Builder -->
+                <div class="shrink-0 border border-gray-700 rounded-lg overflow-hidden">
+                    <button type="button" onclick="app.toggleHeroPicker()" class="w-full flex items-center justify-between px-4 py-2 bg-gray-900 hover:bg-gray-800 transition-colors text-left">
+                        <span class="text-xs text-gray-400 uppercase font-bold tracking-wide flex items-center gap-2"><i class="fa-solid fa-users text-blue-400"></i> Recommended Heroes <span id="recHeroCount" class="text-blue-400">(0)</span></span>
+                        <i id="heroPickerCaret" class="fa-solid fa-caret-down text-gray-500 transition-transform"></i>
+                    </button>
+                    <div id="heroPickerPanel" class="hidden">
+                        <div class="p-3 border-t border-gray-700 bg-gray-800/50">
+                            <div id="selectedHeroesRow" class="flex flex-wrap gap-2 mb-3 min-h-[44px] bg-gray-900 rounded-lg p-2 border border-gray-700 items-center">
+                                <span class="text-xs text-gray-600 italic" id="noHeroesHint">Click heroes below to add them</span>
+                            </div>
+                            <input type="text" id="heroPickerSearch" onkeyup="app.renderHeroPicker()" placeholder="Search heroes..." class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500 transition-colors mb-2">
+                            <div id="heroPickerPool" class="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto hide-scrollbar"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex justify-between items-center shrink-0 pt-4 border-t border-gray-700 mt-2">
                     <button type="button" id="btnDelete" onclick="app.deleteArticle()" class="text-red-400 hover:text-red-300 text-sm font-bold transition-colors hidden"><i class="fa-solid fa-trash mr-1"></i>Delete Guide</button>
@@ -164,11 +232,14 @@
             const { API_URL, db } = window.MWR_GLOBALS;
             
             let articles = [];
+            let heroData = []; // For recommended heroes picker
+            let selectedRecHeroes = []; // Currently selected hero IDs
             let isAdmin = false;
             let authToken = "";
             let quillEditor = null;
             let currentView = 'grid';
             let galleryCache = [];
+            const defaultTitle = 'MWR Information';
 
             const toggleSidebar = () => { if (window.AppMenu && window.AppMenu.toggleSidebar) window.AppMenu.toggleSidebar(); };
 
@@ -212,22 +283,40 @@
                 if (window.AppMenu && window.AppMenu.build) window.AppMenu.build(isAdmin, 'blue');
 
                 try {
+                    const BlotFormatter = window.QuillBlotFormatter ? window.QuillBlotFormatter.default : (window.BlotFormatter || null);
+                    const modules = {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'align': [] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'image', 'video'],
+                            ['clean']
+                        ]
+                    };
+                    if (BlotFormatter) {
+                        Quill.register('modules/blotFormatter', BlotFormatter);
+                        modules.blotFormatter = {};
+                    }
                     quillEditor = new Quill('#quillEditorContainer', {
                         theme: 'snow',
                         placeholder: 'Write your comprehensive guide here...',
-                        modules: {
-                            toolbar: [
-                                [{ 'header': [1, 2, 3, false] }],
-                                ['bold', 'italic', 'underline', 'strike'],
-                                [{ 'color': [] }, { 'background': [] }],
-                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                                ['link', 'image', 'video'],
-                                ['clean']
-                            ]
-                        }
+                        modules: modules
                     });
                 } catch(e) { console.warn("Text Editor CDN blocked by CSP. Editor disabled.", e); }
 
+                // Handle browser back/forward buttons
+                window.addEventListener('popstate', () => {
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.has('post')) {
+                        showArticlePage(params.get('post'), false);
+                    } else {
+                        hideArticlePage(false);
+                    }
+                });
+
+                // Load cached articles first
                 const CACHE_KEY = 'mwr_info_data';
                 const TIME_KEY = 'mwr_info_timestamp';
                 const CHECK_KEY = 'mwr_info_lastcheck';
@@ -269,18 +358,13 @@
                                                 if (Array.isArray(parsed)) {
                                                     freshData = parsed;
                                                     localStorage.setItem(TIME_KEY, liveTimestamp);
-                                                    console.log("🔥 Info Guides loaded instantly from Firebase CDN!");
                                                 }
                                             }
                                         }
-                                    } else {
-                                        console.log("⚡ Local info cache is perfectly up to date! Skipped Firebase payload download.");
                                     }
                                 }
                             }
                         } catch (fbErr) { console.warn("Firebase fetch failed. Falling back to GAS.", fbErr); }
-                    } else {
-                        console.log("⏳ Rate limited: Skipping Firebase info update check to prevent spam.");
                     }
 
                     if (!freshData && (!cachedData || articles.length === 0)) {
@@ -305,6 +389,36 @@
                         document.getElementById('loading').innerHTML = `<p class="text-red-400 font-bold mb-2">Failed to load guides.</p><p class="text-xs text-gray-500">${e.message}</p>`; 
                     }
                 }
+
+                // Check if a ?post=ID param is in the URL after data is loaded
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('post')) {
+                    showArticlePage(urlParams.get('post'), false);
+                }
+
+                // Load hero data in background for the picker
+                loadHeroDataBackground();
+            };
+
+            // --- HERO DATA FOR PICKER ---
+            const loadHeroDataBackground = async () => {
+                try {
+                    const cached = localStorage.getItem('mwr_tierlist_data_v6');
+                    if (cached) {
+                        heroData = JSON.parse(cached);
+                        return;
+                    }
+                    const res = await fetch(API_URL + "?view=all", { redirect: "follow" });
+                    const data = await res.json();
+                    if (Array.isArray(data)) heroData = data;
+                } catch(e) { console.warn("Failed to load hero data for picker.", e); }
+            };
+
+            const getHeroTypeClass = (heroType) => {
+                if (heroType === 'VIP') return 'type-vip';
+                if (heroType === 'Limited') return 'type-limited';
+                if (heroType === 'Basic Limited' || heroType === 'Basic Banner') return 'type-basic';
+                return '';
             };
 
             const stripHtml = (html) => {
@@ -320,6 +434,7 @@
                 } catch(e) { return ""; }
             };
 
+            // --- GRID RENDERING ---
             const render = () => {
                 const grid = document.getElementById('articleGrid');
                 const list = document.getElementById('articleList');
@@ -394,32 +509,108 @@
                 }).join('');
             };
 
+            // --- FULL PAGE ARTICLE VIEW ---
             const viewArticle = (id) => {
+                showArticlePage(id, true);
+            };
+
+            const showArticlePage = (id, pushState) => {
                 const art = articles.find(a => a.id === id);
                 if (!art) return;
 
-                document.getElementById('viewModalTitle').innerText = art.title;
-                
-                const dateEl = document.getElementById('viewModalDate');
+                // Hide main content, show full page
+                document.querySelector('main').classList.add('hidden');
+                document.querySelector('footer').classList.add('hidden');
+                const fp = document.getElementById('articleFullPage');
+                fp.classList.remove('hidden');
+
+                // Banner
+                const banner = document.getElementById('fpBanner');
+                if (art.image) {
+                    document.getElementById('fpBannerImg').src = art.image;
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+
+                // Title & Date
+                document.getElementById('fpTitle').innerText = art.title;
                 const dateStr = formatDate(art.lastUpdate);
+                const dateEl = document.getElementById('fpDate');
                 if (dateStr) { dateEl.innerText = "Updated: " + dateStr; dateEl.classList.remove('hidden'); }
                 else { dateEl.classList.add('hidden'); }
 
-                document.getElementById('viewModalContent').innerHTML = art.content || "<p class='italic text-gray-500'>This guide is empty.</p>";
-                
-                const banner = document.getElementById('viewModalBanner');
-                if (art.image) {
-                    document.getElementById('viewModalImage').src = art.image;
-                    banner.classList.remove('hidden');
-                } else { banner.classList.add('hidden'); }
+                // Recommended Heroes
+                const heroSection = document.getElementById('fpHeroesSection');
+                const heroRow = document.getElementById('fpHeroesRow');
+                const recHeroes = art.recommendedHeroes;
+                if (recHeroes && Array.isArray(recHeroes) && recHeroes.length > 0 && heroData.length > 0) {
+                    heroRow.innerHTML = recHeroes.map(hid => {
+                        const h = heroData.find(hero => hero.id === hid);
+                        if (!h) return '';
+                        const tc = getHeroTypeClass(h.heroType);
+                        return `<div class="flex flex-col items-center">
+                            <div class="hero-rec-circle ${tc}" title="${h.name}">
+                                <img src="${h.image}" onerror="this.src='https://placehold.co/56/4E4F5C/FFFFFF?text=?'">
+                                ${h.hasAwaken === 'Yes' ? '<div style="position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#111827;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #4b5563;z-index:2"><i class="fa-solid fa-fire-flame-curved" style="font-size:7px;color:#ef4444"></i></div>' : ''}
+                            </div>
+                            <span class="hero-rec-label">${h.name}</span>
+                        </div>`;
+                    }).join('');
+                    heroSection.classList.remove('hidden');
+                } else {
+                    heroSection.classList.add('hidden');
+                }
 
-                document.getElementById('viewModal').classList.remove('hidden');
+                // Formation Display
+                const formSection = document.getElementById('fpFormationSection');
+                const formGrid = document.getElementById('fpFormationGrid');
+                const formLoading = document.getElementById('fpFormationLoading');
+                if (art.formationCode && art.formationCode.trim().length === 5) {
+                    formSection.classList.remove('hidden');
+                    formGrid.innerHTML = '';
+                    formLoading.classList.remove('hidden');
+                    loadFormationForDisplay(art.formationCode.trim(), formGrid, formLoading);
+                } else {
+                    formSection.classList.add('hidden');
+                    formGrid.innerHTML = '';
+                }
+
+                // Content
+                document.getElementById('fpContent').innerHTML = art.content || "<p class='italic text-gray-500'>This guide is empty.</p>";
+
+                // Update URL and title
+                document.title = art.title + ' | MWR Information';
+                if (pushState) {
+                    history.pushState({ post: id }, '', '?post=' + id);
+                }
+
+                window.scrollTo(0, 0);
             };
 
+            const closeArticle = () => {
+                hideArticlePage(true);
+            };
+
+            const hideArticlePage = (pushState) => {
+                document.querySelector('main').classList.remove('hidden');
+                document.querySelector('footer').classList.remove('hidden');
+                document.getElementById('articleFullPage').classList.add('hidden');
+                document.title = defaultTitle;
+
+                if (pushState) {
+                    // Build URL without ?post param, preserving the hash
+                    const base = window.location.pathname + window.location.hash;
+                    history.pushState(null, '', base);
+                }
+            };
+
+            // --- EDIT MODAL ---
             const openEditModal = (id = null) => {
                 if (!isAdmin || !quillEditor) return;
                 const modal = document.getElementById('editModal');
                 const btnDelete = document.getElementById('btnDelete');
+                selectedRecHeroes = [];
                 
                 if (id) {
                     const art = articles.find(a => a.id === id);
@@ -430,6 +621,8 @@
                     document.getElementById('articleImage').value = art.image || "";
                     document.getElementById('articlePinned').checked = art.isPinned === true;
                     quillEditor.root.innerHTML = art.content || "";
+                    selectedRecHeroes = Array.isArray(art.recommendedHeroes) ? [...art.recommendedHeroes] : [];
+                    document.getElementById('articleFormationCode').value = art.formationCode || '';
                     btnDelete.classList.remove('hidden');
                 } else {
                     document.getElementById('editModalTitle').innerText = "Create New Guide";
@@ -438,13 +631,126 @@
                     document.getElementById('articleImage').value = "";
                     document.getElementById('articlePinned').checked = false;
                     quillEditor.root.innerHTML = "";
+                    document.getElementById('articleFormationCode').value = '';
                     btnDelete.classList.add('hidden');
                 }
+
+                updateSelectedHeroesDisplay();
+                renderHeroPicker();
                 modal.classList.remove('hidden');
             };
 
             const closeModal = (modalId) => document.getElementById(modalId).classList.add('hidden');
 
+            // --- HERO PICKER ---
+            const toggleHeroPicker = () => {
+                const panel = document.getElementById('heroPickerPanel');
+                const caret = document.getElementById('heroPickerCaret');
+                panel.classList.toggle('hidden');
+                caret.style.transform = panel.classList.contains('hidden') ? '' : 'rotate(180deg)';
+            };
+
+            const renderHeroPicker = () => {
+                const pool = document.getElementById('heroPickerPool');
+                const search = (document.getElementById('heroPickerSearch')?.value || '').toLowerCase();
+                
+                if (heroData.length === 0) {
+                    pool.innerHTML = '<span class="text-xs text-gray-500 italic">Loading heroes...</span>';
+                    return;
+                }
+
+                const filtered = heroData.filter(h => !search || h.name.toLowerCase().includes(search));
+                pool.innerHTML = filtered.slice(0, 60).map(h => {
+                    const tc = getHeroTypeClass(h.heroType);
+                    const selected = selectedRecHeroes.includes(h.id) ? 'selected-hero' : '';
+                    return `<div onclick="app.toggleRecHero('${h.id}')" class="hero-pick-item ${tc} ${selected}" title="${h.name}">
+                        <img src="${h.image}" onerror="this.src='https://placehold.co/40/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover">
+                    </div>`;
+                }).join('');
+            };
+
+            const toggleRecHero = (heroId) => {
+                const idx = selectedRecHeroes.indexOf(heroId);
+                if (idx > -1) {
+                    selectedRecHeroes.splice(idx, 1);
+                } else {
+                    selectedRecHeroes.push(heroId);
+                }
+                updateSelectedHeroesDisplay();
+                renderHeroPicker();
+            };
+
+            const updateSelectedHeroesDisplay = () => {
+                const row = document.getElementById('selectedHeroesRow');
+                const hint = document.getElementById('noHeroesHint');
+                const countEl = document.getElementById('recHeroCount');
+                countEl.textContent = `(${selectedRecHeroes.length})`;
+
+                if (selectedRecHeroes.length === 0) {
+                    row.innerHTML = '<span class="text-xs text-gray-600 italic" id="noHeroesHint">Click heroes below to add them</span>';
+                    return;
+                }
+
+                row.innerHTML = selectedRecHeroes.map(hid => {
+                    const h = heroData.find(hero => hero.id === hid);
+                    if (!h) return '';
+                    const tc = getHeroTypeClass(h.heroType);
+                    return `<div class="relative group">
+                        <div class="hero-pick-item ${tc}" title="${h.name}">
+                            <img src="${h.image}" class="w-full h-full object-cover">
+                        </div>
+                        <button type="button" onclick="event.stopPropagation(); app.toggleRecHero('${hid}')" class="absolute -top-1 -right-1 bg-red-600 hover:bg-red-500 text-white w-4 h-4 rounded-full text-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"><i class="fa-solid fa-xmark"></i></button>
+                    </div>`;
+                }).join('');
+            };
+
+            // --- FORMATION LOADER ---
+            const loadFormationForDisplay = async (code, gridEl, loadingEl) => {
+                try {
+                    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'load_formation', code: code }), redirect: 'follow' });
+                    const data = await res.json();
+                    if (data.error) throw new Error(data.error);
+                    const grid = data.grid; // 2D array: grid[formationIndex] = array of {row, col, heroId}
+                    loadingEl.classList.add('hidden');
+                    if (!grid || !Array.isArray(grid)) { gridEl.parentElement.classList.add('hidden'); return; }
+
+                    // Flatten all formations into a single placement map
+                    const placements = {}; // key: "row-col" => heroId
+                    grid.forEach(formation => {
+                        if (Array.isArray(formation)) {
+                            formation.forEach(cell => {
+                                if (cell && cell.heroId) placements[cell.row + '-' + cell.col] = cell.heroId;
+                            });
+                        }
+                    });
+
+                    // Build 5x7 = 35 cells (rows 0-6, cols 0-4)
+                    let html = '';
+                    for (let r = 0; r < 7; r++) {
+                        for (let c = 0; c < 5; c++) {
+                            const hid = placements[r + '-' + c];
+                            if (hid) {
+                                const h = heroData.find(hero => hero.heroId === hid || hero.id === hid);
+                                if (h) {
+                                    const tc = getHeroTypeClass(h.heroType);
+                                    html += `<div class="formation-cell"><div class="cell-hero-border ${tc}"><img src="${h.image}" title="${h.name}" onerror="this.src='https://placehold.co/40/4E4F5C/FFFFFF?text=?'"></div></div>`;
+                                } else {
+                                    html += `<div class="formation-cell"><div class="cell-hero-border"><img src="https://placehold.co/40/4E4F5C/FFFFFF?text=?" title="Unknown Hero"></div></div>`;
+                                }
+                            } else {
+                                html += `<div class="formation-cell"></div>`;
+                            }
+                        }
+                    }
+                    gridEl.innerHTML = html;
+                } catch(e) {
+                    console.warn('Formation load failed:', e);
+                    loadingEl.classList.add('hidden');
+                    gridEl.parentElement.classList.add('hidden');
+                }
+            };
+
+            // --- SAVE / DELETE ---
             const saveArticle = async () => {
                 if (!isAdmin || !quillEditor) return;
                 const btn = document.getElementById('btnSave');
@@ -456,7 +762,9 @@
                     image: document.getElementById('articleImage').value,
                     isPinned: document.getElementById('articlePinned').checked,
                     content: quillEditor.root.innerHTML,
-                    lastUpdate: new Date().toISOString()
+                    lastUpdate: new Date().toISOString(),
+                    recommendedHeroes: selectedRecHeroes,
+                    formationCode: document.getElementById('articleFormationCode').value.trim().toUpperCase() || ''
                 };
 
                 const existingIndex = articles.findIndex(a => a.id == formData.id);
@@ -495,7 +803,7 @@
                 } catch(e) { alert("Failed to delete."); window.location.reload(); }
             };
 
-            return { init, render, viewArticle, openEditModal, closeModal, saveArticle, deleteArticle, toggleSidebar, setView };
+            return { init, render, viewArticle, openEditModal, closeModal, closeArticle, saveArticle, deleteArticle, toggleSidebar, setView, toggleHeroPicker, renderHeroPicker, toggleRecHero };
         })();
         window.onload = app.init;
     </script>
