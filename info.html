@@ -17,8 +17,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script src="shared/globals.js"></script>
-    <!-- FIX: Included the new factored-out image picker -->
     <script src="shared/image-picker.js"></script>
+    <script src="shared/info-editor.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared/styles.css">
@@ -75,6 +75,10 @@
         .formation-cell .cell-hero-border.type-vip { border-color: #fbbf24; }
         .formation-cell .cell-hero-border.type-limited { border-color: #c90dde; }
         .formation-cell .cell-hero-border.type-basic { border-color: #22c55e; }
+
+        /* Shortcode Display Blocks */
+        .shortcode-formation-block { margin: 1.5rem auto; max-width: 320px; }
+        .shortcode-heroes-block { margin: 1.5rem 0; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
@@ -128,13 +132,9 @@
 
         <!-- Dynamic Containers -->
         <div id="articleGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 flex-grow opacity-0 transition-opacity duration-500"></div>
-        <div id="articleList" class="hidden flex-col gap-2 flex-grow opacity-0 transition-opacity duration-500"></div>
+        <div id="articleList" class="hidden flex flex-col gap-2 flex-grow opacity-0 transition-opacity duration-500"></div>
 
     </main>
-
-    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto">
-        <p>MWR Information Archive! Built by the Legion Community</p>
-    </footer>
 
     <!-- Full Page Article View (replaces the old modal) -->
     <div id="articleFullPage" class="hidden max-w-4xl mx-auto px-4 py-8 w-full flex-grow">
@@ -147,98 +147,84 @@
         </div>
         <h1 id="fpTitle" class="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tight leading-tight"></h1>
         <div id="fpDate" class="text-xs text-blue-400 font-bold mb-6 tracking-wide"></div>
-        <div id="fpHeroesSection" class="hidden mb-6">
-            <h3 class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-2 text-center">Recommended Heroes</h3>
-            <div id="fpHeroesRow" class="hero-rec-row"></div>
-        </div>
-        <div id="fpFormationSection" class="hidden mb-6">
-            <h3 class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-3 text-center">Formation</h3>
-            <div id="fpFormationGrid" class="formation-grid"></div>
-            <p id="fpFormationLoading" class="text-center text-xs text-gray-500 py-4 hidden"><i class="fas fa-circle-notch fa-spin mr-1"></i>Loading formation...</p>
-        </div>
         <div id="fpContent" class="ql-editor p-0 bg-transparent border-0"></div>
     </div>
 
-    <!-- Admin Edit Modal -->
-    <div id="editModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal('editModal')"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-5xl h-[95vh] md:h-[90vh] flex flex-col fade-in">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900 rounded-t-xl shrink-0">
-                <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> <span id="editModalTitle">Edit Guide</span></h2>
-                <button onclick="app.closeModal('editModal')" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+    <!-- Full-Page Editor Workspace (admin only, replaces old modal) -->
+    <div id="articleEditPage" class="hidden max-w-5xl mx-auto px-4 py-6 w-full flex-grow">
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="InfoEditor.closeEditor()" class="text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
+                <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                <span class="font-bold text-sm">Back to Guides</span>
+            </button>
+            <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> <span id="editorTitle">Edit Guide</span></h2>
+        </div>
+
+        <input type="hidden" id="editorArticleId">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Title</label>
+                <input type="text" id="editorArticleTitle" required class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white font-bold transition-colors">
             </div>
-            <form onsubmit="event.preventDefault(); app.saveArticle();" class="flex flex-col flex-grow p-4 sm:p-6 overflow-hidden gap-4">
-                <input type="hidden" id="articleId">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0">
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Title</label>
-                        <input type="text" id="articleTitle" required class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white font-bold transition-colors">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Banner Image URL (Optional)</label>
-                        <div class="flex gap-2">
-                            <input type="url" id="articleImage" placeholder="https://..." class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white transition-colors">
-                            <!-- FIX: Hooked up to the Universal Image Picker -->
-                            <button type="button" onclick="ImagePicker.open((url) => document.getElementById('articleImage').value = url, document.getElementById('articleTitle').value)" class="bg-gray-700 hover:bg-gray-600 text-white px-4 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
-                        </div>
-                    </div>
-                    <div class="col-span-1 md:col-span-2 flex flex-wrap items-center gap-x-6 gap-y-2 mt-1 mb-2">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" id="articlePinned" class="w-4 h-4 accent-blue-500 bg-gray-900 border-gray-600 rounded cursor-pointer">
-                            <label for="articlePinned" class="text-sm font-bold text-gray-300 cursor-pointer hover:text-white transition-colors"><i class="fa-solid fa-thumbtack text-red-500 mr-1.5"></i> Pin to Top</label>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label class="text-xs text-gray-400 uppercase font-bold whitespace-nowrap"><i class="fa-solid fa-chess-board text-blue-400 mr-1"></i>Formation Code</label>
-                            <input type="text" id="articleFormationCode" placeholder="e.g. X7K9P" maxlength="5" class="bg-gray-900 border border-gray-600 rounded px-3 py-1 w-24 text-center text-sm font-black text-white uppercase tracking-widest outline-none focus:border-blue-500 transition-colors">
-                        </div>
-                    </div>
+            <div>
+                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Banner Image URL (Optional)</label>
+                <div class="flex gap-2">
+                    <input type="url" id="editorBannerUrl" placeholder="https://..." class="bg-gray-900 border border-gray-600 rounded px-4 py-2 w-full focus:border-blue-500 outline-none text-white transition-colors">
+                    <button type="button" onclick="ImagePicker.open((url) => document.getElementById('editorBannerUrl').value = url, 'Banner')" class="bg-gray-700 hover:bg-gray-600 text-white px-4 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
                 </div>
-                <div class="flex-grow flex flex-col min-h-[300px]">
-                    <label class="text-xs text-gray-400 uppercase font-bold block mb-1 flex justify-between">
-                        <span>Content Editor</span>
-                        <span class="text-yellow-500 font-normal italic text-[10px]"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Avoid pasting raw images; use URLs if possible.</span>
-                    </label>
-                    <div id="quillEditorContainer" class="bg-gray-900 text-white flex-grow rounded-b-lg overflow-hidden border-t-0"></div>
-                </div>
-                <!-- Recommended Heroes Builder -->
-                <div class="shrink-0 border border-gray-700 rounded-lg overflow-hidden">
-                    <button type="button" onclick="app.toggleHeroPicker()" class="w-full flex items-center justify-between px-4 py-2 bg-gray-900 hover:bg-gray-800 transition-colors text-left">
-                        <span class="text-xs text-gray-400 uppercase font-bold tracking-wide flex items-center gap-2"><i class="fa-solid fa-users text-blue-400"></i> Recommended Heroes <span id="recHeroCount" class="text-blue-400">(0)</span></span>
-                        <i id="heroPickerCaret" class="fa-solid fa-caret-down text-gray-500 transition-transform"></i>
-                    </button>
-                    <div id="heroPickerPanel" class="hidden">
-                        <div class="p-3 border-t border-gray-700 bg-gray-800/50">
-                            <div id="selectedHeroesRow" class="flex flex-wrap gap-2 mb-3 min-h-[44px] bg-gray-900 rounded-lg p-2 border border-gray-700 items-center">
-                                <span class="text-xs text-gray-600 italic" id="noHeroesHint">Click heroes below to add them</span>
-                            </div>
-                            <input type="text" id="heroPickerSearch" onkeyup="app.renderHeroPicker()" placeholder="Search heroes..." class="w-full bg-gray-900 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500 transition-colors mb-2">
-                            <div id="heroPickerPool" class="flex flex-wrap gap-2 max-h-[120px] overflow-y-auto hide-scrollbar"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex justify-between items-center shrink-0 pt-4 border-t border-gray-700 mt-2">
-                    <button type="button" id="btnDelete" onclick="app.deleteArticle()" class="text-red-400 hover:text-red-300 text-sm font-bold transition-colors hidden"><i class="fa-solid fa-trash mr-1"></i>Delete Guide</button>
-                    <div class="flex gap-3 ml-auto">
-                        <button type="button" onclick="app.closeModal('editModal')" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-bold transition-colors shadow-lg">Cancel</button>
-                        <button type="submit" id="btnSave" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold transition-colors shadow-lg flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Save Post</button>
-                    </div>
-                </div>
-            </form>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4">
+            <div class="flex items-center gap-2">
+                <input type="checkbox" id="editorPinned" class="w-4 h-4 accent-blue-500 bg-gray-900 border-gray-600 rounded cursor-pointer">
+                <label for="editorPinned" class="text-sm font-bold text-gray-300 cursor-pointer hover:text-white transition-colors"><i class="fa-solid fa-thumbtack text-red-500 mr-1.5"></i> Pin to Top</label>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="editorCharCounter" class="text-xs font-bold text-gray-500">0 / 50,000 chars</span>
+            </div>
+        </div>
+
+        <!-- Quill Editor -->
+        <div class="mb-4">
+            <label class="text-xs text-gray-400 uppercase font-bold block mb-1 flex justify-between">
+                <span>Content Editor</span>
+                <span class="text-yellow-500 font-normal italic text-[10px]"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Use the <i class="fa-solid fa-images mx-1"></i> button to insert images from the library.</span>
+            </label>
+            <div id="editorQuillContainer" class="bg-gray-900 text-white rounded-b-lg overflow-hidden border-t-0" style="min-height: 400px;"></div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="flex justify-between items-center pt-4 border-t border-gray-700">
+            <button type="button" id="editorDeleteBtn" onclick="InfoEditor.deleteArticle()" class="text-red-400 hover:text-red-300 text-sm font-bold transition-colors hidden"><i class="fa-solid fa-trash mr-1"></i>Delete Guide</button>
+            <div class="flex gap-3 ml-auto">
+                <button type="button" onclick="InfoEditor.closeEditor()" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-bold transition-colors shadow-lg">Cancel</button>
+                <button type="button" id="editorSaveBtn" onclick="InfoEditor.saveArticle()" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold transition-colors shadow-lg flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> Save Post</button>
+            </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p class="text-xs text-gray-500">MWR Information &mdash; Community Guides & Knowledge Base</p>
+            <div class="flex items-center gap-4">
+                <a href="https://dsc.gg/legion-mw" target="_blank" class="text-gray-500 hover:text-[#5865F2] transition-colors text-xs font-bold flex items-center gap-1"><i class="fa-brands fa-discord"></i> Discord</a>
+                <a href="index.html" class="text-gray-500 hover:text-blue-400 transition-colors text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-list-ul"></i> Tierlist</a>
+                <a href="formation.html" class="text-gray-500 hover:text-blue-400 transition-colors text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-chess-board"></i> Formations</a>
+            </div>
+        </div>
+    </footer>
 
     <script>
         const app = (() => {
             const { API_URL, db } = window.MWR_GLOBALS;
             
             let articles = [];
-            let heroData = []; // For recommended heroes picker
-            let selectedRecHeroes = []; // Currently selected hero IDs
+            let heroData = [];
             let isAdmin = false;
             let authToken = "";
-            let quillEditor = null;
             let currentView = 'grid';
-            let galleryCache = [];
             const defaultTitle = 'MWR Information';
 
             const toggleSidebar = () => { if (window.AppMenu && window.AppMenu.toggleSidebar) window.AppMenu.toggleSidebar(); };
@@ -264,6 +250,39 @@
                 render();
             };
 
+            // --- HELPERS ---
+            const getHeroTypeClass = (heroType) => {
+                if (heroType === 'VIP') return 'type-vip';
+                if (heroType === 'Limited') return 'type-limited';
+                if (heroType === 'Basic Limited' || heroType === 'Basic Banner') return 'type-basic';
+                return '';
+            };
+
+            const stripHtml = (html) => {
+                let tmp = document.createElement("DIV"); tmp.innerHTML = html;
+                return tmp.textContent || tmp.innerText || "";
+            };
+
+            const formatDate = (isoString) => {
+                if (!isoString) return "";
+                try {
+                    const d = new Date(isoString);
+                    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                } catch(e) { return ""; }
+            };
+
+            // --- HERO DATA (for shortcode rendering) ---
+            const loadHeroData = async () => {
+                try {
+                    const cached = localStorage.getItem('mwr_tierlist_data_v6');
+                    if (cached) { heroData = JSON.parse(cached); return; }
+                    const res = await fetch(API_URL + "?view=all", { redirect: "follow" });
+                    const data = await res.json();
+                    if (Array.isArray(data)) heroData = data;
+                } catch(e) { console.warn("Failed to load hero data.", e); }
+            };
+
+            // --- INIT ---
             const init = async () => {
                 if (window.location.hash === '#admin') {
                     const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
@@ -277,34 +296,31 @@
                                 <i class="fa-solid fa-plus"></i><span class="hidden sm:inline">Add Guide</span>
                             </button>
                         `);
+
+                        // Initialize the editor module
+                        window.InfoEditor.init(authToken, {
+                            onSave: (formData) => {
+                                const idx = articles.findIndex(a => a.id == formData.id);
+                                if (idx >= 0) articles[idx] = formData;
+                                else articles.unshift(formData);
+                                localStorage.setItem('mwr_info_data', JSON.stringify(articles));
+                                showMainView();
+                                render();
+                            },
+                            onDelete: (id) => {
+                                articles = articles.filter(a => a.id != id);
+                                localStorage.setItem('mwr_info_data', JSON.stringify(articles));
+                                showMainView();
+                                render();
+                            },
+                            onCancel: () => {
+                                showMainView();
+                            }
+                        });
                     } else { window.location.href = 'admin.html'; return; }
                 }
 
                 if (window.AppMenu && window.AppMenu.build) window.AppMenu.build(isAdmin, 'blue');
-
-                try {
-                    const BlotFormatter = window.QuillBlotFormatter ? window.QuillBlotFormatter.default : (window.BlotFormatter || null);
-                    const modules = {
-                        toolbar: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'color': [] }, { 'background': [] }],
-                            [{ 'align': [] }],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['link', 'image', 'video'],
-                            ['clean']
-                        ]
-                    };
-                    if (BlotFormatter) {
-                        Quill.register('modules/blotFormatter', BlotFormatter);
-                        modules.blotFormatter = {};
-                    }
-                    quillEditor = new Quill('#quillEditorContainer', {
-                        theme: 'snow',
-                        placeholder: 'Write your comprehensive guide here...',
-                        modules: modules
-                    });
-                } catch(e) { console.warn("Text Editor CDN blocked by CSP. Editor disabled.", e); }
 
                 // Handle browser back/forward buttons
                 window.addEventListener('popstate', () => {
@@ -396,45 +412,11 @@
                     showArticlePage(urlParams.get('post'), false);
                 }
 
-                // Load hero data in background for the picker
-                loadHeroDataBackground();
+                // Load hero data in background (for shortcode rendering)
+                loadHeroData();
             };
 
-            // --- HERO DATA FOR PICKER ---
-            const loadHeroDataBackground = async () => {
-                try {
-                    const cached = localStorage.getItem('mwr_tierlist_data_v6');
-                    if (cached) {
-                        heroData = JSON.parse(cached);
-                        return;
-                    }
-                    const res = await fetch(API_URL + "?view=all", { redirect: "follow" });
-                    const data = await res.json();
-                    if (Array.isArray(data)) heroData = data;
-                } catch(e) { console.warn("Failed to load hero data for picker.", e); }
-            };
-
-            const getHeroTypeClass = (heroType) => {
-                if (heroType === 'VIP') return 'type-vip';
-                if (heroType === 'Limited') return 'type-limited';
-                if (heroType === 'Basic Limited' || heroType === 'Basic Banner') return 'type-basic';
-                return '';
-            };
-
-            const stripHtml = (html) => {
-                let tmp = document.createElement("DIV"); tmp.innerHTML = html;
-                return tmp.textContent || tmp.innerText || "";
-            };
-
-            const formatDate = (isoString) => {
-                if (!isoString) return "";
-                try {
-                    const d = new Date(isoString);
-                    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-                } catch(e) { return ""; }
-            };
-
-            // --- GRID RENDERING ---
+            // --- GRID/LIST RENDERING ---
             const render = () => {
                 const grid = document.getElementById('articleGrid');
                 const list = document.getElementById('articleList');
@@ -464,13 +446,10 @@
                     if (isAdmin) {
                         adminControls = `<button onclick="event.stopPropagation(); app.openEditModal('${art.id}')" class="absolute top-2 right-2 bg-yellow-600/90 hover:bg-yellow-500 text-white w-7 h-7 rounded shadow-lg z-20 flex items-center justify-center backdrop-blur-sm transition-colors"><i class="fa-solid fa-pen text-[10px]"></i></button>`;
                     }
-
                     const pinHtml = art.isPinned ? `<div class="absolute -top-2.5 -left-2.5 bg-gray-900/90 text-red-500 w-8 h-8 rounded-full shadow-[0_4px_10px_rgba(0,0,0,0.5)] z-20 flex items-center justify-center backdrop-blur-sm border border-gray-700/50" title="Pinned Post"><i class="fa-solid fa-thumbtack text-xs"></i></div>` : '';
-
                     const bannerHtml = art.image 
                         ? `<div class="h-24 sm:h-28 bg-gray-900 relative overflow-hidden shrink-0 rounded-t-xl"><img src="${art.image}" class="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"></div>`
                         : `<div class="h-1 bg-blue-600 shrink-0 rounded-t-xl"></div>`;
-                    
                     const dateStr = formatDate(art.lastUpdate);
 
                     return `
@@ -493,7 +472,6 @@
                     }
                     const dateStr = formatDate(art.lastUpdate);
                     const pinIcon = art.isPinned ? `<i class="fa-solid fa-thumbtack text-red-500 mr-2" title="Pinned"></i>` : '';
-
                     return `
                     <div onclick="app.viewArticle('${art.id}')" class="bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4 hover:bg-gray-750 hover:border-blue-500 transition-colors cursor-pointer group flex justify-between items-center relative shadow-sm">
                         <div class="flex items-center gap-3 overflow-hidden pr-4">
@@ -509,18 +487,103 @@
                 }).join('');
             };
 
-            // --- FULL PAGE ARTICLE VIEW ---
-            const viewArticle = (id) => {
-                showArticlePage(id, true);
+            // --- SHORTCODE PROCESSOR ---
+            const processShortcodes = (html) => {
+                // Replace [FORMATION:XXXXX] with a placeholder div
+                html = html.replace(/\[FORMATION:([A-Za-z0-9]{5})\]/g, (match, code) => {
+                    return `<div class="shortcode-formation-block" data-formation-code="${code.toUpperCase()}">
+                        <h4 class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-2 text-center">Formation</h4>
+                        <div class="formation-grid" id="fg-${code.toUpperCase()}"></div>
+                        <p class="text-center text-xs text-gray-500 py-2"><i class="fas fa-circle-notch fa-spin mr-1"></i>Loading...</p>
+                    </div>`;
+                });
+
+                // Replace [HEROES:id1,id2,...] with hero circles
+                html = html.replace(/\[HEROES:([^\]]+)\]/g, (match, idStr) => {
+                    const ids = idStr.split(',').map(s => s.trim()).filter(Boolean);
+                    if (ids.length === 0 || heroData.length === 0) return match;
+                    const circles = ids.map(hid => {
+                        const h = heroData.find(hero => hero.id === hid);
+                        if (!h) return '';
+                        const tc = getHeroTypeClass(h.heroType);
+                        return `<div class="flex flex-col items-center">
+                            <div class="hero-rec-circle ${tc}" title="${h.name}">
+                                <img src="${h.image}" onerror="this.src='https://placehold.co/56/4E4F5C/FFFFFF?text=?'">
+                                ${h.hasAwaken === 'Yes' ? '<div style="position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#111827;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #4b5563;z-index:2"><i class="fa-solid fa-fire-flame-curved" style="font-size:7px;color:#ef4444"></i></div>' : ''}
+                            </div>
+                            <span class="hero-rec-label">${h.name}</span>
+                        </div>`;
+                    }).join('');
+                    return `<div class="shortcode-heroes-block"><div class="hero-rec-row">${circles}</div></div>`;
+                });
+
+                return html;
             };
+
+            // Async: load formations after content is injected
+            const loadFormationsInContent = () => {
+                const blocks = document.querySelectorAll('#fpContent .shortcode-formation-block');
+                blocks.forEach(block => {
+                    const code = block.dataset.formationCode;
+                    if (!code) return;
+                    const gridEl = block.querySelector('.formation-grid');
+                    const loadingEl = block.querySelector('p');
+                    loadFormationForDisplay(code, gridEl, loadingEl);
+                });
+            };
+
+            const loadFormationForDisplay = async (code, gridEl, loadingEl) => {
+                try {
+                    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'load_formation', code: code }), redirect: 'follow' });
+                    const data = await res.json();
+                    if (data.error) throw new Error(data.error);
+                    const grid = data.grid;
+                    if (loadingEl) loadingEl.classList.add('hidden');
+                    if (!grid || !Array.isArray(grid)) { if (gridEl.parentElement) gridEl.parentElement.classList.add('hidden'); return; }
+
+                    const placements = {};
+                    grid.forEach(formation => {
+                        if (Array.isArray(formation)) {
+                            formation.forEach(cell => {
+                                if (cell && cell.heroId) placements[cell.row + '-' + cell.col] = cell.heroId;
+                            });
+                        }
+                    });
+
+                    let html = '';
+                    for (let r = 0; r < 7; r++) {
+                        for (let c = 0; c < 5; c++) {
+                            const hid = placements[r + '-' + c];
+                            if (hid) {
+                                const h = heroData.find(hero => hero.heroId === hid || hero.id === hid);
+                                if (h) {
+                                    const tc = getHeroTypeClass(h.heroType);
+                                    html += `<div class="formation-cell"><div class="cell-hero-border ${tc}"><img src="${h.image}" title="${h.name}" onerror="this.src='https://placehold.co/40/4E4F5C/FFFFFF?text=?'"></div></div>`;
+                                } else {
+                                    html += `<div class="formation-cell"><div class="cell-hero-border"><img src="https://placehold.co/40/4E4F5C/FFFFFF?text=?" title="Unknown"></div></div>`;
+                                }
+                            } else {
+                                html += `<div class="formation-cell"></div>`;
+                            }
+                        }
+                    }
+                    gridEl.innerHTML = html;
+                } catch(e) {
+                    console.warn('Formation load failed:', e);
+                    if (loadingEl) loadingEl.classList.add('hidden');
+                    if (gridEl && gridEl.parentElement) gridEl.parentElement.classList.add('hidden');
+                }
+            };
+
+            // --- FULL PAGE ARTICLE VIEW ---
+            const viewArticle = (id) => showArticlePage(id, true);
 
             const showArticlePage = (id, pushState) => {
                 const art = articles.find(a => a.id === id);
                 if (!art) return;
 
-                // Hide main content, show full page
                 document.querySelector('main').classList.add('hidden');
-                document.querySelector('footer').classList.add('hidden');
+                document.getElementById('articleEditPage').classList.add('hidden');
                 const fp = document.getElementById('articleFullPage');
                 fp.classList.remove('hidden');
 
@@ -540,44 +603,12 @@
                 if (dateStr) { dateEl.innerText = "Updated: " + dateStr; dateEl.classList.remove('hidden'); }
                 else { dateEl.classList.add('hidden'); }
 
-                // Recommended Heroes
-                const heroSection = document.getElementById('fpHeroesSection');
-                const heroRow = document.getElementById('fpHeroesRow');
-                const recHeroes = art.recommendedHeroes;
-                if (recHeroes && Array.isArray(recHeroes) && recHeroes.length > 0 && heroData.length > 0) {
-                    heroRow.innerHTML = recHeroes.map(hid => {
-                        const h = heroData.find(hero => hero.id === hid);
-                        if (!h) return '';
-                        const tc = getHeroTypeClass(h.heroType);
-                        return `<div class="flex flex-col items-center">
-                            <div class="hero-rec-circle ${tc}" title="${h.name}">
-                                <img src="${h.image}" onerror="this.src='https://placehold.co/56/4E4F5C/FFFFFF?text=?'">
-                                ${h.hasAwaken === 'Yes' ? '<div style="position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#111827;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #4b5563;z-index:2"><i class="fa-solid fa-fire-flame-curved" style="font-size:7px;color:#ef4444"></i></div>' : ''}
-                            </div>
-                            <span class="hero-rec-label">${h.name}</span>
-                        </div>`;
-                    }).join('');
-                    heroSection.classList.remove('hidden');
-                } else {
-                    heroSection.classList.add('hidden');
-                }
+                // Content with Shortcode Processing
+                const processedContent = processShortcodes(art.content || "<p class='italic text-gray-500'>This guide is empty.</p>");
+                document.getElementById('fpContent').innerHTML = processedContent;
 
-                // Formation Display
-                const formSection = document.getElementById('fpFormationSection');
-                const formGrid = document.getElementById('fpFormationGrid');
-                const formLoading = document.getElementById('fpFormationLoading');
-                if (art.formationCode && art.formationCode.trim().length === 5) {
-                    formSection.classList.remove('hidden');
-                    formGrid.innerHTML = '';
-                    formLoading.classList.remove('hidden');
-                    loadFormationForDisplay(art.formationCode.trim(), formGrid, formLoading);
-                } else {
-                    formSection.classList.add('hidden');
-                    formGrid.innerHTML = '';
-                }
-
-                // Content
-                document.getElementById('fpContent').innerHTML = art.content || "<p class='italic text-gray-500'>This guide is empty.</p>";
+                // Async formation loading for any [FORMATION:] shortcodes
+                loadFormationsInContent();
 
                 // Update URL and title
                 document.title = art.title + ' | MWR Information';
@@ -588,222 +619,35 @@
                 window.scrollTo(0, 0);
             };
 
-            const closeArticle = () => {
-                hideArticlePage(true);
-            };
+            const closeArticle = () => hideArticlePage(true);
 
             const hideArticlePage = (pushState) => {
-                document.querySelector('main').classList.remove('hidden');
-                document.querySelector('footer').classList.remove('hidden');
                 document.getElementById('articleFullPage').classList.add('hidden');
+                showMainView();
                 document.title = defaultTitle;
 
                 if (pushState) {
-                    // Build URL without ?post param, preserving the hash
                     const base = window.location.pathname + window.location.hash;
                     history.pushState(null, '', base);
                 }
             };
 
-            // --- EDIT MODAL ---
+            const showMainView = () => {
+                document.querySelector('main').classList.remove('hidden');
+                document.getElementById('articleEditPage').classList.add('hidden');
+                document.getElementById('articleFullPage').classList.add('hidden');
+            };
+
+            // --- EDIT (delegates to InfoEditor module) ---
             const openEditModal = (id = null) => {
-                if (!isAdmin || !quillEditor) return;
-                const modal = document.getElementById('editModal');
-                const btnDelete = document.getElementById('btnDelete');
-                selectedRecHeroes = [];
-                
-                if (id) {
-                    const art = articles.find(a => a.id === id);
-                    if (!art) return;
-                    document.getElementById('editModalTitle').innerText = "Edit Guide";
-                    document.getElementById('articleId').value = art.id;
-                    document.getElementById('articleTitle').value = art.title;
-                    document.getElementById('articleImage').value = art.image || "";
-                    document.getElementById('articlePinned').checked = art.isPinned === true;
-                    quillEditor.root.innerHTML = art.content || "";
-                    selectedRecHeroes = Array.isArray(art.recommendedHeroes) ? [...art.recommendedHeroes] : [];
-                    document.getElementById('articleFormationCode').value = art.formationCode || '';
-                    btnDelete.classList.remove('hidden');
-                } else {
-                    document.getElementById('editModalTitle').innerText = "Create New Guide";
-                    document.getElementById('articleId').value = "";
-                    document.getElementById('articleTitle').value = "";
-                    document.getElementById('articleImage').value = "";
-                    document.getElementById('articlePinned').checked = false;
-                    quillEditor.root.innerHTML = "";
-                    document.getElementById('articleFormationCode').value = '';
-                    btnDelete.classList.add('hidden');
-                }
-
-                updateSelectedHeroesDisplay();
-                renderHeroPicker();
-                modal.classList.remove('hidden');
-            };
-
-            const closeModal = (modalId) => document.getElementById(modalId).classList.add('hidden');
-
-            // --- HERO PICKER ---
-            const toggleHeroPicker = () => {
-                const panel = document.getElementById('heroPickerPanel');
-                const caret = document.getElementById('heroPickerCaret');
-                panel.classList.toggle('hidden');
-                caret.style.transform = panel.classList.contains('hidden') ? '' : 'rotate(180deg)';
-            };
-
-            const renderHeroPicker = () => {
-                const pool = document.getElementById('heroPickerPool');
-                const search = (document.getElementById('heroPickerSearch')?.value || '').toLowerCase();
-                
-                if (heroData.length === 0) {
-                    pool.innerHTML = '<span class="text-xs text-gray-500 italic">Loading heroes...</span>';
-                    return;
-                }
-
-                const filtered = heroData.filter(h => !search || h.name.toLowerCase().includes(search));
-                pool.innerHTML = filtered.slice(0, 60).map(h => {
-                    const tc = getHeroTypeClass(h.heroType);
-                    const selected = selectedRecHeroes.includes(h.id) ? 'selected-hero' : '';
-                    return `<div onclick="app.toggleRecHero('${h.id}')" class="hero-pick-item ${tc} ${selected}" title="${h.name}">
-                        <img src="${h.image}" onerror="this.src='https://placehold.co/40/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover">
-                    </div>`;
-                }).join('');
-            };
-
-            const toggleRecHero = (heroId) => {
-                const idx = selectedRecHeroes.indexOf(heroId);
-                if (idx > -1) {
-                    selectedRecHeroes.splice(idx, 1);
-                } else {
-                    selectedRecHeroes.push(heroId);
-                }
-                updateSelectedHeroesDisplay();
-                renderHeroPicker();
-            };
-
-            const updateSelectedHeroesDisplay = () => {
-                const row = document.getElementById('selectedHeroesRow');
-                const hint = document.getElementById('noHeroesHint');
-                const countEl = document.getElementById('recHeroCount');
-                countEl.textContent = `(${selectedRecHeroes.length})`;
-
-                if (selectedRecHeroes.length === 0) {
-                    row.innerHTML = '<span class="text-xs text-gray-600 italic" id="noHeroesHint">Click heroes below to add them</span>';
-                    return;
-                }
-
-                row.innerHTML = selectedRecHeroes.map(hid => {
-                    const h = heroData.find(hero => hero.id === hid);
-                    if (!h) return '';
-                    const tc = getHeroTypeClass(h.heroType);
-                    return `<div class="relative group">
-                        <div class="hero-pick-item ${tc}" title="${h.name}">
-                            <img src="${h.image}" class="w-full h-full object-cover">
-                        </div>
-                        <button type="button" onclick="event.stopPropagation(); app.toggleRecHero('${hid}')" class="absolute -top-1 -right-1 bg-red-600 hover:bg-red-500 text-white w-4 h-4 rounded-full text-[8px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"><i class="fa-solid fa-xmark"></i></button>
-                    </div>`;
-                }).join('');
-            };
-
-            // --- FORMATION LOADER ---
-            const loadFormationForDisplay = async (code, gridEl, loadingEl) => {
-                try {
-                    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'load_formation', code: code }), redirect: 'follow' });
-                    const data = await res.json();
-                    if (data.error) throw new Error(data.error);
-                    const grid = data.grid; // 2D array: grid[formationIndex] = array of {row, col, heroId}
-                    loadingEl.classList.add('hidden');
-                    if (!grid || !Array.isArray(grid)) { gridEl.parentElement.classList.add('hidden'); return; }
-
-                    // Flatten all formations into a single placement map
-                    const placements = {}; // key: "row-col" => heroId
-                    grid.forEach(formation => {
-                        if (Array.isArray(formation)) {
-                            formation.forEach(cell => {
-                                if (cell && cell.heroId) placements[cell.row + '-' + cell.col] = cell.heroId;
-                            });
-                        }
-                    });
-
-                    // Build 5x7 = 35 cells (rows 0-6, cols 0-4)
-                    let html = '';
-                    for (let r = 0; r < 7; r++) {
-                        for (let c = 0; c < 5; c++) {
-                            const hid = placements[r + '-' + c];
-                            if (hid) {
-                                const h = heroData.find(hero => hero.heroId === hid || hero.id === hid);
-                                if (h) {
-                                    const tc = getHeroTypeClass(h.heroType);
-                                    html += `<div class="formation-cell"><div class="cell-hero-border ${tc}"><img src="${h.image}" title="${h.name}" onerror="this.src='https://placehold.co/40/4E4F5C/FFFFFF?text=?'"></div></div>`;
-                                } else {
-                                    html += `<div class="formation-cell"><div class="cell-hero-border"><img src="https://placehold.co/40/4E4F5C/FFFFFF?text=?" title="Unknown Hero"></div></div>`;
-                                }
-                            } else {
-                                html += `<div class="formation-cell"></div>`;
-                            }
-                        }
-                    }
-                    gridEl.innerHTML = html;
-                } catch(e) {
-                    console.warn('Formation load failed:', e);
-                    loadingEl.classList.add('hidden');
-                    gridEl.parentElement.classList.add('hidden');
-                }
-            };
-
-            // --- SAVE / DELETE ---
-            const saveArticle = async () => {
-                if (!isAdmin || !quillEditor) return;
-                const btn = document.getElementById('btnSave');
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`; btn.disabled = true;
-
-                const formData = {
-                    id: document.getElementById('articleId').value || "temp_" + Date.now(),
-                    title: document.getElementById('articleTitle').value,
-                    image: document.getElementById('articleImage').value,
-                    isPinned: document.getElementById('articlePinned').checked,
-                    content: quillEditor.root.innerHTML,
-                    lastUpdate: new Date().toISOString(),
-                    recommendedHeroes: selectedRecHeroes,
-                    formationCode: document.getElementById('articleFormationCode').value.trim().toUpperCase() || ''
-                };
-
-                const existingIndex = articles.findIndex(a => a.id == formData.id);
-                if (existingIndex >= 0) articles[existingIndex] = formData;
-                else articles.unshift(formData);
-                
-                render(); closeModal('editModal');
-
-                try {
-                    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "save_info", data: formData, token: authToken }), redirect: "follow" });
-                    const data = await res.json();
-                    if(data.error) throw new Error(data.error);
-                    if(formData.id.startsWith("temp_") && data.id) {
-                        const idx = articles.findIndex(a => a.id === formData.id);
-                        if(idx !== -1) articles[idx].id = data.id;
-                    }
-                    localStorage.setItem('mwr_info_data', JSON.stringify(articles));
-                } catch(e) { 
-                    alert("Failed to save! Please check your connection."); window.location.reload(); 
-                } finally {
-                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Post`; btn.disabled = false;
-                }
-            };
-
-            const deleteArticle = async () => {
                 if (!isAdmin) return;
-                const id = document.getElementById('articleId').value;
-                if (!id || !confirm("Are you sure you want to permanently delete this guide?")) return;
-
-                articles = articles.filter(a => a.id != id);
-                render(); closeModal('editModal');
-
-                try {
-                    await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "delete_info", id: id, token: authToken }), redirect: "follow" });
-                    localStorage.setItem('mwr_info_data', JSON.stringify(articles));
-                } catch(e) { alert("Failed to delete."); window.location.reload(); }
+                document.querySelector('main').classList.add('hidden');
+                document.getElementById('articleFullPage').classList.add('hidden');
+                const art = id ? articles.find(a => a.id === id) : null;
+                window.InfoEditor.openEditor(art);
             };
 
-            return { init, render, viewArticle, openEditModal, closeModal, closeArticle, saveArticle, deleteArticle, toggleSidebar, setView, toggleHeroPicker, renderHeroPicker, toggleRecHero };
+            return { init, render, viewArticle, openEditModal, closeArticle, toggleSidebar, setView };
         })();
         window.onload = app.init;
     </script>
