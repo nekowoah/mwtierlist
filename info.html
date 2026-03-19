@@ -76,9 +76,43 @@
         .formation-cell .cell-hero-border.type-limited { border-color: #c90dde; }
         .formation-cell .cell-hero-border.type-basic { border-color: #22c55e; }
 
-        /* Shortcode Display Blocks */
-        .shortcode-formation-block { margin: 1.5rem auto; max-width: 320px; }
-        .shortcode-heroes-block { margin: 1.5rem 0; }
+        /* Custom Embed Blots (shared by editor and viewer) */
+        .shortcode-formation-embed, .shortcode-heroes-embed {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border: 1px solid #374151;
+            border-radius: 0.75rem;
+            background: #111827;
+            position: relative;
+        }
+        .shortcode-formation-embed .shortcode-formation-grid { max-width: 280px; }
+        .shortcode-embed-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .shortcode-embed-header i { color: #60a5fa; }
+        .shortcode-embed-hint {
+            font-size: 0.55rem;
+            color: #4b5563;
+            font-weight: 400;
+            text-transform: none;
+            margin-left: auto;
+        }
+        .shortcode-embed-loading {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6b7280;
+            padding: 0.5rem 0;
+        }
+        /* Hide hint text in viewer (only useful in editor) */
+        #fpContent .shortcode-embed-hint { display: none; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
@@ -487,22 +521,28 @@
                 }).join('');
             };
 
-            // --- SHORTCODE PROCESSOR ---
-            const processShortcodes = (html) => {
-                // Replace [FORMATION:XXXXX] with a placeholder div
-                html = html.replace(/\[FORMATION:([A-Za-z0-9]{5})\]/g, (match, code) => {
-                    return `<div class="shortcode-formation-block" data-formation-code="${code.toUpperCase()}">
-                        <h4 class="text-xs text-gray-500 uppercase font-bold tracking-widest mb-2 text-center">Formation</h4>
-                        <div class="formation-grid" id="fg-${code.toUpperCase()}"></div>
-                        <p class="text-center text-xs text-gray-500 py-2"><i class="fas fa-circle-notch fa-spin mr-1"></i>Loading...</p>
-                    </div>`;
+            // --- EMBED HYDRATION (DOM-based, works with custom Quill blots) ---
+            // After injecting content HTML, find saved blot divs and render their contents.
+            const hydrateEmbeds = () => {
+                // Hydrate formation embeds
+                const formBlots = document.querySelectorAll('#fpContent .shortcode-formation-embed');
+                formBlots.forEach(el => {
+                    const code = el.getAttribute('data-formation-code');
+                    if (!code) return;
+                    const gridEl = el.querySelector('.formation-grid, .shortcode-formation-grid');
+                    const loadingEl = el.querySelector('.shortcode-embed-loading');
+                    if (gridEl) loadFormationForDisplay(code, gridEl, loadingEl);
                 });
 
-                // Replace [HEROES:id1,id2,...] with hero circles
-                html = html.replace(/\[HEROES:([^\]]+)\]/g, (match, idStr) => {
-                    const ids = idStr.split(',').map(s => s.trim()).filter(Boolean);
-                    if (ids.length === 0 || heroData.length === 0) return match;
-                    const circles = ids.map(hid => {
+                // Hydrate hero embeds
+                const heroBlots = document.querySelectorAll('#fpContent .shortcode-heroes-embed');
+                heroBlots.forEach(el => {
+                    const idsStr = el.getAttribute('data-hero-ids') || '';
+                    const ids = idsStr.split(',').filter(Boolean);
+                    if (ids.length === 0 || heroData.length === 0) return;
+                    const row = el.querySelector('.hero-rec-row, .shortcode-heroes-row');
+                    if (!row) return;
+                    row.innerHTML = ids.map(hid => {
                         const h = heroData.find(hero => hero.id === hid);
                         if (!h) return '';
                         const tc = getHeroTypeClass(h.heroType);
@@ -514,21 +554,6 @@
                             <span class="hero-rec-label">${h.name}</span>
                         </div>`;
                     }).join('');
-                    return `<div class="shortcode-heroes-block"><div class="hero-rec-row">${circles}</div></div>`;
-                });
-
-                return html;
-            };
-
-            // Async: load formations after content is injected
-            const loadFormationsInContent = () => {
-                const blocks = document.querySelectorAll('#fpContent .shortcode-formation-block');
-                blocks.forEach(block => {
-                    const code = block.dataset.formationCode;
-                    if (!code) return;
-                    const gridEl = block.querySelector('.formation-grid');
-                    const loadingEl = block.querySelector('p');
-                    loadFormationForDisplay(code, gridEl, loadingEl);
                 });
             };
 
@@ -603,12 +628,11 @@
                 if (dateStr) { dateEl.innerText = "Updated: " + dateStr; dateEl.classList.remove('hidden'); }
                 else { dateEl.classList.add('hidden'); }
 
-                // Content with Shortcode Processing
-                const processedContent = processShortcodes(art.content || "<p class='italic text-gray-500'>This guide is empty.</p>");
-                document.getElementById('fpContent').innerHTML = processedContent;
+                // Content — inject saved HTML (which contains blot divs) then hydrate them
+                document.getElementById('fpContent').innerHTML = art.content || "<p class='italic text-gray-500'>This guide is empty.</p>";
 
-                // Async formation loading for any [FORMATION:] shortcodes
-                loadFormationsInContent();
+                // Hydrate formation grids and hero circles inside the embedded blots
+                hydrateEmbeds();
 
                 // Update URL and title
                 document.title = art.title + ' | MWR Information';
