@@ -1,7 +1,7 @@
 /**
  * MWR Info Editor Module
- * Handles the full-page editing workspace, Quill editor with custom shortcode
- * toolbar buttons (Formation, Heroes, Image Picker), and Save/Delete logic.
+ * Handles the full-page editing workspace, Quill editor with custom embed blots
+ * for Formations and Heroes, Image Picker integration, and Save/Delete logic.
  * 
  * Depends on: window.MWR_GLOBALS, window.ImagePicker, Quill, QuillBlotFormatter
  * Exposes: window.InfoEditor
@@ -13,9 +13,9 @@ window.InfoEditor = (() => {
     let heroData = [];
     let selectedRecHeroes = [];
     let authToken = '';
-    let onSaveCallback = null; // Called after successful save with updated formData
-    let onDeleteCallback = null; // Called after successful delete with id
-    let onCancelCallback = null; // Called when editor is closed
+    let onSaveCallback = null;
+    let onDeleteCallback = null;
+    let onCancelCallback = null;
 
     // --- INITIALIZATION ---
     const init = (token, callbacks = {}) => {
@@ -43,9 +43,145 @@ window.InfoEditor = (() => {
         return '';
     };
 
+    // ========================================================
+    //  CUSTOM QUILL BLOTS (BlockEmbed)
+    //  These render as visual blocks in both editor and viewer.
+    // ========================================================
+    const registerBlots = () => {
+        const BlockEmbed = Quill.import('blots/block/embed');
+
+        // --- Formation Blot ---
+        class FormationBlot extends BlockEmbed {
+            static create(value) {
+                const node = super.create();
+                node.setAttribute('data-formation-code', value.code || '');
+                node.setAttribute('contenteditable', 'false');
+                node.innerHTML = `
+                    <div class="shortcode-embed-header">
+                        <i class="fa-solid fa-chess-board"></i> Formation: <strong>${value.code || '?????'}</strong>
+                        <span class="shortcode-embed-hint">Click to select, then press Delete/Backspace to remove</span>
+                    </div>
+                    <div class="formation-grid shortcode-formation-grid" id="editor-fg-${value.code}"></div>
+                    <p class="shortcode-embed-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading formation...</p>
+                `;
+                // Async load the formation grid
+                setTimeout(() => loadFormationIntoElement(value.code, node), 100);
+                return node;
+            }
+            static value(node) {
+                return { code: node.getAttribute('data-formation-code') || '' };
+            }
+        }
+        FormationBlot.blotName = 'formationEmbed';
+        FormationBlot.tagName = 'DIV';
+        FormationBlot.className = 'shortcode-formation-embed';
+        Quill.register(FormationBlot);
+
+        // --- Heroes Blot ---
+        class HeroesBlot extends BlockEmbed {
+            static create(value) {
+                const node = super.create();
+                const ids = Array.isArray(value.ids) ? value.ids : [];
+                node.setAttribute('data-hero-ids', ids.join(','));
+                node.setAttribute('contenteditable', 'false');
+                node.innerHTML = `
+                    <div class="shortcode-embed-header">
+                        <i class="fa-solid fa-users"></i> Recommended Heroes (${ids.length})
+                        <span class="shortcode-embed-hint">Click to select, then press Delete/Backspace to remove</span>
+                    </div>
+                    <div class="hero-rec-row shortcode-heroes-row"></div>
+                `;
+                // Render heroes immediately from cached data
+                setTimeout(() => renderHeroesIntoElement(ids, node), 50);
+                return node;
+            }
+            static value(node) {
+                const idsStr = node.getAttribute('data-hero-ids') || '';
+                return { ids: idsStr.split(',').filter(Boolean) };
+            }
+        }
+        HeroesBlot.blotName = 'heroesEmbed';
+        HeroesBlot.tagName = 'DIV';
+        HeroesBlot.className = 'shortcode-heroes-embed';
+        Quill.register(HeroesBlot);
+    };
+
+    // --- Render formation into a blot element ---
+    const loadFormationIntoElement = async (code, containerEl) => {
+        const gridEl = containerEl.querySelector('.shortcode-formation-grid');
+        const loadingEl = containerEl.querySelector('.shortcode-embed-loading');
+        if (!gridEl || !code || code.length !== 5) {
+            if (loadingEl) loadingEl.innerHTML = '<span class="text-red-400 text-xs">Invalid code</span>';
+            return;
+        }
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'load_formation', code: code }), redirect: 'follow' });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            const grid = data.grid;
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (!grid || !Array.isArray(grid)) return;
+
+            const placements = {};
+            grid.forEach(formation => {
+                if (Array.isArray(formation)) {
+                    formation.forEach(cell => {
+                        if (cell && cell.heroId) placements[cell.row + '-' + cell.col] = cell.heroId;
+                    });
+                }
+            });
+
+            let html = '';
+            for (let r = 0; r < 7; r++) {
+                for (let c = 0; c < 5; c++) {
+                    const hid = placements[r + '-' + c];
+                    if (hid) {
+                        const h = heroData.find(hero => hero.heroId === hid || hero.id === hid);
+                        if (h) {
+                            const tc = getHeroTypeClass(h.heroType);
+                            html += `<div class="formation-cell"><div class="cell-hero-border ${tc}"><img src="${h.image}" title="${h.name}" onerror="this.src='https://placehold.co/40/4E4F5C/FFFFFF?text=?'"></div></div>`;
+                        } else {
+                            html += `<div class="formation-cell"><div class="cell-hero-border"><img src="https://placehold.co/40/4E4F5C/FFFFFF?text=?" title="Unknown"></div></div>`;
+                        }
+                    } else {
+                        html += `<div class="formation-cell"></div>`;
+                    }
+                }
+            }
+            gridEl.innerHTML = html;
+        } catch(e) {
+            if (loadingEl) loadingEl.innerHTML = `<span class="text-red-400 text-xs">Failed to load formation</span>`;
+        }
+    };
+
+    // --- Render heroes into a blot element ---
+    const renderHeroesIntoElement = (ids, containerEl) => {
+        const row = containerEl.querySelector('.shortcode-heroes-row');
+        if (!row || !ids.length) return;
+        if (heroData.length === 0) {
+            row.innerHTML = '<span class="text-xs text-gray-500 italic">Hero data loading...</span>';
+            return;
+        }
+        row.innerHTML = ids.map(hid => {
+            const h = heroData.find(hero => hero.id === hid);
+            if (!h) return '';
+            const tc = getHeroTypeClass(h.heroType);
+            return `<div class="flex flex-col items-center">
+                <div class="hero-rec-circle ${tc}" title="${h.name}">
+                    <img src="${h.image}" onerror="this.src='https://placehold.co/56/4E4F5C/FFFFFF?text=?'">
+                    ${h.hasAwaken === 'Yes' ? '<div style="position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#111827;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #4b5563;z-index:2"><i class="fa-solid fa-fire-flame-curved" style="font-size:7px;color:#ef4444"></i></div>' : ''}
+                </div>
+                <span class="hero-rec-label">${h.name}</span>
+            </div>`;
+        }).join('');
+    };
+
     // --- QUILL EDITOR SETUP ---
     const setupQuill = () => {
         if (quillEditor) return quillEditor;
+
+        // Register custom blots BEFORE creating the editor
+        registerBlots();
 
         try {
             const BlotFormatter = window.QuillBlotFormatter 
@@ -73,7 +209,7 @@ window.InfoEditor = (() => {
             };
 
             if (BlotFormatter) {
-                Quill.register('modules/blotFormatter', BlotFormatter);
+                Quill.register('modules/blotFormatter', BlotFormatter, true);
                 modules.blotFormatter = {};
             }
 
@@ -89,14 +225,13 @@ window.InfoEditor = (() => {
                 const formBtn = toolbar.querySelector('.ql-insertFormation');
                 if (formBtn) {
                     formBtn.innerHTML = '<i class="fa-solid fa-chess-board" style="font-size:12px"></i>';
-                    formBtn.title = 'Insert Formation Shortcode';
+                    formBtn.title = 'Insert Formation';
                 }
                 const heroBtn = toolbar.querySelector('.ql-insertHeroes');
                 if (heroBtn) {
                     heroBtn.innerHTML = '<i class="fa-solid fa-users" style="font-size:12px"></i>';
-                    heroBtn.title = 'Insert Hero Recommendation Shortcode';
+                    heroBtn.title = 'Insert Hero Recommendation';
                 }
-                // Also style the image button tooltip
                 const imgBtn = toolbar.querySelector('.ql-image');
                 if (imgBtn) imgBtn.title = 'Insert Image from Library';
             }
@@ -124,18 +259,17 @@ window.InfoEditor = (() => {
     const insertFormationHandler = () => {
         const code = prompt("Enter the 5-letter Formation Code:");
         if (!code || code.trim().length !== 5) return;
-        const tag = `[FORMATION:${code.trim().toUpperCase()}]`;
         const range = quillEditor.getSelection(true);
-        quillEditor.insertText(range.index, '\n' + tag + '\n', { 'bold': true, 'color': '#60a5fa' }, Quill.sources.USER);
+        quillEditor.insertEmbed(range.index, 'formationEmbed', { code: code.trim().toUpperCase() }, Quill.sources.USER);
+        quillEditor.setSelection(range.index + 1, Quill.sources.SILENT);
     };
 
     const insertHeroesHandler = () => {
-        // Open a small overlay to pick heroes, then insert the shortcode
         openHeroPickerOverlay((selectedIds) => {
             if (!selectedIds || selectedIds.length === 0) return;
-            const tag = `[HEROES:${selectedIds.join(',')}]`;
             const range = quillEditor.getSelection(true);
-            quillEditor.insertText(range.index, '\n' + tag + '\n', { 'bold': true, 'color': '#34d399' }, Quill.sources.USER);
+            quillEditor.insertEmbed(range.index, 'heroesEmbed', { ids: selectedIds }, Quill.sources.USER);
+            quillEditor.setSelection(range.index + 1, Quill.sources.SILENT);
         });
     };
 
@@ -163,7 +297,7 @@ window.InfoEditor = (() => {
         }
     };
 
-    // --- HERO PICKER OVERLAY (for shortcode insertion) ---
+    // --- HERO PICKER OVERLAY ---
     const openHeroPickerOverlay = (callback) => {
         selectedRecHeroes = [];
         const existing = document.getElementById('heroShortcodeOverlay');
@@ -251,12 +385,10 @@ window.InfoEditor = (() => {
         const mainEl = document.querySelector('main');
         const fpEl = document.getElementById('articleFullPage');
 
-        // Hide everything else
         if (mainEl) mainEl.classList.add('hidden');
         if (fpEl) fpEl.classList.add('hidden');
         editPage.classList.remove('hidden');
 
-        // Populate fields
         if (article) {
             document.getElementById('editorTitle').innerText = 'Edit Guide';
             document.getElementById('editorArticleId').value = article.id;
@@ -265,6 +397,9 @@ window.InfoEditor = (() => {
             document.getElementById('editorPinned').checked = article.isPinned === true;
             quillEditor.root.innerHTML = article.content || '';
             document.getElementById('editorDeleteBtn').classList.remove('hidden');
+
+            // Re-render any blots that were loaded from saved HTML
+            setTimeout(() => hydrateExistingBlots(), 200);
         } else {
             document.getElementById('editorTitle').innerText = 'Create New Guide';
             document.getElementById('editorArticleId').value = '';
@@ -277,6 +412,22 @@ window.InfoEditor = (() => {
 
         updateCharCounter();
         window.scrollTo(0, 0);
+    };
+
+    // When loading saved content, re-render the formations and heroes inside existing blots
+    const hydrateExistingBlots = () => {
+        const formBlots = document.querySelectorAll('#editorQuillContainer .shortcode-formation-embed');
+        formBlots.forEach(el => {
+            const code = el.getAttribute('data-formation-code');
+            if (code) loadFormationIntoElement(code, el);
+        });
+
+        const heroBlots = document.querySelectorAll('#editorQuillContainer .shortcode-heroes-embed');
+        heroBlots.forEach(el => {
+            const idsStr = el.getAttribute('data-hero-ids') || '';
+            const ids = idsStr.split(',').filter(Boolean);
+            if (ids.length) renderHeroesIntoElement(ids, el);
+        });
     };
 
     const closeEditor = () => {
