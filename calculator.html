@@ -357,8 +357,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="text-center text-xs text-gray-500 py-2 border-t border-gray-800 mt-auto">
-        MWR Calculator. Built by the Legion Community.
+    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto transition-colors duration-300">
+        <p>MWR Calculator. Built by the Legion Community.</p>
     </footer>
 
     <script>
@@ -508,7 +508,7 @@
             document.getElementById('out_green').textContent = totalG.toLocaleString();
             document.getElementById('out_purple').textContent = totalP.toLocaleString();
             document.getElementById('out_pulls').textContent = totalPulls.toLocaleString();
-            document.getElementById('out_diamonds').textContent = totalD.toLocaleString();
+            document.getElementById('out_diamonds').textContent = totalD > 0 ? '-' + totalD.toLocaleString() : '0';
             document.getElementById('out_value').textContent = diamondValue.toLocaleString();
         };
 
