@@ -77,27 +77,34 @@
         .formation-cell .cell-hero-border.type-basic { border-color: #22c55e; }
 
         /* Custom Embed Blots (shared by editor and viewer) */
-        .shortcode-formation-embed, .shortcode-heroes-embed {
-            margin: 1.5rem 0;
-            padding: 1rem;
+        .shortcode-formation-embed {
+            margin: 1.5rem auto;
+            max-width: 300px;
+            position: relative;
+        }
+        .shortcode-heroes-embed {
+            margin: 1rem auto;
+            padding: 0.5rem 0.75rem;
             border: 1px solid #374151;
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             background: #111827;
             position: relative;
+            display: flex;
+            justify-content: center;
         }
         .shortcode-formation-embed .shortcode-formation-grid { max-width: 280px; }
         .shortcode-embed-header {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 700;
-            color: #6b7280;
+            color: #4b5563;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
-        .shortcode-embed-header i { color: #60a5fa; }
+        .shortcode-embed-header i { color: #60a5fa; font-size: 0.6rem; }
         .shortcode-embed-hint {
             font-size: 0.55rem;
             color: #4b5563;
@@ -111,8 +118,9 @@
             color: #6b7280;
             padding: 0.5rem 0;
         }
-        /* Hide hint text in viewer (only useful in editor) */
+        /* In viewer: hide editor-only hints and header text */
         #fpContent .shortcode-embed-hint { display: none; }
+        #fpContent .shortcode-embed-header { display: none; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
@@ -238,16 +246,8 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 border-t border-gray-700 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <p class="text-xs text-gray-500">MWR Information &mdash; Community Guides & Knowledge Base</p>
-            <div class="flex items-center gap-4">
-                <a href="https://dsc.gg/legion-mw" target="_blank" class="text-gray-500 hover:text-[#5865F2] transition-colors text-xs font-bold flex items-center gap-1"><i class="fa-brands fa-discord"></i> Discord</a>
-                <a href="index.html" class="text-gray-500 hover:text-blue-400 transition-colors text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-list-ul"></i> Tierlist</a>
-                <a href="formation.html" class="text-gray-500 hover:text-blue-400 transition-colors text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-chess-board"></i> Formations</a>
-            </div>
-        </div>
+    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto transition-colors duration-300">
+        <p>MWR Information. Built by the Legion Community.</p>
     </footer>
 
     <script>
@@ -440,14 +440,14 @@
                     }
                 }
 
+                // Load hero data BEFORE showing any post (needed for embed rendering)
+                await loadHeroData();
+
                 // Check if a ?post=ID param is in the URL after data is loaded
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.has('post')) {
                     showArticlePage(urlParams.get('post'), false);
                 }
-
-                // Load hero data in background (for shortcode rendering)
-                loadHeroData();
             };
 
             // --- GRID/LIST RENDERING ---
