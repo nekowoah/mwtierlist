@@ -76,54 +76,14 @@
         .formation-cell .cell-hero-border.type-limited { border-color: #c90dde; }
         .formation-cell .cell-hero-border.type-basic { border-color: #22c55e; }
 
-        /* Custom Embed Blots (shared by editor and viewer) */
-        .shortcode-formation-embed {
-            margin: 1.5rem auto;
-            max-width: 300px;
+        /* Generic Embed Block (used for self-contained formations and hero lists) */
+        .mwr-embed-block {
+            margin: 0;
             position: relative;
         }
-        .shortcode-heroes-embed {
-            margin: 1rem auto;
-            padding: 0.5rem 0.75rem;
-            border: 1px solid #374151;
-            border-radius: 1rem;
-            background: #111827;
-            position: relative;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: fit-content;
-            max-width: 100%;
+        .mwr-embed-block img {
+            margin: 0 !important;
         }
-        .shortcode-formation-embed .shortcode-formation-grid { max-width: 280px; }
-        .shortcode-embed-header {
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: #4b5563;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .shortcode-embed-header i { color: #60a5fa; font-size: 0.6rem; }
-        .shortcode-embed-hint {
-            font-size: 0.55rem;
-            color: #4b5563;
-            font-weight: 400;
-            text-transform: none;
-            margin-left: auto;
-        }
-        .shortcode-embed-loading {
-            text-align: center;
-            font-size: 0.75rem;
-            color: #6b7280;
-            padding: 0.5rem 0;
-        }
-        /* In viewer: hide editor-only hints and header text */
-        #fpContent .shortcode-embed-hint { display: none; }
-        #fpContent .shortcode-embed-header { display: none; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
@@ -258,7 +218,6 @@
             const { API_URL, db } = window.MWR_GLOBALS;
             
             let articles = [];
-            let heroData = [];
             let isAdmin = false;
             let authToken = "";
             let currentView = 'grid';
@@ -287,13 +246,6 @@
                 render();
             };
 
-            // --- HELPERS ---
-            const getHeroTypeClass = (heroType) => {
-                if (heroType === 'VIP') return 'type-vip';
-                if (heroType === 'Limited') return 'type-limited';
-                if (heroType === 'Basic Limited' || heroType === 'Basic Banner') return 'type-basic';
-                return '';
-            };
 
             const stripHtml = (html) => {
                 let tmp = document.createElement("DIV"); tmp.innerHTML = html;
@@ -308,16 +260,6 @@
                 } catch(e) { return ""; }
             };
 
-            // --- HERO DATA (for shortcode rendering) ---
-            const loadHeroData = async () => {
-                try {
-                    const cached = localStorage.getItem('mwr_tierlist_data_v6');
-                    if (cached) { heroData = JSON.parse(cached); return; }
-                    const res = await fetch(API_URL + "?view=all", { redirect: "follow" });
-                    const data = await res.json();
-                    if (Array.isArray(data)) heroData = data;
-                } catch(e) { console.warn("Failed to load hero data.", e); }
-            };
 
             // --- INIT ---
             const init = async () => {
@@ -443,9 +385,6 @@
                     }
                 }
 
-                // Load hero data BEFORE showing any post (needed for embed rendering)
-                await loadHeroData();
-
                 // Check if a ?post=ID param is in the URL after data is loaded
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.has('post')) {
@@ -524,84 +463,6 @@
                 }).join('');
             };
 
-            // --- EMBED HYDRATION (DOM-based, works with custom Quill blots) ---
-            // After injecting content HTML, find saved blot divs and render their contents.
-            const hydrateEmbeds = () => {
-                // Hydrate formation embeds
-                const formBlots = document.querySelectorAll('#fpContent .shortcode-formation-embed');
-                formBlots.forEach(el => {
-                    const code = el.getAttribute('data-formation-code');
-                    if (!code) return;
-                    const gridEl = el.querySelector('.formation-grid, .shortcode-formation-grid');
-                    const loadingEl = el.querySelector('.shortcode-embed-loading');
-                    if (gridEl) loadFormationForDisplay(code, gridEl, loadingEl);
-                });
-
-                // Hydrate hero embeds
-                const heroBlots = document.querySelectorAll('#fpContent .shortcode-heroes-embed');
-                heroBlots.forEach(el => {
-                    const idsStr = el.getAttribute('data-hero-ids') || '';
-                    const ids = idsStr.split(',').filter(Boolean);
-                    if (ids.length === 0 || heroData.length === 0) return;
-                    const row = el.querySelector('.hero-rec-row, .shortcode-heroes-row');
-                    if (!row) return;
-                    row.innerHTML = ids.map(hid => {
-                        const h = heroData.find(hero => hero.id === hid);
-                        if (!h) return '';
-                        const tc = getHeroTypeClass(h.heroType);
-                        return `<div class="flex flex-col items-center">
-                            <div class="hero-rec-circle ${tc}" title="${h.name}">
-                                <img src="${h.image}" onerror="this.src='https://placehold.co/56/4E4F5C/FFFFFF?text=?'">
-                                ${h.hasAwaken === 'Yes' ? '<div style="position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#111827;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #4b5563;z-index:2"><i class="fa-solid fa-fire-flame-curved" style="font-size:7px;color:#ef4444"></i></div>' : ''}
-                            </div>
-                            <span class="hero-rec-label">${h.name}</span>
-                        </div>`;
-                    }).join('');
-                });
-            };
-
-            const loadFormationForDisplay = async (code, gridEl, loadingEl) => {
-                try {
-                    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'load_formation', code: code }), redirect: 'follow' });
-                    const data = await res.json();
-                    if (data.error) throw new Error(data.error);
-                    const grid = data.grid;
-                    if (loadingEl) loadingEl.classList.add('hidden');
-                    if (!grid || !Array.isArray(grid)) { if (gridEl.parentElement) gridEl.parentElement.classList.add('hidden'); return; }
-
-                    const placements = {};
-                    grid.forEach(formation => {
-                        if (Array.isArray(formation)) {
-                            formation.forEach(cell => {
-                                if (cell && cell.heroId) placements[cell.row + '-' + cell.col] = cell.heroId;
-                            });
-                        }
-                    });
-
-                    let html = '';
-                    for (let r = 0; r < 7; r++) {
-                        for (let c = 0; c < 5; c++) {
-                            const hid = placements[r + '-' + c];
-                            if (hid) {
-                                const h = heroData.find(hero => hero.heroId === hid || hero.id === hid);
-                                if (h) {
-                                    const tc = getHeroTypeClass(h.heroType);
-                                    html += `<div class="formation-cell"><div class="cell-hero-border ${tc}"><img src="${h.image}" title="${h.name}" onerror="this.src='https://placehold.co/40/4E4F5C/FFFFFF?text=?'"></div></div>`;
-                                } else {
-                                    html += `<div class="formation-cell"><div class="cell-hero-border"><img src="https://placehold.co/40/4E4F5C/FFFFFF?text=?" title="Unknown"></div></div>`;
-                                }
-                            } else {
-                                html += `<div class="formation-cell"></div>`;
-                            }
-                        }
-                    }
-                    gridEl.innerHTML = html;
-                } catch(e) {
-                    console.warn('Formation load failed:', e);
-                    if (loadingEl) loadingEl.classList.add('hidden');
-                    if (gridEl && gridEl.parentElement) gridEl.parentElement.classList.add('hidden');
-                }
-            };
 
             // --- FULL PAGE ARTICLE VIEW ---
             const viewArticle = (id) => showArticlePage(id, true);
@@ -631,11 +492,8 @@
                 if (dateStr) { dateEl.innerText = "Updated: " + dateStr; dateEl.classList.remove('hidden'); }
                 else { dateEl.classList.add('hidden'); }
 
-                // Content — inject saved HTML (which contains blot divs) then hydrate them
+                // Content — self-contained HTML, no hydration needed
                 document.getElementById('fpContent').innerHTML = art.content || "<p class='italic text-gray-500'>This guide is empty.</p>";
-
-                // Hydrate formation grids and hero circles inside the embedded blots
-                hydrateEmbeds();
 
                 // Update URL and title
                 document.title = art.title + ' | MWR Information';
