@@ -92,7 +92,8 @@ window.AppMenu = (() => {
         { name: "Wishlist Guide", url: "info.html?post=03f7b5d4-24e3-44ac-93cb-91e4aa9d61bc", icon: "fa-award" },       
         { name: "Tierlist", url: "index.html", icon: "fa-list-ul" },
         { name: "Information", url: "info.html", icon: "fa-book-open" },
-        { name: "Formation Builder", url: "formation.html", icon: "fa-chess-board" }
+        { name: "Formation Builder", url: "formation.html", icon: "fa-chess-board" },
+        { name: "Calculator", url: "calculator.html", icon: "fa-calculator" }
     ];
 
     const ADMIN_PAGES = [
