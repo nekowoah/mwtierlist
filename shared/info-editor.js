@@ -58,11 +58,11 @@ window.InfoEditor = (() => {
                 node.setAttribute('contenteditable', 'false');
                 node.innerHTML = `
                     <div class="shortcode-embed-header">
-                        <i class="fa-solid fa-chess-board"></i> Formation: <strong>${value.code || '?????'}</strong>
-                        <span class="shortcode-embed-hint">Click to select, then press Delete/Backspace to remove</span>
+                        <i class="fa-solid fa-chess-board"></i> Formation
+                        <span class="shortcode-embed-hint">Delete to remove</span>
                     </div>
                     <div class="formation-grid shortcode-formation-grid" id="editor-fg-${value.code}"></div>
-                    <p class="shortcode-embed-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading formation...</p>
+                    <p class="shortcode-embed-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading...</p>
                 `;
                 // Async load the formation grid
                 setTimeout(() => loadFormationIntoElement(value.code, node), 100);
@@ -86,8 +86,8 @@ window.InfoEditor = (() => {
                 node.setAttribute('contenteditable', 'false');
                 node.innerHTML = `
                     <div class="shortcode-embed-header">
-                        <i class="fa-solid fa-users"></i> Recommended Heroes (${ids.length})
-                        <span class="shortcode-embed-hint">Click to select, then press Delete/Backspace to remove</span>
+                        <i class="fa-solid fa-users"></i> ${ids.length} heroes
+                        <span class="shortcode-embed-hint">Delete to remove</span>
                     </div>
                     <div class="hero-rec-row shortcode-heroes-row"></div>
                 `;
