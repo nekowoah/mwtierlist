@@ -53,7 +53,7 @@
         .hero-rec-row { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; padding: 1rem 0; }
         .hero-rec-circle { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #6b7280; overflow: hidden; position: relative; flex-shrink: 0; transition: transform 0.15s, box-shadow 0.15s; }
         .hero-rec-circle:hover { transform: scale(1.1); }
-        .hero-rec-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .hero-rec-circle img { width: 100%; height: 100%; object-fit: cover; margin: 0 !important; border-radius: 0 !important; }
         .hero-rec-circle.type-vip { border-color: #fbbf24; }
         .hero-rec-circle.type-limited { border-color: #c90dde; }
         .hero-rec-circle.type-basic { border-color: #22c55e; }
@@ -70,7 +70,7 @@
         /* Formation Grid Display */
         .formation-grid { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(7, 1fr); gap: 3px; aspect-ratio: 5/7; max-width: 280px; margin: 0 auto; background: #111827; border: 1px solid #374151; border-radius: 0.5rem; padding: 4px; }
         .formation-cell { background: #1f2937; border: 1px solid #374151; border-radius: 0.25rem; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .formation-cell img { width: 85%; height: 85%; object-fit: cover; border-radius: 50%; }
+        .formation-cell img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; margin: 0 !important; }
         .formation-cell .cell-hero-border { width: 90%; height: 90%; border-radius: 50%; border: 2px solid #6b7280; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .formation-cell .cell-hero-border.type-vip { border-color: #fbbf24; }
         .formation-cell .cell-hero-border.type-limited { border-color: #c90dde; }
@@ -90,7 +90,10 @@
             background: #111827;
             position: relative;
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
+            width: fit-content;
+            max-width: 100%;
         }
         .shortcode-formation-embed .shortcode-formation-grid { max-width: 280px; }
         .shortcode-embed-header {
