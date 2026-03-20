@@ -125,7 +125,7 @@ window.InfoEditor = (() => {
             grid.forEach(formation => {
                 if (Array.isArray(formation)) {
                     formation.forEach(cell => {
-                        if (cell && cell.heroId) placements[cell.row + '-' + cell.col] = cell.heroId;
+                        if (cell && cell.id) placements[cell.y + '-' + cell.x] = cell.id;
                     });
                 }
             });
@@ -136,7 +136,7 @@ window.InfoEditor = (() => {
                 for (let c = 0; c < 5; c++) {
                     const hid = placements[r + '-' + c];
                     if (hid) {
-                        const h = heroData.find(hero => hero.heroId === hid || hero.id === hid);
+                        const h = heroData.find(hero => hero.id === hid);
                         const name = h ? h.name : 'Unknown';
                         const img = h ? h.image : 'https://placehold.co/40/4E4F5C/FFFFFF?text=?';
                         const tc = h ? getHeroTypeClass(h.heroType) : '';
