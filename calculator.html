@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+
+    <title>MWR | Sigil Calculator</title>
+    <meta name="description" content="Calculate your weekly and monthly Sigil income from all sources in Mini Warriors Reborn.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="shared/globals.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="shared/styles.css">
+    <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
+
+    <style>
+        /* Toggle Switch */
+        .toggle-switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0; cursor: pointer; border-radius: 9999px;
+            background: #374151; transition: background 0.25s;
+        }
+        .toggle-slider::before {
+            content: ""; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px;
+            background: white; border-radius: 50%; transition: transform 0.25s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: #22c55e; }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+        /* Button Group */
+        .btn-group { display: flex; flex-wrap: wrap; gap: 5px; }
+        .btn-opt {
+            padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;
+            border: 1.5px solid #4b5563; background: #1f2937; color: #9ca3af;
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-opt:hover { border-color: #6b7280; color: #d1d5db; }
+        .btn-opt.active { background: #4f46e5; border-color: #6366f1; color: white; }
+
+        /* Source Card */
+        .source-card {
+            background: #1f2937; border: 1.5px solid #374151; border-radius: 10px;
+            padding: 10px 14px; transition: opacity 0.25s, border-color 0.2s;
+        }
+        .source-card:hover { border-color: #4b5563; }
+        .source-card.disabled { opacity: 0.35; }
+        .source-card.disabled .card-options { pointer-events: none; }
+
+        /* Event card grayed out (inactive event in weekly mode) */
+        .source-card.event-inactive { opacity: 0.25; }
+        .source-card.event-inactive .card-options { pointer-events: none; }
+
+        /* Per-source yield badges */
+        .yield-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            font-size: 0.75rem; font-weight: 800; padding: 1px 5px;
+            border-radius: 4px; background: rgba(0,0,0,0.3);
+        }
+        .yield-badge .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+        /* Slider */
+        .calc-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px; background: #374151; outline: none; }
+        .calc-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+            border-radius: 50%; background: #8b5cf6; cursor: pointer; border: 2px solid #a78bfa;
+        }
+        .calc-slider::-moz-range-thumb {
+            width: 18px; height: 18px; border-radius: 50%; background: #8b5cf6;
+            cursor: pointer; border: 2px solid #a78bfa;
+        }
+
+        /* Output panel */
+        .output-panel {
+            background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(99, 102, 241, 0.25); border-radius: 14px;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.08), 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Period toggle */
+        .period-btn {
+            padding: 5px 18px; border-radius: 7px; font-size: 0.8rem; font-weight: 800;
+            cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent;
+        }
+        .period-btn.active { background: #4f46e5; color: white; border-color: #6366f1; box-shadow: 0 0 10px rgba(99,102,241,0.3); }
+        .period-btn:not(.active) { background: #1f2937; color: #6b7280; border-color: #374151; }
+        .period-btn:not(.active):hover { color: #d1d5db; border-color: #4b5563; }
+
+        /* Event toggle */
+        .event-toggle-btn {
+            padding: 4px 12px; border-radius: 6px; font-size: 0.72rem; font-weight: 800;
+            cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent;
+        }
+        .event-toggle-btn.active { background: #7c3aed; color: white; border-color: #8b5cf6; }
+        .event-toggle-btn:not(.active) { background: #1f2937; color: #6b7280; border-color: #374151; }
+
+        /* 3-way toggle */
+        .tri-group { display: flex; gap: 4px; }
+        .tri-btn {
+            padding: 3px 9px; border-radius: 5px; font-size: 0.68rem; font-weight: 700;
+            border: 1.5px solid #4b5563; background: #1f2937; color: #9ca3af;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .tri-btn.active { background: #059669; border-color: #10b981; color: white; }
+
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-label { font-size: 0.68rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; padding-left: 2px; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl transition-colors duration-300">
+        <div class="max-w-6xl mx-auto px-4 py-2 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="AppMenu.toggleSidebar()" class="text-gray-400 hover:text-white transition-colors outline-none">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                <div class="flex items-center gap-2">
+                    <img src="https://i.imgur.com/1h28KPo.png" class="w-6 h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)]">
+                    <span class="font-black text-base text-white tracking-tight">Sigil Calculator</span>
+                </div>
+            </div>
+            <div class="flex gap-2 bg-gray-900 p-1 rounded-lg border border-gray-700">
+                <button class="period-btn active" data-period="weekly" onclick="setPeriod('weekly')">Weekly</button>
+                <button class="period-btn" data-period="monthly" onclick="setPeriod('monthly')">Monthly</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-3 w-full fade-in flex flex-col gap-3">
+
+        <!-- OUTPUT SUMMARY PANEL -->
+        <div class="output-panel px-5 py-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-center">
+                <div>
+                    <div class="text-[0.65rem] font-bold text-green-400/70 uppercase tracking-widest mb-0.5">Green Sigils</div>
+                    <div id="out_green" class="text-3xl font-black text-green-400 tabular-nums leading-tight">0</div>
+                </div>
+                <div>
+                    <div class="text-[0.65rem] font-bold text-purple-400/70 uppercase tracking-widest mb-0.5">Purple Sigils</div>
+                    <div id="out_purple" class="text-3xl font-black text-purple-400 tabular-nums leading-tight">0</div>
+                </div>
+                <div>
+                    <div class="text-[0.65rem] font-bold text-amber-400/70 uppercase tracking-widest mb-0.5">Total Pulls</div>
+                    <div id="out_pulls" class="text-3xl font-black text-amber-400 tabular-nums leading-tight">0</div>
+                </div>
+                <div>
+                    <div class="text-[0.65rem] font-bold text-blue-400/70 uppercase tracking-widest mb-0.5"><i class="fa-solid fa-gem mr-1"></i>Diamond Cost</div>
+                    <div id="out_diamonds" class="text-3xl font-black text-blue-400 tabular-nums leading-tight">0</div>
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                    <div class="text-[0.65rem] font-bold text-yellow-400/70 uppercase tracking-widest mb-0.5"><i class="fa-solid fa-coins mr-1"></i>Diamond Value</div>
+                    <div id="out_value" class="text-3xl font-black text-yellow-400 tabular-nums leading-tight">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TWO COLUMN LAYOUT: Normal Sources (left) | Alliance Events (right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+            <!-- LEFT COLUMN: Normal Sources -->
+            <div class="flex flex-col gap-2">
+                <div class="section-label">Normal Sources</div>
+
+                <!-- Daily Login -->
+                <div class="source-card" id="card_login">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 flex-grow min-w-0">
+                            <i class="fa-solid fa-calendar-check text-green-400"></i>
+                            <span class="font-bold text-sm text-white">Daily Login</span>
+                            <div class="flex gap-1.5 ml-auto mr-2" id="yield_login"></div>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" checked onchange="toggleSource('login')" id="tog_login"><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+
+                <!-- Lucky Spin -->
+                <div class="source-card" id="card_spin">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 flex-grow min-w-0">
+                            <i class="fa-solid fa-clover text-green-400"></i>
+                            <span class="font-bold text-sm text-white">Lucky Spin</span>
+                            <div class="flex gap-1.5 ml-auto mr-2" id="yield_spin"></div>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" checked onchange="toggleSource('spin')" id="tog_spin"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="card-options">
+                        <div class="btn-group">
+                            <button class="btn-opt active" onclick="setOpt('spin_vip',0,this)">0 VIP</button>
+                            <button class="btn-opt" onclick="setOpt('spin_vip',6,this)">6 VIP</button>
+                            <button class="btn-opt" onclick="setOpt('spin_vip',30,this)">30 VIP</button>
+                            <button class="btn-opt" onclick="setOpt('spin_vip',100,this)">100 VIP</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alliance Shop -->
+                <div class="source-card" id="card_alliance_shop">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 flex-grow min-w-0">
+                            <i class="fa-solid fa-store text-blue-400"></i>
+                            <span class="font-bold text-sm text-white">Alliance Shop</span>
+                            <div class="flex gap-1.5 ml-auto mr-2" id="yield_alliance_shop"></div>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" checked onchange="toggleSource('alliance_shop')" id="tog_alliance_shop"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="card-options">
+                        <div class="btn-group">
+                            <button class="btn-opt" onclick="setOpt('alliance_lvl',1,this)">Lv 1</button>
+                            <button class="btn-opt" onclick="setOpt('alliance_lvl',3,this)">Lv 3</button>
+                            <button class="btn-opt active" onclick="setOpt('alliance_lvl',5,this)">Lv 5</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arena Shop -->
+                <div class="source-card" id="card_arena">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 flex-grow min-w-0">
+                            <i class="fa-solid fa-trophy text-yellow-400"></i>
+                            <span class="font-bold text-sm text-white">Arena Shop</span>
+                            <div class="flex gap-1.5 ml-auto mr-2" id="yield_arena"></div>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" checked onchange="toggleSource('arena')" id="tog_arena"><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+
+                <!-- World Boss Shop -->
+                <div class="source-card" id="card_wboss">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 flex-grow min-w-0">
+                            <i class="fa-solid fa-dragon text-red-400"></i>
+                            <span class="font-bold text-sm text-white">World Boss</span>
+                            <div class="flex gap-1.5 ml-auto mr-2" id="yield_wboss"></div>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" checked onchange="toggleSource('wboss')" id="tog_wboss"><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+
+                <!-- Chess Shop -->
+                <div class="source-card" id="card_chess">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 flex-grow min-w-0">
+                            <i class="fa-solid fa-chess text-teal-400"></i>
+                            <span class="font-bold text-sm text-white">Chess Shop</span>
+                            <div class="flex gap-1.5 ml-auto mr-2" id="yield_chess"></div>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" checked onchange="toggleSource('chess')" id="tog_chess"><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Alliance Events -->
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="section-label mb-0">Alliance Events</div>
+                    <div class="flex gap-1.5 bg-gray-900 p-1 rounded-lg border border-gray-700" id="eventToggleGroup">
+                        <button class="event-toggle-btn" data-event="clash" onclick="setActiveEvent('clash')">Clash</button>
+                        <button class="event-toggle-btn active" data-event="conquest" onclick="setActiveEvent('conquest')">Conquest</button>
+                    </div>
+                    <span class="text-[0.6rem] text-gray-600 font-bold hidden lg:inline" id="eventHint">Weekly: selected only</span>
+                </div>
+
+                <!-- Alliance Clash -->
+                <div class="source-card event-inactive" id="card_clash">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 flex-grow min-w-0">
+                            <i class="fa-solid fa-burst text-orange-400"></i>
+                            <span class="font-bold text-sm text-white">Alliance Clash</span>
+                            <div class="flex gap-1.5 ml-auto mr-2" id="yield_clash"></div>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" checked onchange="toggleSource('clash')" id="tog_clash"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="card-options flex flex-col gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-gray-400 font-bold w-10 shrink-0">Rank</span>
+                            <div class="btn-group">
+                                <button class="btn-opt active" onclick="setOpt('clash_rank','1st',this)">1st</button>
+                                <button class="btn-opt" onclick="setOpt('clash_rank','2-3',this)">2–3</button>
+                                <button class="btn-opt" onclick="setOpt('clash_rank','4-10',this)">4–10</button>
+                                <button class="btn-opt" onclick="setOpt('clash_rank','11-100',this)">11–100</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-gray-400 font-bold w-10 shrink-0">Wins</span>
+                            <input type="range" min="0" max="7" value="7" class="calc-slider flex-grow" id="clash_wins" oninput="updateSliderLabel('clash');recalc()">
+                            <span class="text-sm font-black text-purple-400 w-5 text-right" id="clash_wins_label">7</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alliance Conquest -->
+                <div class="source-card" id="card_conquest">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 flex-grow min-w-0">
+                            <i class="fa-solid fa-flag text-sky-400"></i>
+                            <span class="font-bold text-sm text-white">Alliance Conquest</span>
+                            <div class="flex gap-1.5 ml-auto mr-2" id="yield_conquest"></div>
+                        </div>
+                        <label class="toggle-switch"><input type="checkbox" checked onchange="toggleSource('conquest')" id="tog_conquest"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="card-options flex flex-col gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-gray-400 font-bold w-10 shrink-0">Rank</span>
+                            <div class="btn-group">
+                                <button class="btn-opt active" onclick="setOpt('conq_rank','1st',this)">1st</button>
+                                <button class="btn-opt" onclick="setOpt('conq_rank','2nd',this)">2nd</button>
+                                <button class="btn-opt" onclick="setOpt('conq_rank','3rd',this)">3rd</button>
+                                <button class="btn-opt" onclick="setOpt('conq_rank','4-10',this)">4–10</button>
+                                <button class="btn-opt" onclick="setOpt('conq_rank','11-20',this)">11–20</button>
+                                <button class="btn-opt" onclick="setOpt('conq_rank','21+',this)">21+</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-gray-400 font-bold w-10 shrink-0">Quest</span>
+                            <div class="tri-group">
+                                <button class="tri-btn" onclick="setOpt('conq_quest','max',this)">Max</button>
+                                <button class="tri-btn active" onclick="setOpt('conq_quest','expected',this)">Expected</button>
+                                <button class="tri-btn" onclick="setOpt('conq_quest','off',this)">Off</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-gray-400 font-bold w-10 shrink-0">Indiv</span>
+                            <div class="btn-group">
+                                <button class="btn-opt active" onclick="setOpt('conq_indiv','top30',this)">Top 30</button>
+                                <button class="btn-opt" onclick="setOpt('conq_indiv','31-100',this)">31–100</button>
+                                <button class="btn-opt" onclick="setOpt('conq_indiv','none',this)">None</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-gray-400 font-bold w-10 shrink-0">Wins</span>
+                            <input type="range" min="0" max="7" value="7" class="calc-slider flex-grow" id="conq_wins" oninput="updateSliderLabel('conq');recalc()">
+                            <span class="text-sm font-black text-green-400 w-5 text-right" id="conq_wins_label">7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOUL SHOP (full width below both columns) -->
+        <div class="section-label">Premium</div>
+        <div class="source-card disabled" id="card_soul">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 flex-grow min-w-0">
+                    <i class="fa-solid fa-ghost text-violet-400"></i>
+                    <span class="font-bold text-sm text-white">Soul Shop</span>
+                    <span class="text-xs text-gray-500 ml-1">550 <i class="fa-solid fa-gem text-blue-400" style="font-size:7px"></i> + 44 souls/day</span>
+                    <div class="flex gap-1.5 ml-auto mr-2" id="yield_soul"></div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" onchange="toggleSource('soul')" id="tog_soul"><span class="toggle-slider"></span></label>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-gray-500 py-2 border-t border-gray-800 mt-auto">
+        MWR Calculator. Built by the Legion Community.
+    </footer>
+
+    <script>
+    (function() {
+        let period = 'weekly';
+        let activeEvent = 'conquest';
+
+        const enabled = {
+            login: true, spin: true, alliance_shop: true,
+            arena: true, wboss: true, chess: true,
+            clash: true, conquest: true, soul: false
+        };
+
+        const opts = {
+            spin_vip: 0, alliance_lvl: 5,
+            clash_rank: '1st', clash_wins: 7,
+            conq_rank: '1st', conq_quest: 'expected', conq_indiv: 'top30', conq_wins: 7
+        };
+
+        const spinData = { 0: 4, 6: 5, 30: 6, 100: 8 };
+        const allianceShopData = { 1: { green: 15, purple: 15 }, 3: { green: 30, purple: 30 }, 5: { green: 45, purple: 45 } };
+        const clashRankGreen = { '1st': 80, '2-3': 60, '4-10': 40, '11-100': 20 };
+        const conqRankGreen = { '1st': 100, '2nd': 90, '3rd': 90, '4-10': 70, '11-20': 60, '21+': 50 };
+        const conqQuestGreen = { max: 120, expected: 100, off: 0 };
+        const conqIndivGreen = { top30: 170, '31-100': 50, none: 0 };
+
+        const yieldBadge = (green, purple, diamonds) => {
+            let html = '';
+            if (green > 0) html += `<span class="yield-badge"><span class="dot" style="background:#22c55e"></span><span class="text-green-400">${Math.round(green).toLocaleString()}</span></span>`;
+            if (purple > 0) html += `<span class="yield-badge"><span class="dot" style="background:#a855f7"></span><span class="text-purple-400">${Math.round(purple).toLocaleString()}</span></span>`;
+            if (diamonds > 0) html += `<span class="yield-badge"><span class="dot" style="background:#60a5fa"></span><span class="text-blue-400">${Math.round(diamonds).toLocaleString()}</span></span>`;
+            return html;
+        };
+
+        window.setPeriod = (p) => {
+            period = p;
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.toggle('active', b.dataset.period === p));
+            updateEventCards();
+            recalc();
+        };
+
+        window.setActiveEvent = (ev) => {
+            activeEvent = ev;
+            document.querySelectorAll('#eventToggleGroup .event-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.event === ev));
+            updateEventCards();
+            recalc();
+        };
+
+        const updateEventCards = () => {
+            const clashCard = document.getElementById('card_clash');
+            const conqCard = document.getElementById('card_conquest');
+            const hint = document.getElementById('eventHint');
+
+            if (period === 'monthly') {
+                // Monthly: both active
+                clashCard.classList.remove('event-inactive');
+                conqCard.classList.remove('event-inactive');
+                hint.textContent = 'Monthly: 2 weeks each';
+            } else {
+                // Weekly: selected is active, other is grayed out
+                clashCard.classList.toggle('event-inactive', activeEvent !== 'clash');
+                conqCard.classList.toggle('event-inactive', activeEvent !== 'conquest');
+                hint.textContent = 'Weekly: selected only';
+            }
+        };
+
+        window.toggleSource = (key) => {
+            const cb = document.getElementById('tog_' + key);
+            enabled[key] = cb.checked;
+            document.getElementById('card_' + key).classList.toggle('disabled', !cb.checked);
+            recalc();
+        };
+
+        window.setOpt = (key, val, btn) => {
+            opts[key] = val;
+            btn.parentElement.querySelectorAll('.btn-opt, .tri-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            recalc();
+        };
+
+        window.updateSliderLabel = (prefix) => {
+            const slider = document.getElementById(prefix + '_wins');
+            const label = document.getElementById(prefix + '_wins_label');
+            opts[prefix + '_wins'] = parseInt(slider.value);
+            label.textContent = slider.value;
+        };
+
+        const calcSource = (key) => {
+            const mul = period === 'monthly' ? 30 / 7 : 1;
+            const dailyMul = period === 'monthly' ? 30 : 7;
+            let g = 0, p = 0, d = 0;
+
+            switch(key) {
+                case 'login': g = 10 * dailyMul; break;
+                case 'spin': g = Math.round((spinData[opts.spin_vip] || 4) * 2.7) * dailyMul; break;
+                case 'alliance_shop': {
+                    const shop = allianceShopData[opts.alliance_lvl] || allianceShopData[1];
+                    g = shop.green * mul; p = shop.purple * mul; d = 2520 * mul;
+                    if (period === 'monthly') { p += 10; d += 300; }
+                    break;
+                }
+                case 'arena': g = 10 * mul; break;
+                case 'wboss': g = 70 * mul; break;
+                case 'chess': g = 30 * mul; break;
+                case 'clash': {
+                    const weeks = period === 'monthly' ? 2 : (activeEvent === 'clash' ? 1 : 0);
+                    if (weeks > 0) {
+                        g = (clashRankGreen[opts.clash_rank] || 20) * weeks;
+                        const w = opts.clash_wins;
+                        p = ((w * 10) + ((7 - w) * 3)) * weeks;
+                    }
+                    break;
+                }
+                case 'conquest': {
+                    const weeks = period === 'monthly' ? 2 : (activeEvent === 'conquest' ? 1 : 0);
+                    if (weeks > 0) {
+                        const w = opts.conq_wins;
+                        const winG = (w * 10) + ((7 - w) * 5);
+                        g = ((conqRankGreen[opts.conq_rank] || 50) + (conqQuestGreen[opts.conq_quest] || 0) + (conqIndivGreen[opts.conq_indiv] || 0) + winG) * weeks;
+                    }
+                    break;
+                }
+                case 'soul': g = 20 * dailyMul; p = 30 * dailyMul; d = 550 * dailyMul; break;
+            }
+            return { green: g, purple: p, diamonds: d };
+        };
+
+        window.recalc = () => {
+            let totalG = 0, totalP = 0, totalD = 0;
+            const sources = ['login','spin','alliance_shop','arena','wboss','chess','clash','conquest','soul'];
+
+            sources.forEach(key => {
+                const v = calcSource(key);
+                const yieldEl = document.getElementById('yield_' + key);
+                if (enabled[key]) { totalG += v.green; totalP += v.purple; totalD += v.diamonds; }
+                if (yieldEl) {
+                    const isInactive = (key === 'clash' && period === 'weekly' && activeEvent !== 'clash')
+                                    || (key === 'conquest' && period === 'weekly' && activeEvent !== 'conquest');
+                    yieldEl.innerHTML = isInactive ? yieldBadge(0, 0, 0) : yieldBadge(v.green, v.purple, v.diamonds);
+                }
+            });
+
+            totalG = Math.round(totalG); totalP = Math.round(totalP); totalD = Math.round(totalD);
+            const totalPulls = totalG + totalP + Math.floor(totalP / 100) * 30;
+            const diamondValue = (totalG * 42) + (totalP * 60) - totalD;
+
+            document.getElementById('out_green').textContent = totalG.toLocaleString();
+            document.getElementById('out_purple').textContent = totalP.toLocaleString();
+            document.getElementById('out_pulls').textContent = totalPulls.toLocaleString();
+            document.getElementById('out_diamonds').textContent = totalD.toLocaleString();
+            document.getElementById('out_value').textContent = diamondValue.toLocaleString();
+        };
+
+        window.AppMenu.build(false, 'indigo');
+        updateEventCards();
+        recalc();
+    })();
+    </script>
+</body>
+</html>
