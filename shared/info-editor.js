@@ -1,8 +1,11 @@
 /**
  * MWR Info Editor Module
- * Handles the full-page editing workspace, Quill editor with custom embed blots
- * for Formations and Heroes, Image Picker integration, and Save/Delete logic.
- * 
+ * Handles the full-page editing workspace, Quill editor with a generic EmbedBlock blot
+ * for self-contained Formations and Hero Lists, Image Picker integration, and Save/Delete.
+ *
+ * KEY DESIGN: Embeds are rendered as COMPLETE, self-contained HTML at insert time.
+ * No viewer-side hydration is needed — the saved HTML already contains all <img> tags.
+ *
  * Depends on: window.MWR_GLOBALS, window.ImagePicker, Quill, QuillBlotFormatter
  * Exposes: window.InfoEditor
  */
@@ -11,7 +14,6 @@ window.InfoEditor = (() => {
 
     let quillEditor = null;
     let heroData = [];
-    let selectedRecHeroes = [];
     let authToken = '';
     let onSaveCallback = null;
     let onDeleteCallback = null;
@@ -44,84 +46,81 @@ window.InfoEditor = (() => {
     };
 
     // ========================================================
-    //  CUSTOM QUILL BLOTS (BlockEmbed)
-    //  These render as visual blocks in both editor and viewer.
+    //  GENERIC EMBED BLOT
+    //  A single blot that wraps any pre-rendered HTML block.
+    //  Quill treats it as an atomic, non-editable unit.
+    //  The innerHTML is preserved exactly as-is on save/load.
     // ========================================================
     const registerBlots = () => {
         const BlockEmbed = Quill.import('blots/block/embed');
 
-        // --- Formation Blot ---
-        class FormationBlot extends BlockEmbed {
+        class EmbedBlock extends BlockEmbed {
             static create(value) {
                 const node = super.create();
-                node.setAttribute('data-formation-code', value.code || '');
                 node.setAttribute('contenteditable', 'false');
-                node.innerHTML = `
-                    <div class="shortcode-embed-header">
-                        <i class="fa-solid fa-chess-board"></i> Formation
-                        <span class="shortcode-embed-hint">Delete to remove</span>
-                    </div>
-                    <div class="formation-grid shortcode-formation-grid" id="editor-fg-${value.code}"></div>
-                    <p class="shortcode-embed-loading"><i class="fas fa-circle-notch fa-spin"></i> Loading...</p>
-                `;
-                // Async load the formation grid
-                setTimeout(() => loadFormationIntoElement(value.code, node), 100);
+                // value is the complete inner HTML string
+                if (typeof value === 'string') {
+                    node.innerHTML = value;
+                }
                 return node;
             }
             static value(node) {
-                return { code: node.getAttribute('data-formation-code') || '' };
+                // Return the full innerHTML so it's preserved on save/load
+                return node.innerHTML;
             }
         }
-        FormationBlot.blotName = 'formationEmbed';
-        FormationBlot.tagName = 'DIV';
-        FormationBlot.className = 'shortcode-formation-embed';
-        Quill.register(FormationBlot);
-
-        // --- Heroes Blot ---
-        class HeroesBlot extends BlockEmbed {
-            static create(value) {
-                const node = super.create();
-                const ids = Array.isArray(value.ids) ? value.ids : [];
-                node.setAttribute('data-hero-ids', ids.join(','));
-                node.setAttribute('contenteditable', 'false');
-                node.innerHTML = `
-                    <div class="shortcode-embed-header">
-                        <i class="fa-solid fa-users"></i> ${ids.length} heroes
-                        <span class="shortcode-embed-hint">Delete to remove</span>
-                    </div>
-                    <div class="hero-rec-row shortcode-heroes-row"></div>
-                `;
-                // Render heroes immediately from cached data
-                setTimeout(() => renderHeroesIntoElement(ids, node), 50);
-                return node;
-            }
-            static value(node) {
-                const idsStr = node.getAttribute('data-hero-ids') || '';
-                return { ids: idsStr.split(',').filter(Boolean) };
-            }
-        }
-        HeroesBlot.blotName = 'heroesEmbed';
-        HeroesBlot.tagName = 'DIV';
-        HeroesBlot.className = 'shortcode-heroes-embed';
-        Quill.register(HeroesBlot);
+        EmbedBlock.blotName = 'embedBlock';
+        EmbedBlock.tagName = 'DIV';
+        EmbedBlock.className = 'mwr-embed-block';
+        Quill.register(EmbedBlock);
     };
 
-    // --- Render formation into a blot element ---
-    const loadFormationIntoElement = async (code, containerEl) => {
-        const gridEl = containerEl.querySelector('.shortcode-formation-grid');
-        const loadingEl = containerEl.querySelector('.shortcode-embed-loading');
-        if (!gridEl || !code || code.length !== 5) {
-            if (loadingEl) loadingEl.innerHTML = '<span class="text-red-400 text-xs">Invalid code</span>';
-            return;
-        }
+    // ========================================================
+    //  HTML BUILDERS — Self-contained, no external dependencies
+    // ========================================================
+
+    /**
+     * Build a fully self-contained hero list HTML string.
+     * All image URLs are baked in. No hydration needed.
+     */
+    const buildHeroListHtml = (heroIds) => {
+        if (!heroIds || heroIds.length === 0) return null;
+
+        const circles = heroIds.map(hid => {
+            const h = heroData.find(hero => hero.id === hid);
+            const name = h ? h.name : '?';
+            const img = h ? h.image : 'https://placehold.co/56/4E4F5C/FFFFFF?text=?';
+            const tc = h ? getHeroTypeClass(h.heroType) : '';
+            return `<div style="display:flex;flex-direction:column;align-items:center">` +
+                `<div class="hero-rec-circle ${tc}" title="${name}">` +
+                `<img src="${img}" alt="${name}" style="width:100%;height:100%;object-fit:cover;margin:0;border-radius:0">` +
+                `</div>` +
+                `<span class="hero-rec-label">${name}</span>` +
+                `</div>`;
+        }).join('');
+
+        return `<div class="mwr-hero-list-embed" style="margin:1rem auto;padding:0.5rem 0.75rem;border:1px solid #374151;border-radius:1rem;background:#111827;display:flex;flex-wrap:wrap;justify-content:center;width:fit-content;max-width:100%">` +
+            `<div class="hero-rec-row" style="display:flex;flex-wrap:wrap;gap:0.75rem;justify-content:center;padding:0.25rem 0">${circles}</div>` +
+            `</div>`;
+    };
+
+    /**
+     * Build a fully self-contained formation grid HTML string.
+     * Fetches formation data from API, resolves hero images, returns complete HTML.
+     */
+    const buildFormationHtml = async (code) => {
         try {
-            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'load_formation', code: code }), redirect: 'follow' });
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'load_formation', code: code }),
+                redirect: 'follow'
+            });
             const data = await res.json();
             if (data.error) throw new Error(data.error);
             const grid = data.grid;
-            if (loadingEl) loadingEl.style.display = 'none';
-            if (!grid || !Array.isArray(grid)) return;
+            if (!grid || !Array.isArray(grid)) throw new Error('Invalid grid data');
 
+            // Build placement map
             const placements = {};
             grid.forEach(formation => {
                 if (Array.isArray(formation)) {
@@ -131,61 +130,41 @@ window.InfoEditor = (() => {
                 }
             });
 
-            let html = '';
+            // Render 5×7 grid cells with actual image URLs baked in
+            let cells = '';
             for (let r = 0; r < 7; r++) {
                 for (let c = 0; c < 5; c++) {
                     const hid = placements[r + '-' + c];
                     if (hid) {
                         const h = heroData.find(hero => hero.heroId === hid || hero.id === hid);
-                        if (h) {
-                            const tc = getHeroTypeClass(h.heroType);
-                            html += `<div class="formation-cell"><div class="cell-hero-border ${tc}"><img src="${h.image}" title="${h.name}" onerror="this.src='https://placehold.co/40/4E4F5C/FFFFFF?text=?'"></div></div>`;
-                        } else {
-                            html += `<div class="formation-cell"><div class="cell-hero-border"><img src="https://placehold.co/40/4E4F5C/FFFFFF?text=?" title="Unknown"></div></div>`;
-                        }
+                        const name = h ? h.name : 'Unknown';
+                        const img = h ? h.image : 'https://placehold.co/40/4E4F5C/FFFFFF?text=?';
+                        const tc = h ? getHeroTypeClass(h.heroType) : '';
+                        cells += `<div class="formation-cell"><div class="cell-hero-border ${tc}"><img src="${img}" title="${name}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;margin:0"></div></div>`;
                     } else {
-                        html += `<div class="formation-cell"></div>`;
+                        cells += `<div class="formation-cell"></div>`;
                     }
                 }
             }
-            gridEl.innerHTML = html;
-        } catch(e) {
-            if (loadingEl) loadingEl.innerHTML = `<span class="text-red-400 text-xs">Failed to load formation</span>`;
-        }
-    };
 
-    // --- Render heroes into a blot element ---
-    const renderHeroesIntoElement = (ids, containerEl) => {
-        const row = containerEl.querySelector('.shortcode-heroes-row');
-        if (!row || !ids.length) return;
-        if (heroData.length === 0) {
-            row.innerHTML = '<span class="text-xs text-gray-500 italic">Hero data loading...</span>';
-            return;
+            return `<div class="mwr-formation-embed" style="margin:1.5rem auto;max-width:300px">` +
+                `<div class="formation-grid">${cells}</div>` +
+                `</div>`;
+        } catch(e) {
+            return `<div style="text-align:center;color:#ef4444;font-size:0.75rem;padding:1rem;border:1px dashed #374151;border-radius:0.5rem;margin:1rem auto;max-width:300px">` +
+                `<i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i>Formation "${code}" failed to load: ${e.message}</div>`;
         }
-        row.innerHTML = ids.map(hid => {
-            const h = heroData.find(hero => hero.id === hid);
-            if (!h) return '';
-            const tc = getHeroTypeClass(h.heroType);
-            return `<div class="flex flex-col items-center">
-                <div class="hero-rec-circle ${tc}" title="${h.name}">
-                    <img src="${h.image}" onerror="this.src='https://placehold.co/56/4E4F5C/FFFFFF?text=?'">
-                    ${h.hasAwaken === 'Yes' ? '<div style="position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#111827;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid #4b5563;z-index:2"><i class="fa-solid fa-fire-flame-curved" style="font-size:7px;color:#ef4444"></i></div>' : ''}
-                </div>
-                <span class="hero-rec-label">${h.name}</span>
-            </div>`;
-        }).join('');
     };
 
     // --- QUILL EDITOR SETUP ---
     const setupQuill = () => {
         if (quillEditor) return quillEditor;
 
-        // Register custom blots BEFORE creating the editor
         registerBlots();
 
         try {
-            const BlotFormatter = window.QuillBlotFormatter 
-                ? window.QuillBlotFormatter.default 
+            const BlotFormatter = window.QuillBlotFormatter
+                ? window.QuillBlotFormatter.default
                 : (window.BlotFormatter || null);
 
             const modules = {
@@ -230,17 +209,16 @@ window.InfoEditor = (() => {
                 const heroBtn = toolbar.querySelector('.ql-insertHeroes');
                 if (heroBtn) {
                     heroBtn.innerHTML = '<i class="fa-solid fa-users" style="font-size:12px"></i>';
-                    heroBtn.title = 'Insert Hero Recommendation';
+                    heroBtn.title = 'Insert Hero List';
                 }
                 const imgBtn = toolbar.querySelector('.ql-image');
                 if (imgBtn) imgBtn.title = 'Insert Image from Library';
             }
 
-            // Live character counter
             quillEditor.on('text-change', updateCharCounter);
 
-        } catch(e) { 
-            console.warn("InfoEditor: Quill setup failed.", e); 
+        } catch(e) {
+            console.warn("InfoEditor: Quill setup failed.", e);
         }
 
         return quillEditor;
@@ -256,19 +234,37 @@ window.InfoEditor = (() => {
         }, 'Guide Image');
     };
 
-    const insertFormationHandler = () => {
+    const insertFormationHandler = async () => {
         const code = prompt("Enter the 5-letter Formation Code:");
         if (!code || code.trim().length !== 5) return;
+        const cleanCode = code.trim().toUpperCase();
+
+        // Show loading feedback
+        const btn = document.querySelector('.ql-insertFormation');
+        const origHtml = btn ? btn.innerHTML : '';
+        if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:12px"></i>';
+
+        // Fetch and render the formation immediately
+        const html = await buildFormationHtml(cleanCode);
+
+        if (btn) btn.innerHTML = origHtml;
+
         const range = quillEditor.getSelection(true);
-        quillEditor.insertEmbed(range.index, 'formationEmbed', { code: code.trim().toUpperCase() }, Quill.sources.USER);
+        quillEditor.insertEmbed(range.index, 'embedBlock', html, Quill.sources.USER);
         quillEditor.setSelection(range.index + 1, Quill.sources.SILENT);
     };
 
     const insertHeroesHandler = () => {
+        if (heroData.length === 0) {
+            alert("Hero data is still loading. Please try again in a moment.");
+            return;
+        }
         openHeroPickerOverlay((selectedIds) => {
             if (!selectedIds || selectedIds.length === 0) return;
+            const html = buildHeroListHtml(selectedIds);
+            if (!html) return;
             const range = quillEditor.getSelection(true);
-            quillEditor.insertEmbed(range.index, 'heroesEmbed', { ids: selectedIds }, Quill.sources.USER);
+            quillEditor.insertEmbed(range.index, 'embedBlock', html, Quill.sources.USER);
             quillEditor.setSelection(range.index + 1, Quill.sources.SILENT);
         });
     };
@@ -289,7 +285,7 @@ window.InfoEditor = (() => {
             counter.className = 'text-xs font-bold text-red-400 animate-pulse';
             if (len > CHAR_LIMIT && saveBtn) {
                 saveBtn.disabled = true;
-                saveBtn.title = 'Content exceeds 50,000 character limit. Remove pasted images.';
+                saveBtn.title = 'Content exceeds 50,000 character limit.';
             }
         } else {
             counter.className = 'text-xs font-bold text-gray-500';
@@ -298,6 +294,8 @@ window.InfoEditor = (() => {
     };
 
     // --- HERO PICKER OVERLAY ---
+    let selectedRecHeroes = [];
+
     const openHeroPickerOverlay = (callback) => {
         selectedRecHeroes = [];
         const existing = document.getElementById('heroShortcodeOverlay');
@@ -397,9 +395,7 @@ window.InfoEditor = (() => {
             document.getElementById('editorPinned').checked = article.isPinned === true;
             quillEditor.root.innerHTML = article.content || '';
             document.getElementById('editorDeleteBtn').classList.remove('hidden');
-
-            // Re-render any blots that were loaded from saved HTML
-            setTimeout(() => hydrateExistingBlots(), 200);
+            // No hydration needed — saved HTML is already self-contained
         } else {
             document.getElementById('editorTitle').innerText = 'Create New Guide';
             document.getElementById('editorArticleId').value = '';
@@ -412,22 +408,6 @@ window.InfoEditor = (() => {
 
         updateCharCounter();
         window.scrollTo(0, 0);
-    };
-
-    // When loading saved content, re-render the formations and heroes inside existing blots
-    const hydrateExistingBlots = () => {
-        const formBlots = document.querySelectorAll('#editorQuillContainer .shortcode-formation-embed');
-        formBlots.forEach(el => {
-            const code = el.getAttribute('data-formation-code');
-            if (code) loadFormationIntoElement(code, el);
-        });
-
-        const heroBlots = document.querySelectorAll('#editorQuillContainer .shortcode-heroes-embed');
-        heroBlots.forEach(el => {
-            const idsStr = el.getAttribute('data-hero-ids') || '';
-            const ids = idsStr.split(',').filter(Boolean);
-            if (ids.length) renderHeroesIntoElement(ids, el);
-        });
     };
 
     const closeEditor = () => {
@@ -448,16 +428,14 @@ window.InfoEditor = (() => {
             image: document.getElementById('editorBannerUrl').value,
             isPinned: document.getElementById('editorPinned').checked,
             content: quillEditor.root.innerHTML,
-            lastUpdate: new Date().toISOString(),
-            recommendedHeroes: [],
-            formationCode: ''
+            lastUpdate: new Date().toISOString()
         };
 
         try {
-            const res = await fetch(API_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ action: "save_info", data: formData, token: authToken }), 
-                redirect: "follow" 
+            const res = await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "save_info", data: formData, token: authToken }),
+                redirect: "follow"
             });
             const data = await res.json();
             if (data.error) throw new Error(data.error);
@@ -466,8 +444,8 @@ window.InfoEditor = (() => {
             }
             if (onSaveCallback) onSaveCallback(formData);
             closeEditor();
-        } catch(e) { 
-            alert("Failed to save! " + e.message); 
+        } catch(e) {
+            alert("Failed to save! " + e.message);
         } finally {
             btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Post`; btn.disabled = false;
         }
@@ -479,17 +457,17 @@ window.InfoEditor = (() => {
         if (!id || !confirm("Are you sure you want to permanently delete this guide?")) return;
 
         try {
-            await fetch(API_URL, { 
-                method: "POST", 
-                body: JSON.stringify({ action: "delete_info", id: id, token: authToken }), 
-                redirect: "follow" 
+            await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "delete_info", id: id, token: authToken }),
+                redirect: "follow"
             });
             if (onDeleteCallback) onDeleteCallback(id);
             closeEditor();
         } catch(e) { alert("Failed to delete."); }
     };
 
-    return { 
+    return {
         init, openEditor, closeEditor, saveArticle, deleteArticle,
         renderOverlayPool, toggleOverlayHero,
         getHeroData: () => heroData,
