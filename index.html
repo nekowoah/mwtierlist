@@ -539,14 +539,25 @@
 
                     const rowDiv = document.createElement('div');
                     rowDiv.className = 'flex w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700 shadow-md min-h-[110px] transition-colors duration-300';
-
+                    
                     const baseRankLower = baseRank.replace(/[+-]/g, '').toLowerCase(); 
                     const rankColorClass = baseRank === 'Unranked' ? 'bg-tier-unranked' : `bg-tier-${baseRankLower}`;
-                    const textClass = baseRank === 'Unranked' ? 'text-sm sm:text-base font-bold' : 'text-2xl sm:text-3xl font-black';
                     
+                    const hasPlus = heroesInRow.some(h => parseRank(h[currentMode]).sub === '+');
+                    const hasMinus = heroesInRow.some(h => parseRank(h[currentMode]).sub === '-');
+
                     const labelDiv = document.createElement('div');
-                    labelDiv.className = `w-24 sm:w-28 flex-shrink-0 flex items-center justify-center text-center border-r border-gray-900/20 ${rankColorClass} text-shadow ${textClass} break-words px-1`;
-                    labelDiv.innerText = baseRank;
+                    if (baseRank === 'Unranked') {
+                        labelDiv.className = `w-12 sm:w-16 flex-shrink-0 flex items-center justify-center border-r border-gray-900/20 ${rankColorClass} text-shadow text-xs sm:text-sm font-bold tracking-widest relative z-10`;
+                        labelDiv.innerHTML = `<span class="[writing-mode:vertical-rl] rotate-180">${baseRank}</span>`;
+                    } else {
+                        labelDiv.className = `w-12 sm:w-16 flex-shrink-0 relative border-r border-gray-900/20 ${rankColorClass} text-shadow px-1 pointer-events-none z-10`;
+                        labelDiv.innerHTML = `
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-xl sm:text-2xl font-black leading-none drop-shadow-lg">${baseRank}</span>
+                            </div>
+                        `;
+                    }
 
                     const contentDiv = document.createElement('div');
                     contentDiv.className = 'flex-1 flex flex-col bg-gray-900';
@@ -569,8 +580,24 @@
                                 contentDiv.appendChild(divider);
                             }
 
+                            const groupWrapper = document.createElement('div');
+                            groupWrapper.className = 'relative flex w-full';
+
+                            // Absolute Overlay perfectly centered vertically matching this subgroup's exact height
+                            if (subKey === '+') {
+                                const plusOverlay = document.createElement('div');
+                                plusOverlay.className = `absolute -left-[3rem] sm:-left-[4rem] top-0 bottom-0 w-12 sm:w-16 flex items-center justify-center pointer-events-none z-20`;
+                                plusOverlay.innerHTML = `<i class="fa-solid fa-plus text-green-400 drop-shadow-md text-base sm:text-lg [-webkit-text-stroke:1px_currentColor] sm:[-webkit-text-stroke:1.5px_currentColor]"></i>`;
+                                groupWrapper.appendChild(plusOverlay);
+                            } else if (subKey === '-') {
+                                const minusOverlay = document.createElement('div');
+                                minusOverlay.className = `absolute -left-[3rem] sm:-left-[4rem] top-0 bottom-0 w-12 sm:w-16 flex items-center justify-center pointer-events-none z-20`;
+                                minusOverlay.innerHTML = `<i class="fa-solid fa-minus text-red-400 drop-shadow-md text-base sm:text-lg [-webkit-text-stroke:1px_currentColor] sm:[-webkit-text-stroke:1.5px_currentColor]"></i>`;
+                                groupWrapper.appendChild(minusOverlay);
+                            }
+
                             const groupContainer = document.createElement('div');
-                            groupContainer.className = 'flex flex-wrap gap-4 p-3';
+                            groupContainer.className = 'flex flex-wrap gap-4 p-3 flex-1';
 
                             subGroups[subKey].forEach(h => {
                                 const heroEl = document.createElement('div');
@@ -580,7 +607,6 @@
                                 if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') topBorderClass = 'border-t-basic';
 
                                 heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded ${topBorderClass} group transition-all`;
-                                heroEl.onclick = () => { isAdmin ? TierlistEditor.open(h, app) : openModal(h); };
                                 
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
                                 const classIconHtml = `<div class="absolute -top-1.5 -left-1.5 z-20 w-6 h-6 sm:w-7 sm:h-7 bg-[#111827] rounded-full p-1 border border-[#4b5563]/50 shadow-md flex justify-center items-center"><img src="${classIconUrl}" class="w-full h-full object-contain opacity-90 group-hover:opacity-100"></div>`;
@@ -590,16 +616,8 @@
                                     dotHtml = '<div class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white/20 z-20 shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse"></div>';
                                 }
 
-                                const { sub } = parseRank(h[currentMode]);
-                                let subColor = 'text-white';
-                                if (sub === '+') subColor = 'text-green-400';
-                                if (sub === '-') subColor = 'text-red-400';
-                                
-                                const subRankHtml = sub ? `<div class="absolute bottom-4 right-1 z-20 text-xs font-black ${subColor} bg-black/70 rounded-full w-5 h-5 flex items-center justify-center shadow-md">${sub}</div>` : '';
-
                                 const awakenHtml = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-1 drop-shadow-md"></i>' : '';
 
-                                // FIX: Safely check if TierlistEditor exists before trying to open it to prevent ReferenceErrors
                                 heroEl.onclick = () => {
                                     if (typeof isAdmin !== 'undefined' && isAdmin && typeof window.TierlistEditor !== 'undefined') {
                                         window.TierlistEditor.open(h, app);
@@ -608,9 +626,8 @@
                                     }
                                 };
 
-                                // FIX: Restored the missing closing backtick and the name label that got chopped off!
                                 heroEl.innerHTML = `
-                                    ${classIconHtml}${dotHtml}${subRankHtml}
+                                    ${classIconHtml}${dotHtml}
                                     <img src="${h.image}" onerror="this.src='https://placehold.co/100/4E4F5C/FFFFFF?text=?'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/90 to-transparent pt-3 pb-0.5 px-1 flex flex-col justify-end">
                                         <div class="text-[9px] sm:text-[10px] text-center text-gray-100 leading-none font-bold break-words drop-shadow-md pb-0.5">${h.name}${awakenHtml}</div>
@@ -618,10 +635,12 @@
                                 `;
                                 groupContainer.appendChild(heroEl);
                             });
-                            contentDiv.appendChild(groupContainer);
+                            groupWrapper.appendChild(groupContainer);
+                            contentDiv.appendChild(groupWrapper);
                             hasPrevContent = true;
                         }
                     });
+
                     rowDiv.appendChild(labelDiv);
                     rowDiv.appendChild(contentDiv);
                     container.appendChild(rowDiv);
