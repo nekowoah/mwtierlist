@@ -8,8 +8,9 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://www.gstatic.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com https://www.google-analytics.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
     <title>Legion's Mini Warriors Reborn Archive</title>
+    <link rel="canonical" href="https://nekowoah.github.io/mwtierlist/">
     <meta name="title" content="Legion's Mini Warriors Reborn Archive">
-    <meta name="description" content="Legion Community's Mini Warriors Reborn (MWR) Tierlist and Info.">
+    <meta name="description" content="The definitive Legion Community archive for Mini Warriors Reborn (MWR). Features a comprehensive tierlist, formation builder, and sigil calculator.">
     <meta name="keywords" content="MWR, Mini Warriors Reborn, Mini Warriors, Mini Warriors Reborn tierlist, Mini Warriors tierlist, information, mini warriors info, Legion Community Hub">
     <meta name="robots" content="index, follow">
     <meta name="language" content="English">
@@ -587,12 +588,12 @@
                             if (subKey === '+') {
                                 const plusOverlay = document.createElement('div');
                                 plusOverlay.className = `absolute -left-[3rem] sm:-left-[4rem] top-0 bottom-0 w-12 sm:w-16 flex items-center justify-center pointer-events-none z-20`;
-                                plusOverlay.innerHTML = `<i class="fa-solid fa-plus text-green-400 drop-shadow-md text-base sm:text-lg [-webkit-text-stroke:1px_currentColor] sm:[-webkit-text-stroke:1.5px_currentColor]"></i>`;
+                                plusOverlay.innerHTML = `<i class="fa-solid fa-plus text-green-400 drop-shadow-[0_0_3px_rgba(0,0,0,1)] text-base sm:text-lg [-webkit-text-stroke:1px_currentColor] sm:[-webkit-text-stroke:1.5px_currentColor]"></i>`;
                                 groupWrapper.appendChild(plusOverlay);
                             } else if (subKey === '-') {
                                 const minusOverlay = document.createElement('div');
                                 minusOverlay.className = `absolute -left-[3rem] sm:-left-[4rem] top-0 bottom-0 w-12 sm:w-16 flex items-center justify-center pointer-events-none z-20`;
-                                minusOverlay.innerHTML = `<i class="fa-solid fa-minus text-red-400 drop-shadow-md text-base sm:text-lg [-webkit-text-stroke:1px_currentColor] sm:[-webkit-text-stroke:1.5px_currentColor]"></i>`;
+                                minusOverlay.innerHTML = `<i class="fa-solid fa-minus text-red-400 drop-shadow-[0_0_3px_rgba(0,0,0,1)] text-base sm:text-lg [-webkit-text-stroke:1px_currentColor] sm:[-webkit-text-stroke:1.5px_currentColor]"></i>`;
                                 groupWrapper.appendChild(minusOverlay);
                             }
 
