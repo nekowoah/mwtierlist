@@ -6,12 +6,17 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://nekowoah.github.io/mwtierlist/index.html</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <loc>https://nekowoah.github.io/mwtierlist/info.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://nekowoah.github.io/mwtierlist/info.html</loc>
+    <loc>https://nekowoah.github.io/mwtierlist/formation.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nekowoah.github.io/mwtierlist/calculator.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
