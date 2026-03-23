@@ -18,119 +18,130 @@ window.TierlistEditor = (() => {
                     <h2 class="text-xl font-bold text-indigo-400 flex items-center gap-2"><i class="fa-solid fa-pen-nib"></i> <span id="editModalTitle">Edit Hero</span></h2>
                     <button onclick="TierlistEditor.close()" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
+
+                <!-- Tab Navigation -->
+                <div class="flex border-b border-gray-700 bg-gray-900 shrink-0 px-4">
+                    <button onclick="TierlistEditor.switchTab('general')" id="tabBtnGeneral" class="px-6 py-3 text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-user-gear"></i> General Info
+                    </button>
+                    <button onclick="TierlistEditor.switchTab('skills')" id="tabBtnSkills" class="px-6 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-bolt-lightning"></i> Skills & Combat
+                    </button>
+                </div>
                 
-                <form onsubmit="event.preventDefault(); TierlistEditor.save();" class="flex flex-col flex-grow p-4 sm:p-6 overflow-y-auto hide-scrollbar gap-4">
+                <form id="editHeroForm" onsubmit="event.preventDefault(); TierlistEditor.save();" class="flex flex-col flex-grow p-4 sm:p-6 overflow-y-auto hide-scrollbar gap-4">
                     <input type="hidden" id="editId">
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Name</label>
-                            <input type="text" id="editName" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Image URL</label>
-                            <div class="flex gap-2">
-                                <input type="text" id="editImage" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                                <button type="button" onclick="ImagePicker.open((url) => document.getElementById('editImage').value = url, document.getElementById('editName').value)" class="bg-gray-700 hover:bg-gray-600 text-white px-4 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
+                    <!-- Tab Content: General -->
+                    <div id="tabContentGeneral" class="flex flex-col gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Name</label>
+                                <input type="text" id="editName" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Image URL</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="editImage" required class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
+                                    <button type="button" onclick="ImagePicker.open((url) => document.getElementById('editImage').value = url, document.getElementById('editName').value)" class="bg-gray-700 hover:bg-gray-600 text-white px-4 rounded border border-gray-600 transition-colors shadow-sm" title="Select Image from Gallery"><i class="fa-solid fa-images"></i></button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Class</label>
+                                <select id="editClass" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
                             </div>
                         </div>
-                        <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Class</label>
-                            <select id="editClass" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Hero ID (Internal)</label>
-                            <input type="text" id="editHeroId" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500" placeholder="e.g. hero_name">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Hero ID (Internal)</label>
+                                <input type="text" id="editHeroId" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500" placeholder="e.g. hero_name">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Early Rank</label>
+                                <select id="editEarly" class="rank-select bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Late Rank</label>
+                                <select id="editLate" class="rank-select bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Sacrament Rank</label>
+                                <select id="editSacrament" class="rank-select bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
+                            </div>
                         </div>
-                        <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Early Rank</label>
-                            <select id="editEarly" class="rank-select bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Late Rank</label>
-                            <select id="editLate" class="rank-select bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Sacrament Rank</label>
-                            <select id="editSacrament" class="rank-select bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></select>
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Hero Type</label>
-                            <select id="editType" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                                <option value="Normal">Normal</option>
-                                <option value="Basic Limited">Basic Limited</option>
-                                <option value="Limited">Limited</option>
-                                <option value="VIP">VIP</option>
-                            </select>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Hero Type</label>
+                                <select id="editType" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
+                                    <option value="Normal">Normal</option>
+                                    <option value="Basic Limited">Basic Limited</option>
+                                    <option value="Limited">Limited</option>
+                                    <option value="VIP">VIP</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Has Awaken?</label>
+                                <select id="editAwaken" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
                         </div>
+
                         <div>
-                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Has Awaken?</label>
-                            <select id="editAwaken" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                                <option value="No">No</option>
-                                <option value="Yes">Yes</option>
-                            </select>
+                            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Role Summary</label>
+                            <input type="text" id="editRole" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Role Summary</label>
-                        <input type="text" id="editRole" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500">
-                    </div>
-
-                    <div>
                         <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Analysis & Notes</label>
-                        <textarea id="editNotes" rows="3" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500"></textarea>
+                        <textarea id="editNotes" rows="10" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-indigo-500 mb-2 font-sans leading-relaxed"></textarea>
                     </div>
 
-                    <div class="border-t border-gray-700 pt-4 mt-2">
-                        <button type="button" onclick="document.getElementById('skillsEditContainer').classList.toggle('hidden')" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded font-bold w-full flex justify-between items-center transition-colors">
-                            <span><i class="fa-solid fa-cogs mr-2"></i> Expand/Collapse Skills Data</span>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </button>
-                        
-                        <div id="skillsEditContainer" class="hidden flex flex-col gap-4 mt-4 bg-gray-900/50 p-4 rounded-lg border border-gray-700">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-xs text-blue-400 uppercase font-bold block mb-1">Skill Name</label>
-                                    <input type="text" id="editSkillName" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white">
-                                </div>
-                                <div>
-                                    <label class="text-xs text-blue-400 uppercase font-bold block mb-1">Skill Summary</label>
-                                    <textarea id="editSkillSummary" rows="2" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white"></textarea>
-                                </div>
+                    <!-- Tab Content: Skills -->
+                    <div id="tabContentSkills" class="hidden flex flex-col gap-6">
+                        <section class="flex flex-col gap-4">
+                            <div>
+                                <label class="text-xs text-blue-400 uppercase font-bold block mb-1">Skill Name</label>
+                                <input type="text" id="editSkillName" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-blue-500">
                             </div>
+                            <div>
+                                <div class="flex justify-between items-end mb-1">
+                                    <label class="text-xs text-blue-400 uppercase font-bold block">Skill Summary</label>
+                                    <button type="button" onclick="TierlistEditor.smartFormat('editSkillSummary')" class="text-blue-400 hover:text-blue-300 text-[10px] uppercase font-bold flex items-center gap-1 transition-colors">
+                                        <i class="fa-solid fa-magic-wand-sparkles"></i> Smart Format
+                                    </button>
+                                </div>
+                                <textarea id="editSkillSummary" rows="12" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white outline-none focus:border-blue-500 hide-scrollbar leading-relaxed"></textarea>
+                            </div>
+                        </section>
 
-                            <div class="border-t border-gray-700 pt-4">
-                                <label class="text-xs text-yellow-500 uppercase font-bold block mb-1">Sacrament Name</label>
-                                <input type="text" id="editSacrName" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white mb-2">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <input type="text" id="editS1" placeholder="Sacrament 1" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                    <input type="text" id="editS2" placeholder="Sacrament 2" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                    <input type="text" id="editS3" placeholder="Sacrament 3" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                    <input type="text" id="editS4" placeholder="Sacrament 4" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                    <input type="text" id="editS5" placeholder="Sacrament 5" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                </div>
+                        <section class="border-t border-gray-700 pt-6">
+                            <label class="text-xs text-yellow-500 uppercase font-bold block mb-1">Sacrament Info</label>
+                            <input type="text" id="editSacrName" placeholder="Sacrament Name" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white mb-3 outline-none focus:border-yellow-500">
+                            <div class="flex flex-col gap-2">
+                                <textarea id="editS1" placeholder="Sacrament 1" rows="1" oninput="TierlistEditor.autoResize(this)" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white outline-none focus:border-yellow-500 hide-scrollbar resize-none transition-all"></textarea>
+                                <textarea id="editS2" placeholder="Sacrament 2" rows="1" oninput="TierlistEditor.autoResize(this)" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white outline-none focus:border-yellow-500 hide-scrollbar resize-none transition-all"></textarea>
+                                <textarea id="editS3" placeholder="Sacrament 3" rows="1" oninput="TierlistEditor.autoResize(this)" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white outline-none focus:border-yellow-500 hide-scrollbar resize-none transition-all"></textarea>
+                                <textarea id="editS4" placeholder="Sacrament 4" rows="1" oninput="TierlistEditor.autoResize(this)" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white outline-none focus:border-yellow-500 hide-scrollbar resize-none transition-all"></textarea>
+                                <textarea id="editS5" placeholder="Sacrament 5" rows="1" oninput="TierlistEditor.autoResize(this)" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white outline-none focus:border-yellow-500 hide-scrollbar resize-none transition-all"></textarea>
                             </div>
+                        </section>
 
-                            <div class="border-t border-gray-700 pt-4">
-                                <label class="text-xs text-red-400 uppercase font-bold block mb-1">Awaken Name</label>
-                                <input type="text" id="editAwakenName" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white mb-2">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                    <input type="text" id="editAw1" placeholder="Awaken 1" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                    <input type="text" id="editAw2" placeholder="Awaken 2" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                    <input type="text" id="editAw3" placeholder="Awaken 3" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white">
-                                </div>
+                        <section class="border-t border-gray-700 pt-6">
+                            <label class="text-xs text-red-400 uppercase font-bold block mb-1">Awaken Info</label>
+                            <input type="text" id="editAwakenName" placeholder="Awaken Name" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 w-full text-white mb-3 outline-none focus:border-red-500">
+                            <div class="flex flex-col gap-2">
+                                <textarea id="editAw1" placeholder="Awaken 1" rows="1" oninput="TierlistEditor.autoResize(this)" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white outline-none focus:border-red-500 hide-scrollbar resize-none transition-all"></textarea>
+                                <textarea id="editAw2" placeholder="Awaken 2" rows="1" oninput="TierlistEditor.autoResize(this)" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white outline-none focus:border-red-500 hide-scrollbar resize-none transition-all"></textarea>
+                                <textarea id="editAw3" placeholder="Awaken 3" rows="1" oninput="TierlistEditor.autoResize(this)" class="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-white outline-none focus:border-red-500 hide-scrollbar resize-none transition-all"></textarea>
                             </div>
-                        </div>
+                        </section>
                     </div>
 
-                    <div class="flex justify-between items-center shrink-0 pt-4 border-t border-gray-700 mt-2">
+                    <!-- Action Bar -->
+                    <div class="flex justify-between items-center shrink-0 pt-4 border-t border-gray-700 mt-auto">
                         <button type="button" onclick="TierlistEditor.delete()" id="btnDelete" class="text-red-400 hover:text-red-300 text-sm font-bold transition-colors hidden"><i class="fa-solid fa-trash mr-1"></i>Delete Hero</button>
                         <div class="flex gap-3 ml-auto">
                             <button type="button" onclick="TierlistEditor.close()" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-bold transition-colors">Cancel</button>
@@ -143,9 +154,49 @@ window.TierlistEditor = (() => {
         document.body.insertAdjacentHTML('beforeend', html);
     };
 
+    const switchTab = (tab) => {
+        const btnGeneral = document.getElementById('tabBtnGeneral');
+        const btnSkills = document.getElementById('tabBtnSkills');
+        const contentGeneral = document.getElementById('tabContentGeneral');
+        const contentSkills = document.getElementById('tabContentSkills');
+
+        if (!btnGeneral || !btnSkills || !contentGeneral || !contentSkills) return;
+
+        if (tab === 'general') {
+            // Button Styles
+            btnGeneral.className = "px-6 py-3 text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition-all flex items-center gap-2";
+            btnSkills.className = "px-6 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-all flex items-center gap-2";
+            // Content Visibility
+            contentGeneral.classList.remove('hidden');
+            contentSkills.classList.add('hidden');
+            
+            setTimeout(() => {
+                contentGeneral.querySelectorAll('textarea').forEach(tx => autoResize(tx));
+            }, 10);
+        } else {
+            // Button Styles
+            btnSkills.className = "px-6 py-3 text-sm font-bold border-b-2 border-indigo-500 text-indigo-400 transition-all flex items-center gap-2";
+            btnGeneral.className = "px-6 py-3 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-300 transition-all flex items-center gap-2";
+            // Content Visibility
+            contentSkills.classList.remove('hidden');
+            contentGeneral.classList.add('hidden');
+            
+            setTimeout(() => {
+                contentSkills.querySelectorAll('textarea').forEach(tx => autoResize(tx));
+            }, 10);
+        }
+    };
+
+    const autoResize = (el) => {
+        el.style.height = 'auto';
+        el.style.height = (el.scrollHeight) + 'px';
+    };
+
     const open = (hero, appInstance) => {
         appRef = appInstance;
         injectHTML();
+        
+        switchTab('general'); // Reset to general tab on open
         
         const modal = document.getElementById('editModal');
         const btnDelete = document.getElementById('btnDelete');
@@ -192,6 +243,7 @@ window.TierlistEditor = (() => {
             
             btnDelete.classList.remove('hidden');
         } else {
+            // ... (Add New Hero logic remains the same)
             editingId = null;
             document.getElementById('editModalTitle').innerText = "Add New Hero";
             document.getElementById('editId').value = "";
@@ -216,7 +268,7 @@ window.TierlistEditor = (() => {
             
             btnDelete.classList.add('hidden');
         }
-        
+
         modal.classList.remove('hidden');
     };
 
@@ -317,5 +369,70 @@ window.TierlistEditor = (() => {
         }
     };
 
-    return { open, close, save, delete: deleteHero };
+    const smartFormat = (id) => {
+        const el = document.getElementById(id);
+        if (!el || !el.value.trim()) return;
+
+        let rawText = el.value.trim();
+
+        // 1. "Human-like" Header & Bracket Splitting
+        // Dynamic Header Detection: Look for 1-3 capitalized words followed by a colon (e.g., "Heavenly Thunder:")
+        // EXCLUSION: We skip "Duration:" as requested, so it stays inline.
+        rawText = rawText.replace(/([^\n])\s*((?!Duration:)[A-Z][\w']*(?:\s+[A-Z][\w']*){0,2}:)/g, "$1\n\n$2");
+        
+        // Break before any bracketed text [Like This] ONLY if it follows the end of a sentence (. ! ?)
+        rawText = rawText.replace(/([.!?])\s*(\[[^\]]+\])/g, "$1\n\n$2");
+        
+        // Break before any bracketed text followed by a colon OR hyphen (Always treats as a header)
+        // e.g. [Skill Name]: or [Skill Name] -
+        rawText = rawText.replace(/([^\n])\s*(\[[^\]]+\]\s*[:\-])/g, "$1\n\n$2");
+
+        // 2. Sentence Splitting (Ignoring decimals)
+        const paragraphs = rawText.split(/\n\s*\n/);
+        let finalOutput = [];
+
+        // Phrases that should "stick" to the previous sentence and not start a new chunk/paragraph
+        const stickyPhrases = ["cannot be dispelled", "undispellable", "can be dispelled"];
+
+        paragraphs.forEach(para => {
+            let pText = para.replace(/\s+/g, ' ').trim();
+            if (!pText) return;
+
+            const sentences = pText.match(/.*?(?:[.!?](?!\d)[)\]]*|$)/g).filter(s => s.trim().length > 0);
+            
+            if (sentences.length <= 3) {
+                finalOutput.push(pText);
+            } else {
+                let currentChunk = [];
+                sentences.forEach((s, idx) => {
+                    const sLower = s.toLowerCase();
+                    const isSticky = stickyPhrases.some(phrase => sLower.includes(phrase));
+                    
+                    currentChunk.push(s.trim());
+                    
+                    // Normal break at 3 sentences, UNLESS the next sentence is "sticky" 
+                    // or the current sentence contains a sticky phrase and we're at the limit.
+                    if (currentChunk.length >= 3 && !isSticky) {
+                        // Check if next sentence exists and if IT is sticky
+                        const nextS = sentences[idx + 1];
+                        const nextIsSticky = nextS && stickyPhrases.some(phrase => nextS.toLowerCase().includes(phrase));
+                        
+                        if (!nextIsSticky) {
+                            finalOutput.push(currentChunk.join(' '));
+                            currentChunk = [];
+                        }
+                    }
+                });
+                if (currentChunk.length > 0) finalOutput.push(currentChunk.join(' '));
+            }
+        });
+
+        el.value = finalOutput.join('\n\n').trim();
+        
+        // Success effect
+        el.classList.add('ring-2', 'ring-green-500');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-green-500'), 500);
+    };
+
+    return { open, close, save, delete: deleteHero, smartFormat, switchTab, autoResize };
 })();
