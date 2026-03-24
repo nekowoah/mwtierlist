@@ -280,19 +280,19 @@
             <!-- RIGHT COLUMN: Stats & Tabs -->
             <div class="w-full md:w-2/3 flex flex-col flex-grow bg-gray-800/20 md:overflow-hidden">
                 <!-- TOP AREA: Stats Grid -->
-                <div class="p-4 grid grid-cols-3 gap-3 bg-gray-900/30 border-b border-gray-700 flex-shrink-0">
-                    <div class="bg-gray-800/80 rounded-lg p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden">
-                        <span class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">Early</span>
+                <div class="p-3 sm:p-4 grid grid-cols-3 gap-2 sm:gap-3 bg-gray-900/30 border-b border-gray-700 flex-shrink-0">
+                    <div class="bg-gray-800/80 rounded-lg p-1.5 sm:p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden">
+                        <span class="block text-[10px] text-gray-400 uppercase tracking-widest mb-0.5 sm:mb-1">Early</span>
                         <span id="modalEarly" class="text-lg font-black text-white"></span>
                         <div class="absolute inset-0 bg-indigo-500/5 h-1 bottom-0"></div>
                     </div>
-                    <div class="bg-gray-800/80 rounded-lg p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden">
-                        <span class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">Late</span>
+                    <div class="bg-gray-800/80 rounded-lg p-1.5 sm:p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden">
+                        <span class="block text-[10px] text-gray-400 uppercase tracking-widest mb-0.5 sm:mb-1">Late</span>
                         <span id="modalLate" class="text-lg font-black text-white"></span>
                         <div class="absolute inset-0 bg-indigo-500/5 h-1 bottom-0"></div>
                     </div>
-                    <div class="bg-gray-800/80 rounded-lg p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden">
-                        <span class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">Sacrament</span>
+                    <div class="bg-gray-800/80 rounded-lg p-1.5 sm:p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden">
+                        <span class="block text-[10px] text-gray-400 uppercase tracking-widest mb-0.5 sm:mb-1">Sacrament</span>
                         <span id="modalSacr" class="text-lg font-black text-white"></span>
                         <div class="absolute inset-0 bg-indigo-500/5 h-1 bottom-0"></div>
                     </div>
@@ -788,7 +788,7 @@
                 sacrEl.innerText = h.sacrament || '-';
 
                 [earlyEl, lateEl, sacrEl].forEach(el => {
-                    el.parentElement.className = "bg-gray-800/80 rounded-lg p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden";
+                    el.parentElement.className = "bg-gray-800/80 rounded-lg p-1.5 sm:p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden";
                     el.className = "text-lg font-black text-white";
                 });
                 
