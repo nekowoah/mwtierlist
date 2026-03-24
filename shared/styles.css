@@ -101,6 +101,17 @@
     scrollbar-width: none;
 }
 
+/* Thinner scrollbar for modal on mobile */
+@media (max-width: 767px) {
+    #viewModal::-webkit-scrollbar {
+        width: 4px;
+    }
+    #viewModal::-webkit-scrollbar-thumb {
+        background: rgba(var(--color-gray-500), 0.5);
+        border-radius: 10px;
+    }
+}
+
 /* Tooltip Styling */
 .tooltip {
     visibility: hidden;
