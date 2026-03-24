@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- FIX: Updated CSP to allow Google Analytics tracking -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://www.gstatic.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com https://www.google-analytics.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.quilljs.com https://cdn.jsdelivr.net https://www.gstatic.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.quilljs.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://i.imgur.com https://raw.githubusercontent.com https://placehold.co https://mwreborn.irunawiki.com https://www.google-analytics.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://api.github.com https://firestore.googleapis.com https://*.firebaseio.com https://www.gstatic.com https://www.google-analytics.com https://analytics.google.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
 
     <title>Legion's Mini Warriors Reborn Archive</title>
     <link rel="canonical" href="https://nekowoah.github.io/mwtierlist/">
     <meta name="title" content="Legion's Mini Warriors Reborn Archive">
-    <meta name="description" content="The definitive Legion Community archive for Mini Warriors Reborn (MWR). Features a comprehensive tierlist, formation builder, and sigil calculator.">
-    <meta name="keywords" content="MWR, Mini Warriors Reborn, Mini Warriors, Mini Warriors Reborn tierlist, Mini Warriors tierlist, information, mini warriors info, Legion Community Hub">
+    <meta name="description"
+        content="The definitive Legion Community archive for Mini Warriors Reborn (MWR). Features a comprehensive tierlist, formation builder, and sigil calculator.">
+    <meta name="keywords"
+        content="MWR, Mini Warriors Reborn, Mini Warriors, Mini Warriors Reborn tierlist, Mini Warriors tierlist, information, mini warriors info, Legion Community Hub">
     <meta name="robots" content="index, follow">
     <meta name="language" content="English">
 
@@ -43,47 +47,67 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="shared/styles.css">
     <link rel="icon" href="https://i.imgur.com/1h28KPo.png" type="image/x-icon">
-    
+
 </head>
+
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans flex flex-col transition-colors duration-300">
 
     <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-40 shadow-xl transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-2 sm:py-3 flex flex-col gap-2">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 w-full">
-                
+
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full md:w-auto">
                     <div class="flex items-center gap-2 sm:gap-3">
-                        <button onclick="app.toggleSidebar()" class="text-gray-400 hover:text-gray-100 transition-colors mr-1 outline-none">
+                        <button onclick="app.toggleSidebar()"
+                            class="text-gray-400 hover:text-gray-100 transition-colors mr-1 outline-none">
                             <i class="fa-solid fa-bars text-lg sm:text-xl"></i>
                         </button>
-                        <img id="adminIconBadge" src="https://i.imgur.com/1h28KPo.png" class="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)] transition-all">
-                        <span class="font-bold text-lg sm:text-xl tracking-wide sm:block" id="siteTitleText">MWR Tierlist</span>
+                        <img id="adminIconBadge" src="https://i.imgur.com/1h28KPo.png"
+                            class="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(234,179,8,0.3)] transition-all">
+                        <span class="font-bold text-lg sm:text-xl tracking-wide sm:block" id="siteTitleText">MWR
+                            Tierlist</span>
                     </div>
-                    
+
                     <!-- FIX: Removed side-scrolling, scaled down text/padding for mobile so it fits perfectly -->
-                    <div class="flex bg-gray-900 rounded-lg p-1 w-full md:w-auto justify-between md:justify-start transition-colors duration-300 gap-1">
-                        <button onclick="app.setMode('early')" id="tab-early" class="flex-1 md:flex-none px-1.5 sm:px-4 py-1.5 rounded text-[10px] sm:text-sm font-bold text-gray-400 hover:text-gray-100 transition-colors whitespace-nowrap">Early<span class="hidden sm:inline"> Game</span></button>
-                        <button onclick="app.setMode('late')" id="tab-late" class="flex-1 md:flex-none px-1.5 sm:px-4 py-1.5 rounded text-[10px] sm:text-sm font-bold bg-indigo-600 text-white shadow-lg transition-colors whitespace-nowrap">Late<span class="hidden sm:inline"> Game</span></button>
-                        <button onclick="app.setMode('sacrament')" id="tab-sacrament" class="flex-1 md:flex-none px-1.5 sm:px-4 py-1.5 rounded text-[10px] sm:text-sm font-bold text-gray-400 hover:text-gray-100 transition-colors whitespace-nowrap">Sacrament</button>
+                    <div
+                        class="flex bg-gray-900 rounded-lg p-1 w-full md:w-auto justify-between md:justify-start transition-colors duration-300 gap-1">
+                        <button onclick="app.setMode('early')" id="tab-early"
+                            class="flex-1 md:flex-none px-1.5 sm:px-4 py-1.5 rounded text-[10px] sm:text-sm font-bold text-gray-400 hover:text-gray-100 transition-colors whitespace-nowrap">Early<span
+                                class="hidden sm:inline"> Game</span></button>
+                        <button onclick="app.setMode('late')" id="tab-late"
+                            class="flex-1 md:flex-none px-1.5 sm:px-4 py-1.5 rounded text-[10px] sm:text-sm font-bold bg-indigo-600 text-white shadow-lg transition-colors whitespace-nowrap">Late<span
+                                class="hidden sm:inline"> Game</span></button>
+                        <button onclick="app.setMode('sacrament')" id="tab-sacrament"
+                            class="flex-1 md:flex-none px-1.5 sm:px-4 py-1.5 rounded text-[10px] sm:text-sm font-bold text-gray-400 hover:text-gray-100 transition-colors whitespace-nowrap">Sacrament</button>
                     </div>
                 </div>
 
-                <div class="flex gap-3 sm:gap-4 items-center w-full md:w-auto justify-between md:justify-end" id="navControls">
+                <div class="flex gap-3 sm:gap-4 items-center w-full md:w-auto justify-between md:justify-end"
+                    id="navControls">
                     <!-- FIX: Added IDs to the dot elements for dynamic color swapping -->
-                    <div id="syncIndicator" class="hidden sm:flex items-center justify-center w-8 h-8 rounded-full" title="Live Updates Active">
+                    <div id="syncIndicator" class="hidden sm:flex items-center justify-center w-8 h-8 rounded-full"
+                        title="Live Updates Active">
                         <span class="relative flex h-2.5 w-2.5">
-                          <span id="syncPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span id="syncDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                            <span id="syncPing"
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span id="syncDot"
+                                class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
                         </span>
                     </div>
 
                     <div class="relative group flex-grow md:flex-grow-0">
-                        <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search..." class="bg-gray-900/50 text-gray-100 rounded-full px-4 py-1.5 pl-9 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
-                        <i class="fa-solid fa-search absolute left-3 top-2 text-gray-400 text-xs group-focus-within:text-yellow-500"></i>
+                        <input type="text" id="searchInput" onkeyup="app.render()" placeholder="Search..."
+                            class="bg-gray-900/50 text-gray-100 rounded-full px-4 py-1.5 pl-9 border border-gray-600 text-sm outline-none w-full md:w-64 focus:border-yellow-500 focus:bg-gray-900 transition-all">
+                        <i
+                            class="fa-solid fa-search absolute left-3 top-2 text-gray-400 text-xs group-focus-within:text-yellow-500"></i>
                     </div>
                     <div class="flex gap-3 items-center flex-shrink-0">
-                        <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-gray-100 transition-colors" title="View Changelog"><i class="fa-solid fa-clock-rotate-left text-lg"></i></button>
-                        <a href="https://dsc.gg/legion-mw" id="discordLink" target="_blank" class="bg-[#5865F2] hover:bg-[#4752C4] text-white p-1.5 rounded-full transition-colors w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-lg" title="Join our Discord">
+                        <button onclick="app.toggleChangelog()"
+                            class="text-gray-400 hover:text-gray-100 transition-colors" title="View Changelog"><i
+                                class="fa-solid fa-clock-rotate-left text-lg"></i></button>
+                        <a href="https://dsc.gg/legion-mw" id="discordLink" target="_blank"
+                            class="bg-[#5865F2] hover:bg-[#4752C4] text-white p-1.5 rounded-full transition-colors w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shadow-lg"
+                            title="Join our Discord">
                             <i class="fa-brands fa-discord text-sm sm:text-base"></i>
                         </a>
                     </div>
@@ -97,24 +121,45 @@
         <div class="max-w-7xl mx-auto px-4 py-4">
             <div class="flex flex-col md:flex-row justify-between items-start gap-6">
                 <div class="flex-1 w-full">
-                    <h2 id="listTitle" class="text-base font-bold text-white uppercase tracking-wider mb-1">Tier List</h2>
+                    <h2 id="listTitle" class="text-base font-bold text-white uppercase tracking-wider mb-1">Tier List
+                    </h2>
                     <p id="listDesc" class="text-gray-300 text-sm leading-relaxed max-w-4xl"></p>
-                    <div class="hidden lg:block mt-2 text-[12px] text-gray-400 space-y-0.5 max-w-4xl bg-gray-900/30 p-2 rounded-lg border border-gray-700/50 transition-colors duration-300">
-                        <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that are often used and have a noticeable impact in battles.</p>
-                        <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill space or support stronger heroes.</p>
-                        <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can be safely replaced. Not recommended to use.</p>
+                    <div
+                        class="hidden lg:block mt-2 text-[12px] text-gray-400 space-y-0.5 max-w-4xl bg-gray-900/30 p-2 rounded-lg border border-gray-700/50 transition-colors duration-300">
+                        <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that are often used and have a
+                            noticeable impact in battles.</p>
+                        <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill
+                            space or support stronger heroes.</p>
+                        <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can be safely replaced. Not
+                            recommended to use.</p>
                     </div>
                 </div>
-                <div class="bg-gray-900/80 p-2.5 sm:p-3 rounded-lg border border-gray-700 w-full md:w-auto md:min-w-[15rem] shrink-0 shadow-lg transition-colors duration-300">
-                    <h3 class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 border-b border-gray-700/50 pb-1 text-center">Legend</h3>
-                    <div class="grid grid-cols-2 gap-x-2 gap-y-1 sm:gap-y-1.5 text-[10px] sm:text-[11px] text-gray-300 select-none">
-                        <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-yellow-400 shadow-[0_-2px_4px_rgba(250,204,21,0.6)] rounded-sm"></span> VIP</div>
-                        <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-purple-400 shadow-[0_-2px_4px_rgba(244,114,182,0.6)] rounded-sm"></span> Limited</div>
-                        <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-green-500 shadow-[0_-2px_4px_rgba(34,197,94,0.6)] rounded-sm"></span> Basic Limited</div>
-                        <div class="flex items-center gap-1.5"><span class="w-2.5 sm:w-3 h-1 bg-gray-500 rounded-sm"></span> Normal</div>
-                        <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-red-500 rounded-full shadow-sm"></span> Updated</div>
-                        <div class="flex items-center gap-1.5"><i class="fa-solid fa-fire-flame-curved text-red-500 text-[10px] sm:text-[11px]"></i> Awakened</div>
-                        <div class="flex items-center gap-1.5 col-span-2"><i class="fa-solid fa-plus text-green-400 text-[10px]"></i><i class="fa-solid fa-minus text-red-400 text-[10px]"></i> Sub-rank</div>
+                <div
+                    class="bg-gray-900/80 p-2.5 sm:p-3 rounded-lg border border-gray-700 w-full md:w-auto md:min-w-[15rem] shrink-0 shadow-lg transition-colors duration-300">
+                    <h3
+                        class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 border-b border-gray-700/50 pb-1 text-center">
+                        Legend</h3>
+                    <div
+                        class="grid grid-cols-2 gap-x-2 gap-y-1 sm:gap-y-1.5 text-[10px] sm:text-[11px] text-gray-300 select-none">
+                        <div class="flex items-center gap-1.5"><span
+                                class="w-2.5 sm:w-3 h-1 bg-yellow-400 shadow-[0_-2px_4px_rgba(250,204,21,0.6)] rounded-sm"></span>
+                            VIP</div>
+                        <div class="flex items-center gap-1.5"><span
+                                class="w-2.5 sm:w-3 h-1 bg-purple-400 shadow-[0_-2px_4px_rgba(244,114,182,0.6)] rounded-sm"></span>
+                            Limited</div>
+                        <div class="flex items-center gap-1.5"><span
+                                class="w-2.5 sm:w-3 h-1 bg-green-500 shadow-[0_-2px_4px_rgba(34,197,94,0.6)] rounded-sm"></span>
+                            Basic Limited</div>
+                        <div class="flex items-center gap-1.5"><span
+                                class="w-2.5 sm:w-3 h-1 bg-gray-500 rounded-sm"></span> Normal</div>
+                        <div class="flex items-center gap-1.5"><span
+                                class="w-1.5 h-1.5 bg-red-500 rounded-full shadow-sm"></span> Updated</div>
+                        <div class="flex items-center gap-1.5"><i
+                                class="fa-solid fa-fire-flame-curved text-red-500 text-[10px] sm:text-[11px]"></i>
+                            Awakened</div>
+                        <div class="flex items-center gap-1.5 col-span-2"><i
+                                class="fa-solid fa-plus text-green-400 text-[10px]"></i><i
+                                class="fa-solid fa-minus text-red-400 text-[10px]"></i> Sub-rank</div>
                     </div>
                 </div>
             </div>
@@ -122,106 +167,173 @@
     </div>
 
     <main class="max-w-7xl mx-auto px-4 pt-4 pb-8 w-full flex-grow">
-        <div class="bg-gray-800 border border-gray-700 rounded-xl p-3 mb-6 shadow-lg flex flex-wrap justify-center items-center gap-2 relative z-20">
+        <div
+            class="bg-gray-800 border border-gray-700 rounded-xl p-3 mb-6 shadow-lg flex flex-wrap justify-center items-center gap-2 relative z-20">
             <div id="classButtons" class="flex flex-wrap justify-center gap-1.5 sm:gap-1"></div>
             <div class="hidden sm:block h-5 w-px bg-gray-700 mx-1 sm:mx-2"></div>
             <div class="relative z-50">
-                <button onclick="app.toggleTypeMenu()" id="typeFilterBtn" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded p-0 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center shadow-sm w-8 h-8 sm:w-auto sm:h-auto">
-                    <i class="fa-solid fa-filter text-base sm:text-xs sm:mr-1"></i><span class="hidden sm:inline">Filters</span>
+                <button onclick="app.toggleTypeMenu()" id="typeFilterBtn"
+                    class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded p-0 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center shadow-sm w-8 h-8 sm:w-auto sm:h-auto">
+                    <i class="fa-solid fa-filter text-base sm:text-xs sm:mr-1"></i><span
+                        class="hidden sm:inline">Filters</span>
                 </button>
-                <div id="typeMenu" class="hidden absolute top-full right-0 sm:left-auto sm:right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 flex flex-col gap-1 transition-colors duration-300">
-                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input type="checkbox" checked onchange="app.toggleType('VIP')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-yellow-400 font-bold">VIP</span></label>
-                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input type="checkbox" checked onchange="app.toggleType('Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-purple-400 font-bold">Limited</span></label>
-                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input type="checkbox" checked onchange="app.toggleType('Basic Limited')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-green-400 font-bold">Basic Limited</span></label>
-                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input type="checkbox" checked onchange="app.toggleType('Normal')" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-gray-400 font-bold">Normal</span></label>
+                <div id="typeMenu"
+                    class="hidden absolute top-full right-0 sm:left-auto sm:right-0 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-lg shadow-xl p-2 flex flex-col gap-1 transition-colors duration-300">
+                    <label
+                        class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input
+                            type="checkbox" checked onchange="app.toggleType('VIP')"
+                            class="custom-checkbox rounded bg-gray-900 border-gray-600"><span
+                            class="text-yellow-400 font-bold">VIP</span></label>
+                    <label
+                        class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input
+                            type="checkbox" checked onchange="app.toggleType('Limited')"
+                            class="custom-checkbox rounded bg-gray-900 border-gray-600"><span
+                            class="text-purple-400 font-bold">Limited</span></label>
+                    <label
+                        class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input
+                            type="checkbox" checked onchange="app.toggleType('Basic Limited')"
+                            class="custom-checkbox rounded bg-gray-900 border-gray-600"><span
+                            class="text-green-400 font-bold">Basic Limited</span></label>
+                    <label
+                        class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input
+                            type="checkbox" checked onchange="app.toggleType('Normal')"
+                            class="custom-checkbox rounded bg-gray-900 border-gray-600"><span
+                            class="text-gray-400 font-bold">Normal</span></label>
                     <div class="h-px bg-gray-700 my-1 mx-2"></div>
-                    <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input type="checkbox" onchange="app.toggleAwakenedOnly()" class="custom-checkbox rounded bg-gray-900 border-gray-600"><span class="text-red-400 font-bold"><i class="fa-solid fa-fire-flame-curved mr-1.5"></i>Awakened Only</span></label>
+                    <label
+                        class="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 rounded cursor-pointer text-xs text-gray-200"><input
+                            type="checkbox" onchange="app.toggleAwakenedOnly()"
+                            class="custom-checkbox rounded bg-gray-900 border-gray-600"><span
+                            class="text-red-400 font-bold"><i class="fa-solid fa-fire-flame-curved mr-1.5"></i>Awakened
+                            Only</span></label>
                 </div>
             </div>
         </div>
 
         <div id="loading" class="text-center py-16">
-            <div class="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-yellow-500 mb-3"></div>
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-yellow-500 mb-3">
+            </div>
             <p class="text-gray-500 text-sm animate-pulse" id="loadingText">Retrieving Data...</p>
         </div>
 
-        <div id="tierListContainer" class="flex flex-col gap-4 select-none opacity-0 transition-opacity duration-500"></div>
+        <div id="tierListContainer" class="flex flex-col gap-4 select-none opacity-0 transition-opacity duration-500">
+        </div>
 
-        <div class="lg:hidden mt-8 text-xs text-gray-400 space-y-2 bg-gray-800/50 p-4 rounded-lg border border-gray-700 shadow-md transition-colors duration-300">
-            <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that often used and have a noticeable impact in battles.</p>
-            <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill space or support stronger heroes.</p>
-            <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can safely replaced with certain high star purple rarity heroes.</p>
+        <div
+            class="lg:hidden mt-8 text-xs text-gray-400 space-y-2 bg-gray-800/50 p-4 rounded-lg border border-gray-700 shadow-md transition-colors duration-300">
+            <p><strong class="text-gray-200 font-bold">A-SSS:</strong> Heroes that often used and have a noticeable
+                impact in battles.</p>
+            <p><strong class="text-gray-200 font-bold">C-B:</strong> Heroes that are often used to fill space or support
+                stronger heroes.</p>
+            <p><strong class="text-gray-200 font-bold">F-D:</strong> Heroes that can safely replaced with certain high
+                star purple rarity heroes.</p>
         </div>
     </main>
 
-    <footer class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto transition-colors duration-300">
+    <footer
+        class="bg-gray-800 border-t border-gray-700 py-6 text-center text-gray-500 text-sm mt-auto transition-colors duration-300">
         <p>MWR Tierlist! Built by the Legion Community</p>
     </footer>
 
     <!-- Hero Detail Modal -->
     <div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="absolute inset-0 bg-black/90 transition-opacity" onclick="app.closeModal('viewModal')"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-[92vw] sm:w-[90vw] max-w-lg md:max-w-4xl lg:max-w-5xl h-[82vh] md:h-[650px] overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
-            
-            <div class="relative h-56 sm:h-64 md:h-full md:w-5/12 bg-gray-900 transition-colors duration-300 flex-shrink-0">
-                <img id="modalImage" src="" class="w-full h-full object-cover opacity-80">
-                <div class="absolute bottom-4 left-4 right-4">
-                    <h2 id="modalName" class="text-2xl sm:text-3xl font-black text-white leading-tight mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></h2>
-                    <div class="flex flex-wrap gap-2 items-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                        <span id="modalClass" class="text-xs font-bold text-indigo-400 uppercase tracking-wider bg-gray-800 px-2 py-0.5 rounded border border-gray-600 shadow-sm"></span>
-                        <div id="modalTypeContainer"></div>
-                        <div id="modalAwakenContainer"></div>
+        <div
+            class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-[92vw] sm:w-[90vw] max-w-lg md:max-w-4xl lg:max-w-5xl h-[82vh] md:h-[650px] overflow-hidden modal-fade-in flex flex-col md:flex-row transition-colors duration-300">
+
+            <!-- LEFT COLUMN: Persistent Info & Overview -->
+            <div class="w-full md:w-1/3 bg-gray-900 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col flex-shrink-0 overflow-y-auto hide-scrollbar">
+                <!-- Hero Icon & Name -->
+                <div class="p-5 flex flex-col items-center gap-4 bg-gray-800/20 text-center">
+                    <div class="relative w-32 h-40 sm:w-40 sm:h-48 flex-shrink-0 rounded-lg group">
+                        <img id="modalImage" src="" class="w-full h-full object-contain object-center drop-shadow-md">
+                    </div>
+                    <div class="flex flex-col gap-1.5 flex-grow items-center">
+                        <h2 id="modalName" class="text-xl sm:text-2xl font-black text-white leading-tight tracking-tight drop-shadow-md"></h2>
+                        <div class="flex flex-wrap gap-1.5 justify-center">
+                            <span id="modalClass" class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider bg-indigo-900/40 px-2 py-0.5 rounded border border-indigo-500/30"></span>
+                            <div id="modalTypeContainer" class="flex flex-wrap gap-1.5"></div>
+                            <div id="modalAwakenContainer" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Persistent Overview (Role & Notes) -->
+                <div class="p-5 flex flex-col gap-6 bg-gray-900/50 flex-grow">
+                    <div>
+                        <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-crosshairs text-indigo-400"></i> Role
+                        </h3>
+                        <p id="modalRole" class="text-xs sm:text-sm text-gray-200 leading-relaxed italic border-l-4 border-yellow-500 pl-3"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass-chart text-indigo-400"></i> Analysis & Notes
+                        </h3>
+                        <div class="bg-gray-800/30 rounded-lg p-3 border border-gray-700/50">
+                            <p id="modalNotes" class="text-xs sm:text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="p-4 sm:p-6 md:w-7/12 flex flex-col flex-grow overflow-hidden">
-                <div class="grid grid-cols-3 gap-2 text-center flex-shrink-0">
-                    <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Early</span><span id="modalEarly" class="text-xl font-black text-white"></span></div>
-                    <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600 relative overflow-hidden"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Late</span><span id="modalLate" class="text-xl font-black text-white"></span></div>
-                    <div class="bg-gray-700/50 rounded-lg p-2 border border-gray-600"><span class="block text-[10px] text-gray-400 uppercase tracking-widest">Sacrament</span><span id="modalSacr" class="text-xl font-black text-white"></span></div>
+
+            <!-- RIGHT COLUMN: Stats & Tabs -->
+            <div class="w-full md:w-2/3 flex flex-col flex-grow bg-gray-800/20 overflow-hidden">
+                <!-- TOP AREA: Stats Grid -->
+                <div class="p-4 grid grid-cols-3 gap-3 bg-gray-900/30 border-b border-gray-700 flex-shrink-0">
+                    <div class="bg-gray-800/80 rounded-lg p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden">
+                        <span class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">Early</span>
+                        <span id="modalEarly" class="text-lg font-black text-white"></span>
+                        <div class="absolute inset-0 bg-indigo-500/5 h-1 bottom-0"></div>
+                    </div>
+                    <div class="bg-gray-800/80 rounded-lg p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden">
+                        <span class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">Late</span>
+                        <span id="modalLate" class="text-lg font-black text-white"></span>
+                        <div class="absolute inset-0 bg-indigo-500/5 h-1 bottom-0"></div>
+                    </div>
+                    <div class="bg-gray-800/80 rounded-lg p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden">
+                        <span class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">Sacrament</span>
+                        <span id="modalSacr" class="text-lg font-black text-white"></span>
+                        <div class="absolute inset-0 bg-indigo-500/5 h-1 bottom-0"></div>
+                    </div>
                 </div>
 
-                <div class="flex border-b border-gray-700 mt-3 flex-shrink-0">
-                    <button id="tabOverviewBtn" onclick="app.switchModalTab('overview')" class="px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors">Overview</button>
-                    <button id="tabSkillsBtn" onclick="app.switchModalTab('skills')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">Skills & Info</button>
-                    <button id="tabHistoryBtn" onclick="app.switchModalTab('history')" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-300 border-b-2 border-transparent transition-colors">History</button>
+                <!-- TAB NAVIGATION -->
+                <div class="flex border-b border-gray-700 bg-gray-800/50 overflow-x-auto hide-scrollbar flex-shrink-0">
+                    <button id="tabSkillBtn" onclick="app.switchModalTab('skill')" class="flex-1 px-4 py-3 text-xs sm:text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 bg-indigo-500/5 transition-all outline-none">
+                        Skill
+                    </button>
+                    <button id="tabSacramentBtn" onclick="app.switchModalTab('sacrament')" class="flex-1 px-4 py-3 text-xs sm:text-sm font-bold text-gray-500 hover:text-gray-200 border-b-2 border-transparent transition-all outline-none">
+                        Sacrament
+                    </button>
+                    <button id="tabAwakenBtn" onclick="app.switchModalTab('awaken')" class="flex-1 px-4 py-3 text-xs sm:text-sm font-bold text-gray-500 hover:text-gray-200 border-b-2 border-transparent transition-all outline-none">
+                        Awaken
+                    </button>
+                    <button id="tabHistoryBtn" onclick="app.switchModalTab('history')" class="flex-1 px-4 py-3 text-xs sm:text-sm font-bold text-gray-500 hover:text-gray-200 border-b-2 border-transparent transition-all outline-none">
+                        History
+                    </button>
                 </div>
 
-                <div class="relative flex-grow mt-4 overflow-hidden">
-                    <div id="modalOverviewContent" class="absolute inset-0 flex-col gap-5 overflow-y-auto pr-2 hide-scrollbar">
-                        <div>
-                            <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Role</h3>
-                            <p id="modalRole" class="text-sm text-gray-200 leading-relaxed italic border-l-4 border-yellow-500 pl-3"></p>
-                        </div>
-                        <div>
-                            <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">Analysis & Notes</h3>
-                            <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
-                                <p id="modalNotes" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap"></p>
-                            </div>
-                        </div>
+                <!-- CONTENT AREA -->
+                <div class="relative flex-grow overflow-hidden bg-gray-900/20">
+                    <div id="modalSkillContent" class="absolute inset-0 overflow-y-auto p-4 sm:p-6 hide-scrollbar flex flex-col gap-4">
+                        <div id="content-skill" class="w-full"></div>
                     </div>
 
-                    <div id="modalSkillsContent" class="hidden absolute inset-0 flex-col gap-4 overflow-hidden">
-                        <div class="flex w-full bg-gray-900 rounded-lg sm:rounded-full p-1 border border-gray-700 shadow-inner flex-shrink-0">
-                            <button id="subtab-skill" onclick="app.switchSkillTab('skill')" class="flex-1 py-2 sm:py-1.5 rounded-md sm:rounded-full text-xs sm:text-sm font-bold bg-gray-700 text-white shadow-md transition-colors text-center">Skill</button>
-                            <button id="subtab-sacrament" onclick="app.switchSkillTab('sacrament')" class="flex-1 py-2 sm:py-1.5 rounded-md sm:rounded-full text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors text-center">Sacrament</button>
-                            <button id="subtab-awakening" onclick="app.switchSkillTab('awakening')" class="flex-1 py-2 sm:py-1.5 rounded-md sm:rounded-full text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors text-center">Awakening</button>
-                        </div>
-                        
-                        <div class="relative flex-grow overflow-hidden bg-gray-900/50 rounded-lg border border-gray-700">
-                            <div id="content-skill" class="absolute inset-0 overflow-y-auto pr-2 hide-scrollbar p-4"></div>
-                            <div id="content-sacrament" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar p-4"></div>
-                            <div id="content-awakening" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar p-4"></div>
-                        </div>
+                    <div id="modalSacramentContent" class="hidden absolute inset-0 overflow-y-auto p-4 sm:p-6 hide-scrollbar flex-col gap-4">
+                        <div id="content-sacrament" class="w-full"></div>
                     </div>
 
-                    <div id="modalHistoryContent" class="hidden absolute inset-0 flex-col gap-3 overflow-y-auto pr-2 hide-scrollbar"></div>
+                    <div id="modalAwakenContent" class="hidden absolute inset-0 overflow-y-auto p-4 sm:p-6 hide-scrollbar flex-col gap-4">
+                        <div id="content-awakening" class="w-full"></div>
+                    </div>
+
+                    <div id="modalHistoryContent" class="hidden absolute inset-0 overflow-y-auto p-4 sm:p-6 hide-scrollbar flex-col gap-3"></div>
                 </div>
             </div>
-            
-            <button onclick="app.closeModal('viewModal')" class="absolute top-3 right-3 text-gray-400 hover:text-white bg-black/50 hover:bg-black rounded-full w-8 h-8 flex items-center justify-center transition-colors z-10 shadow-lg">
-                <i class="fa-solid fa-xmark"></i>
+
+            <button onclick="app.closeModal('viewModal')" class="absolute top-3 right-3 text-gray-400 hover:text-white bg-black/40 hover:bg-black p-2 rounded-full flex items-center justify-center transition-all z-20 shadow-xl border border-white/5 group">
+                <i class="fa-solid fa-xmark text-lg group-hover:scale-110"></i>
             </button>
         </div>
     </div>
@@ -229,10 +341,13 @@
     <!-- Changelog Modal -->
     <div id="changelogModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 transition-opacity" onclick="app.toggleChangelog()"></div>
-        <div class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden modal-fade-in flex flex-col h-[80vh] transition-colors duration-300">
+        <div
+            class="relative bg-gray-800 border border-gray-600 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden modal-fade-in flex flex-col h-[80vh] transition-colors duration-300">
             <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-gray-900">
-                <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-history mr-2 text-indigo-400"></i> Changelog</h3>
-                <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-times"></i></button>
+                <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-history mr-2 text-indigo-400"></i>
+                    Changelog</h3>
+                <button onclick="app.toggleChangelog()" class="text-gray-400 hover:text-white"><i
+                        class="fa-solid fa-times"></i></button>
             </div>
             <div id="changelogContent" class="overflow-y-auto p-4 space-y-4"></div>
         </div>
@@ -246,7 +361,7 @@
             const RANKS = GLOBALS.RANKS || [];
             const CLASS_ICONS = GLOBALS.CLASS_ICONS || {};
             const TIER_INFO = GLOBALS.TIER_INFO || {};
-            
+
             let heroes = [];
             let currentMode = 'late';
             let currentFilter = 'All';
@@ -254,7 +369,7 @@
             let showAwakenedOnly = false;
             let cachedLogs = null;
             let isAdmin = false;
-            
+
             // FIX: Elevated these variables so all 3 fallback tiers can share them
             let syncInterval = null;
             let localTimestamp = localStorage.getItem('mwr_tierlist_timestamp');
@@ -262,11 +377,11 @@
             const TIME_KEY = 'mwr_tierlist_timestamp';
 
             const db = window.MWR_GLOBALS ? window.MWR_GLOBALS.db : null;
-            
+
             const toggleSidebar = () => {
                 if (window.AppMenu && window.AppMenu.toggleSidebar) window.AppMenu.toggleSidebar();
             };
-            
+
             const exitAdmin = () => {
                 if (window.AppMenu && window.AppMenu.exitAdmin) window.AppMenu.exitAdmin();
             };
@@ -277,9 +392,9 @@
                 const ping = document.getElementById('syncPing');
                 const dot = document.getElementById('syncDot');
                 if (!indicator || !ping || !dot) return;
-                
+
                 indicator.classList.remove('hidden');
-                
+
                 if (isLive) {
                     indicator.title = "Live Updates Active";
                     ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75";
@@ -294,19 +409,19 @@
             const init = async () => {
                 if (!window.MWR_GLOBALS) {
                     document.getElementById('loading').innerHTML = `<div class="bg-red-900/20 border border-red-500/50 rounded-xl p-6 max-w-md mx-auto mt-10"><i class="fa-solid fa-triangle-exclamation text-4xl text-red-500 mb-3"></i><h3 class="text-xl font-black text-white mb-2">Missing Shared Files</h3><p class="text-gray-300 text-sm">Cannot find shared/globals.js</p></div>`;
-                    return; 
+                    return;
                 }
 
                 if (window.location.hash === '#admin') {
                     const savedToken = localStorage.getItem('mw_admin_token') || sessionStorage.getItem('mw_admin_token');
                     const role = localStorage.getItem('mw_admin_role') || sessionStorage.getItem('mw_admin_role') || 'admin';
-                    
+
                     if (savedToken && role === 'admin') {
                         isAdmin = true;
                         document.getElementById('siteTitleText').innerText = "Editor Mode";
                         document.getElementById('adminIconBadge').className = "w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] transition-all";
                         document.getElementById('discordLink').classList.add('hidden');
-                        
+
                         document.getElementById('navControls').insertAdjacentHTML('afterbegin', `
                             <button onclick="TierlistEditor.open(null, app)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg transition-colors font-bold shadow-lg flex items-center gap-2 mr-2">
                                 <i class="fa-solid fa-plus"></i><span class="hidden sm:inline">Add Hero</span>
@@ -316,13 +431,13 @@
                         // FIX: Kick Editors out of the tierlist edit page automatically
                         alert("Permission Denied: You must be a full Admin to edit the Tierlist.");
                         window.location.href = 'admin.html'; return;
-                    } else { 
-                        window.location.href = 'admin.html'; return; 
+                    } else {
+                        window.location.href = 'admin.html'; return;
                     }
                 }
 
                 if (window.AppMenu && window.AppMenu.build) window.AppMenu.build(isAdmin, 'indigo');
-                
+
                 renderClassButtons();
                 updateInfo();
 
@@ -338,10 +453,10 @@
                 if (cachedHeroes) {
                     try {
                         heroes = JSON.parse(cachedHeroes);
-                        document.getElementById('loading').classList.add('hidden'); 
-                        document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById('tierListContainer').classList.remove('opacity-0');
                         render();
-                    } catch(e) { console.warn("Cache parse error", e); }
+                    } catch (e) { console.warn("Cache parse error", e); }
                 }
 
                 // Start the 3-Tier Fallback Engine
@@ -358,7 +473,7 @@
                 db.collection('cache').doc('tierlist_meta').onSnapshot(async (metaRef) => {
                     if (metaRef.exists) {
                         const liveTimestamp = metaRef.data().lastUpdated;
-                        
+
                         if (!localTimestamp || liveTimestamp !== localTimestamp) {
                             console.log("New update detected! Downloading tierlist payload...");
                             const docRef = await db.collection('cache').doc('tierlist_payload').get();
@@ -369,9 +484,9 @@
                                     localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
                                     localStorage.setItem(TIME_KEY, liveTimestamp);
                                     localTimestamp = liveTimestamp;
-                                    
-                                    document.getElementById('loading').classList.add('hidden'); 
-                                    document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+
+                                    document.getElementById('loading').classList.add('hidden');
+                                    document.getElementById('tierListContainer').classList.remove('opacity-0');
                                     render();
                                 }
                             }
@@ -386,7 +501,7 @@
             // TIER 2: Firebase Standard Fetch (Polling)
             const startFirebasePollingFallback = () => {
                 if (syncInterval) clearInterval(syncInterval);
-                
+
                 updateSyncUI(false);
 
                 const doFirebaseFetch = async () => {
@@ -403,9 +518,9 @@
                                         localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
                                         localStorage.setItem(TIME_KEY, liveTimestamp);
                                         localTimestamp = liveTimestamp;
-                                        
-                                        document.getElementById('loading').classList.add('hidden'); 
-                                        document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+
+                                        document.getElementById('loading').classList.add('hidden');
+                                        document.getElementById('tierListContainer').classList.remove('opacity-0');
                                         render();
                                     }
                                 }
@@ -420,8 +535,8 @@
                 // Try an immediate fetch to test permissions
                 doFirebaseFetch().then(() => {
                     // Only set interval if it didn't crash and cascade to Tier 3
-                    if (syncInterval === null) { 
-                       syncInterval = setInterval(doFirebaseFetch, 120000); 
+                    if (syncInterval === null) {
+                        syncInterval = setInterval(doFirebaseFetch, 120000);
                     }
                 });
             };
@@ -429,7 +544,7 @@
             // TIER 3: Google Apps Script API (Ultimate Safety Net)
             const startGasPollingFallback = () => {
                 if (syncInterval) clearInterval(syncInterval);
-                
+
                 updateSyncUI(false);
 
                 const doGasFetch = async () => {
@@ -439,23 +554,23 @@
                         if (Array.isArray(freshData) && JSON.stringify(heroes) !== JSON.stringify(freshData)) {
                             heroes = freshData;
                             localStorage.setItem(CACHE_KEY, JSON.stringify(heroes));
-                            
+
                             // Prevent Firebase from immediately re-fetching if it suddenly comes back online
-                            localTimestamp = new Date().toISOString(); 
+                            localTimestamp = new Date().toISOString();
                             localStorage.setItem(TIME_KEY, localTimestamp);
 
-                            document.getElementById('loading').classList.add('hidden'); 
-                            document.getElementById('tierListContainer').classList.remove('opacity-0'); 
+                            document.getElementById('loading').classList.add('hidden');
+                            document.getElementById('tierListContainer').classList.remove('opacity-0');
                             render();
                         }
-                    } catch(e) {
+                    } catch (e) {
                         console.error("Tier 3 Failed: All data connections offline.", e);
                     }
                 };
-                
+
                 // If we don't have local data, do an immediate fetch
                 if (heroes.length === 0) doGasFetch();
-                
+
                 syncInterval = setInterval(doGasFetch, 120000); // 120,000ms = 2 minutes
             };
 
@@ -475,10 +590,10 @@
                 if (container) {
                     container.innerHTML = Object.keys(CLASS_ICONS).map(cls => {
                         const isActive = currentFilter === cls;
-                        const btnClass = isActive 
-                            ? 'border-yellow-500 bg-[rgba(234,179,8,0.2)] text-yellow-500' 
+                        const btnClass = isActive
+                            ? 'border-yellow-500 bg-[rgba(234,179,8,0.2)] text-yellow-500'
                             : 'border-[#4b5563] bg-[#1f2937] text-[#d1d5db] opacity-70 hover:opacity-100 hover:border-[#9ca3af] hover:text-white';
-                        
+
                         return `
                         <button onclick="app.setFilter('${cls}')" class="${btnClass} border rounded p-0.5 sm:p-0 sm:px-2 sm:py-1 text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 w-8 h-8 sm:w-auto sm:h-auto shadow-sm">
                             <img src="${CLASS_ICONS[cls]}" class="w-6 h-6 sm:w-4 sm:h-4 object-contain">
@@ -492,7 +607,7 @@
                 currentMode = mode;
                 ['early', 'late', 'sacrament'].forEach(m => {
                     const btn = document.getElementById(`tab-${m}`);
-                    if (m === mode) { btn.classList.remove('text-gray-400', 'hover:text-gray-100'); btn.classList.add('bg-indigo-600', 'text-white', 'shadow-lg'); } 
+                    if (m === mode) { btn.classList.remove('text-gray-400', 'hover:text-gray-100'); btn.classList.add('bg-indigo-600', 'text-white', 'shadow-lg'); }
                     else { btn.classList.add('text-gray-400', 'hover:text-gray-100'); btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-lg'); }
                 });
                 updateInfo(); render();
@@ -540,10 +655,10 @@
 
                     const rowDiv = document.createElement('div');
                     rowDiv.className = 'flex w-full bg-gray-800 rounded-lg overflow-hidden border border-gray-700 shadow-md min-h-[110px] transition-colors duration-300';
-                    
-                    const baseRankLower = baseRank.replace(/[+-]/g, '').toLowerCase(); 
+
+                    const baseRankLower = baseRank.replace(/[+-]/g, '').toLowerCase();
                     const rankColorClass = baseRank === 'Unranked' ? 'bg-tier-unranked' : `bg-tier-${baseRankLower}`;
-                    
+
                     const hasPlus = heroesInRow.some(h => parseRank(h[currentMode]).sub === '+');
                     const hasMinus = heroesInRow.some(h => parseRank(h[currentMode]).sub === '-');
 
@@ -608,7 +723,7 @@
                                 if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') topBorderClass = 'border-t-basic';
 
                                 heroEl.className = `hero-portrait relative w-16 h-24 sm:w-20 sm:h-26 bg-gray-700 cursor-pointer rounded ${topBorderClass} group transition-all`;
-                                
+
                                 const classIconUrl = CLASS_ICONS[h.heroClass] || 'https://placehold.co/32?text=?';
                                 const classIconHtml = `<div class="absolute -top-1.5 -left-1.5 z-20 w-6 h-6 sm:w-7 sm:h-7 bg-[#111827] rounded-full p-1 border border-[#4b5563]/50 shadow-md flex justify-center items-center"><img src="${classIconUrl}" class="w-full h-full object-contain opacity-90 group-hover:opacity-100"></div>`;
 
@@ -650,53 +765,56 @@
 
             const openModal = (h) => {
                 document.getElementById('modalImage').src = h.image || 'https://placehold.co/400/5A5F66/FFFFFF?text=No+Image';
-                
+
                 const awakenFlame = (h.hasAwaken === 'Yes') ? '<i class="fa-solid fa-fire-flame-curved text-red-500 ml-2" title="Awakened"></i>' : '';
                 document.getElementById('modalName').innerHTML = h.name + awakenFlame;
-                
                 document.getElementById('modalClass').innerText = h.heroClass;
-                
+
                 const typeContainer = document.getElementById('modalTypeContainer');
-                if (h.heroType === 'VIP') typeContainer.innerHTML = '<span class="text-xs font-bold text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded border border-yellow-500/30"><i class="fa-solid fa-crown mr-1"></i>VIP</span>';
-                else if (h.heroType === 'Limited') typeContainer.innerHTML = '<span class="text-xs font-bold text-purple-400 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-500/30"><i class="fa-solid fa-star mr-1"></i>Limited</span>';
-                else if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeContainer.innerHTML = '<span class="text-xs font-bold text-green-400 bg-green-900/30 px-2 py-0.5 rounded border border-green-500/30"><i class="fa-solid fa-leaf mr-1"></i>Basic Limited</span>';
+                if (h.heroType === 'VIP') typeContainer.innerHTML = '<span class="text-[10px] font-bold text-yellow-400 bg-yellow-900/30 px-2 py-0.5 rounded border border-yellow-500/30"><i class="fa-solid fa-crown mr-1"></i>VIP</span>';
+                else if (h.heroType === 'Limited') typeContainer.innerHTML = '<span class="text-[10px] font-bold text-purple-400 bg-purple-900/30 px-2 py-0.5 rounded border border-purple-500/30"><i class="fa-solid fa-star mr-1"></i>Limited</span>';
+                else if (h.heroType === 'Basic Limited' || h.heroType === 'Basic Banner') typeContainer.innerHTML = '<span class="text-[10px] font-bold text-green-400 bg-green-900/30 px-2 py-0.5 rounded border border-green-500/30"><i class="fa-solid fa-leaf mr-1"></i>Basic</span>';
                 else typeContainer.innerHTML = '';
 
                 const awakenContainer = document.getElementById('modalAwakenContainer');
-                if (h.hasAwaken === 'Yes') {
-                    awakenContainer.innerHTML = '<span class="text-xs font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-500/30 flex items-center gap-1"><i class="fa-solid fa-fire-flame-curved text-[10px]"></i>Awakened</span>';
-                } else {
-                    awakenContainer.innerHTML = '';
+                awakenContainer.innerHTML = (h.hasAwaken === 'Yes') ? '<span class="text-[10px] font-bold text-red-400 bg-red-900/30 px-2 py-0.5 rounded border border-red-500/30 flex items-center gap-1"><i class="fa-solid fa-fire-flame-curved text-[10px]"></i>Awakened</span>' : '';
+
+                // Stats & Highlighting
+                const earlyEl = document.getElementById('modalEarly');
+                const lateEl = document.getElementById('modalLate');
+                const sacrEl = document.getElementById('modalSacr');
+                earlyEl.innerText = h.early || '-';
+                lateEl.innerText = h.late || '-';
+                sacrEl.innerText = h.sacrament || '-';
+
+                [earlyEl, lateEl, sacrEl].forEach(el => {
+                    el.parentElement.className = "bg-gray-800/80 rounded-lg p-2.5 text-center border border-gray-700 shadow-inner group transition-all hover:bg-gray-700/80 relative overflow-hidden";
+                    el.className = "text-lg font-black text-white";
+                });
+                
+                const activeModeId = currentMode === 'sacrament' ? 'modalSacr' : `modal${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)}`;
+                const activeStat = document.getElementById(activeModeId);
+                if (activeStat) {
+                    activeStat.className = "text-2xl font-black text-yellow-500 drop-shadow-sm";
                 }
 
-                document.getElementById('modalEarly').innerText = h.early || '-';
-                document.getElementById('modalLate').innerText = h.late || '-';
-                document.getElementById('modalSacr').innerText = h.sacrament || '-';
-                ['early', 'late', 'sacr'].forEach(m => document.getElementById(`modal${m.charAt(0).toUpperCase()+m.slice(1)}`).className = "text-xl font-black text-gray-500");
-                const activeId = currentMode === 'sacrament' ? 'modalSacr' : `modal${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)}`;
-                document.getElementById(activeId).className = "text-2xl font-black text-yellow-400 drop-shadow-lg";
-                
                 document.getElementById('modalRole').innerText = h.role || "No specific role defined.";
                 document.getElementById('modalNotes').innerText = h.notes || "No analysis available.";
 
-                let skillHtml = '';
-                if (h.skillName) {
-                    skillHtml += `<div class="mb-3"><h4 class="text-base font-black text-blue-400 mb-1">${h.skillName}</h4><div class="h-px bg-gray-700/50 w-full"></div></div>`;
-                }
+                // Tab 1: Skill
+                let skillHtml = h.skillName ? `<div class="mb-3"><h4 class="text-base font-black text-blue-400 mb-1">${h.skillName}</h4><div class="h-px bg-gray-700/50 w-full mb-3"></div></div>` : '';
                 skillHtml += `<div class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">${h.skill || "No skill data available."}</div>`;
                 document.getElementById('content-skill').innerHTML = skillHtml;
                 
-                let sacrHtml = '';
-                if (h.sacramentName) {
-                    sacrHtml += `<div class="flex-shrink-0 mb-2"><h4 class="text-base font-black text-yellow-400 mb-1">${h.sacramentName}</h4><div class="h-px bg-gray-700/50 w-full"></div></div>`;
-                }
+                // Tab 2: Sacrament
+                let sacrHtml = h.sacramentName ? `<div class="mb-3"><h4 class="text-base font-black text-yellow-400 mb-1">${h.sacramentName}</h4><div class="h-px bg-gray-700/50 w-full mb-3"></div></div>` : '';
                 let hasSacr = false;
                 const sacrs = [h.s1, h.s2, h.s3, h.s4, h.s5];
                 sacrs.forEach((text, index) => {
-                    if(text && text.trim() !== '') {
+                    if (text && text.trim() !== '') {
                         hasSacr = true;
                         sacrHtml += `
-                        <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
+                        <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0 mb-3">
                             <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-0.5">
                                 <i class="fa-solid fa-star text-2xl sm:text-3xl text-transparent" style="-webkit-text-stroke: 2px #eab308;"></i>
                                 <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[1px] sm:mt-[2px] text-[10px] sm:text-[11px] font-black text-yellow-500">${index + 1}</span>
@@ -707,18 +825,16 @@
                 });
                 document.getElementById('content-sacrament').innerHTML = hasSacr ? sacrHtml : '<div class="text-center text-gray-500 py-6 italic">No sacrament data available.</div>';
 
-                let awakenHtml = '';
-                if (h.awakenName) {
-                    awakenHtml += `<div class="flex-shrink-0 mb-2"><h4 class="text-base font-black text-red-400 mb-1">${h.awakenName}</h4><div class="h-px bg-gray-700/50 w-full"></div></div>`;
-                }
+                // Tab 3: Awaken
+                let awakenHtml = h.awakenName ? `<div class="mb-3"><h4 class="text-base font-black text-red-500 mb-1">${h.awakenName}</h4><div class="h-px bg-gray-700/50 w-full mb-3"></div></div>` : '';
                 let hasAwaken = false;
                 if (h.hasAwaken === 'Yes') {
                     const awakens = [h.aw1, h.aw2, h.aw3];
                     awakens.forEach((text, index) => {
-                        if(text && text.trim() !== '') {
+                        if (text && text.trim() !== '') {
                             hasAwaken = true;
                             awakenHtml += `
-                            <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0">
+                            <div class="flex gap-3 sm:gap-4 items-start border-b border-gray-700/50 pb-3 last:border-0 mb-3">
                                 <div class="relative inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 mt-0.5">
                                     <img src="https://raw.githubusercontent.com/nekowoah/mwtierlist/main/images/icons/fire-hollow.svg" class="w-full h-full object-contain">
                                     <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-[2px] sm:mt-[3px] text-[10px] sm:text-[12px] font-black text-red-500">${index + 1}</span>
@@ -730,70 +846,46 @@
                 }
                 document.getElementById('content-awakening').innerHTML = hasAwaken ? awakenHtml : '<div class="text-center text-gray-500 py-6 italic">This hero has not been awakened yet.</div>';
 
+                // Tab 4: History
                 const historyContainer = document.getElementById('modalHistoryContent');
                 if (cachedLogs && cachedLogs.length > 0) {
-                    // Match by direct heroId or legacy fuzzy match by name
                     const heroLogs = cachedLogs.filter(log => log.heroId === h.id || (log.details && log.details.includes(h.name)));
-                    if (heroLogs.length > 0) {
-                        historyContainer.innerHTML = heroLogs.map(l => {
-                            let dateStr = "Unknown Date";
-                            try { dateStr = new Date(l.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch(e) {}
-                            return `<div class="bg-gray-800/80 border border-gray-700 p-3 rounded-lg text-xs flex gap-2">
-                                <span class="font-bold w-16 ${l.action==='CREATE'?'text-green-400':l.action==='DELETE'?'text-red-400':'text-blue-400'}">${l.action}</span>
-                                <div class="flex-1">
-                                    <span class="font-bold text-indigo-400 block mb-1">${dateStr}</span>
-                                    <span class="text-gray-300 block whitespace-pre-wrap">${l.details}</span>
-                                </div>
-                            </div>`;
-                        }).join('');
-                    } else {
-                        historyContainer.innerHTML = `<div class="text-center text-gray-500 py-6 italic">No recorded history for this hero yet.</div>`;
-                    }
+                    historyContainer.innerHTML = heroLogs.length > 0 ? heroLogs.map(l => {
+                        let dateStr = "Unknown Date";
+                        try { dateStr = new Date(l.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch(e) {}
+                        return `<div class="bg-gray-800/60 border border-gray-700 p-3 rounded-lg text-xs flex gap-3 shadow-sm hover:border-gray-600 transition-all mb-3">
+                            <span class="font-black w-14 flex-shrink-0 text-center py-1 ${l.action==='CREATE'?'text-green-400':l.action==='DELETE'?'text-red-400':'text-blue-400'}">${l.action}</span>
+                            <div class="flex-1">
+                                <span class="font-bold text-indigo-400 block mb-0.5">${dateStr}</span>
+                                <span class="text-gray-300 block whitespace-pre-wrap">${l.details}</span>
+                            </div>
+                        </div>`;
+                    }).join('') : `<div class="text-center text-gray-500 py-12 italic">No recorded history.</div>`;
                 } else {
-                    historyContainer.innerHTML = `<div class="text-center text-gray-500 py-6"><i class="fas fa-circle-notch fa-spin mr-2"></i> Loading logs...</div>`;
+                    historyContainer.innerHTML = `<div class="text-center text-gray-500 py-12"><i class="fas fa-circle-notch fa-spin mr-2"></i> Loading logs...</div>`;
                 }
 
-                app.switchModalTab('overview');
-                app.switchSkillTab('skill');
+                app.switchModalTab('skill');
                 document.getElementById('viewModal').classList.remove('hidden');
             };
 
             const closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
             const switchModalTab = (tab) => {
-                const tabs = ['overview', 'skills', 'history'];
+                const tabs = ['skill', 'sacrament', 'awaken', 'history'];
                 tabs.forEach(t => {
                     const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`);
                     const content = document.getElementById(`modal${t.charAt(0).toUpperCase() + t.slice(1)}Content`);
                     if(!btn || !content) return;
                     
                     if (t === tab) {
-                        btn.className = "px-4 py-2 text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 transition-colors";
+                        btn.className = "flex-1 px-4 py-3 text-xs sm:text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 bg-indigo-500/5 transition-all outline-none";
                         content.classList.remove('hidden');
                         content.classList.add('flex');
                     } else {
-                        btn.className = "px-4 py-2 text-sm font-bold text-gray-500 hover:text-white border-b-2 border-transparent transition-colors";
+                        btn.className = "flex-1 px-4 py-3 text-xs sm:text-sm font-bold text-gray-500 hover:text-gray-200 border-b-2 border-transparent transition-all outline-none";
                         content.classList.add('hidden');
                         content.classList.remove('flex');
-                    }
-                });
-            };
-
-            const switchSkillTab = (tab) => {
-                const tabs = ['skill', 'sacrament', 'awakening'];
-                tabs.forEach(t => {
-                    const btn = document.getElementById(`subtab-${t}`);
-                    const content = document.getElementById(`content-${t}`);
-                    if(!btn || !content) return;
-
-                    if (t === tab) {
-                        btn.className = "flex-1 py-2 sm:py-1.5 rounded-md sm:rounded-full text-xs sm:text-sm font-bold bg-gray-700 text-white shadow-md transition-colors text-center";
-                        content.classList.remove('hidden');
-                        content.classList.add(t === 'skill' ? 'block' : 'flex');
-                    } else {
-                        btn.className = "flex-1 py-2 sm:py-1.5 rounded-md sm:rounded-full text-xs sm:text-sm font-bold text-gray-400 hover:text-white transition-colors text-center";
-                        content.classList.add('hidden');
-                        content.classList.remove('block', 'flex');
                     }
                 });
             };
@@ -801,10 +893,10 @@
             const toggleChangelog = async () => {
                 const modal = document.getElementById('changelogModal');
                 const content = document.getElementById('changelogContent');
-                
+
                 if (modal.classList.contains('hidden')) {
                     modal.classList.remove('hidden');
-                    
+
                     const renderLogs = (logsToRender) => {
                         if (!logsToRender || logsToRender.length === 0) {
                             content.innerHTML = '<div class="text-center text-gray-500 py-10">No recent changes found.</div>';
@@ -814,9 +906,9 @@
                         const grouped = {};
                         logsToRender.forEach(log => {
                             let dateStr = "Unknown Date";
-                            try { dateStr = new Date(log.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } 
-                            catch(e) { dateStr = log.timestamp; }
-                            
+                            try { dateStr = new Date(log.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); }
+                            catch (e) { dateStr = log.timestamp; }
+
                             if (!grouped[dateStr]) grouped[dateStr] = [];
                             grouped[dateStr].push(log);
                         });
@@ -827,7 +919,7 @@
                                 <div class="space-y-2">
                                     ${grouped[date].map(l => `
                                         <div class="bg-gray-700/30 p-2 rounded text-xs flex gap-2">
-                                            <span class="font-bold w-16 ${l.action==='CREATE'?'text-green-400':l.action==='DELETE'?'text-red-400':'text-blue-400'}">${l.action}</span>
+                                            <span class="font-bold w-16 ${l.action === 'CREATE' ? 'text-green-400' : l.action === 'DELETE' ? 'text-red-400' : 'text-blue-400'}">${l.action}</span>
                                             <span class="text-gray-300 break-words flex-1 whitespace-pre-wrap">${l.details}</span>
                                         </div>
                                     `).join('')}
@@ -846,7 +938,7 @@
                                 if (doc.exists) {
                                     let parsed = JSON.parse(doc.data().data);
                                     // Safe array check to prevent the .forEach error
-                                    if (!Array.isArray(parsed)) parsed = []; 
+                                    if (!Array.isArray(parsed)) parsed = [];
                                     cachedLogs = parsed;
                                     renderLogs(cachedLogs);
                                     return;
@@ -856,9 +948,9 @@
                             const res = await fetch(API_URL + "?view=logs");
                             let fetchedLogs = await res.json();
                             if (!Array.isArray(fetchedLogs)) fetchedLogs = [];
-                            cachedLogs = fetchedLogs; 
+                            cachedLogs = fetchedLogs;
                             renderLogs(cachedLogs);
-                        } catch(e) {
+                        } catch (e) {
                             content.innerHTML = `<div class="text-center text-red-400 py-10">Error loading logs: ${e.message}</div>`;
                         }
                     }
@@ -868,16 +960,17 @@
             };
 
             // Expose properties to TierlistEditor
-            return { 
-                init, setMode, render, closeModal, switchModalTab, switchSkillTab, 
-                setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly, 
-                toggleSidebar, exitAdmin, 
-                getHeroes: () => heroes, 
-                setHeroes: (h) => heroes = h 
+            return {
+                init, setMode, render, closeModal, switchModalTab,
+                setFilter, toggleChangelog, toggleTypeMenu, toggleType, toggleAwakenedOnly,
+                toggleSidebar, exitAdmin,
+                getHeroes: () => heroes,
+                setHeroes: (h) => heroes = h
             };
         })();
 
         window.onload = app.init;
     </script>
 </body>
+
 </html>
