@@ -104,10 +104,10 @@
 /* Thinner scrollbar for modal on mobile */
 @media (max-width: 767px) {
     #viewModal::-webkit-scrollbar {
-        width: 4px;
+        width: 2px;
     }
     #viewModal::-webkit-scrollbar-thumb {
-        background: rgba(var(--color-gray-500), 0.5);
+        background: rgba(var(--color-gray-500), 0.3);
         border-radius: 10px;
     }
 }
